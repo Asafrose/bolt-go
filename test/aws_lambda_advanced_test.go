@@ -8,6 +8,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"testing"
 	"time"
 
@@ -20,6 +21,7 @@ import (
 
 // TestAwsLambdaAdvanced implements the missing tests from AwsLambdaReceiver.spec.ts
 func TestAwsLambdaAdvanced(t *testing.T) {
+	t.Parallel()
 	t.Run("should instantiate with default logger", func(t *testing.T) {
 		receiver := receivers.NewAwsLambdaReceiver(types.AwsLambdaReceiverOptions{
 			SigningSecret: fakeSigningSecret,
@@ -113,7 +115,7 @@ func TestAwsLambdaAdvanced(t *testing.T) {
 				"Content-Type":              "application/x-www-form-urlencoded",
 				"Host":                      "xxx.execute-api.ap-northeast-1.amazonaws.com",
 				"User-Agent":                "Slackbot 1.0 (+https://api.slack.com/robots)",
-				"X-Slack-Request-Timestamp": fmt.Sprintf("%d", timestamp),
+				"X-Slack-Request-Timestamp": strconv.FormatInt(timestamp, 10),
 				"X-Slack-Signature":         createValidSignature(body, timestamp, fakeSigningSecret),
 			},
 			MultiValueHeaders:               make(map[string][]string),
@@ -181,7 +183,7 @@ func TestAwsLambdaAdvanced(t *testing.T) {
 				"Content-Type":              "application/json",
 				"Host":                      "xxx.execute-api.ap-northeast-1.amazonaws.com",
 				"User-Agent":                "Slackbot 1.0 (+https://api.slack.com/robots)",
-				"X-Slack-Request-Timestamp": fmt.Sprintf("%d", timestamp),
+				"X-Slack-Request-Timestamp": strconv.FormatInt(timestamp, 10),
 				"X-Slack-Signature":         createValidSignature(eventBody, timestamp, fakeSigningSecret), // Sign the decoded body
 			},
 			MultiValueHeaders:               make(map[string][]string),
@@ -234,7 +236,7 @@ func TestAwsLambdaAdvanced(t *testing.T) {
 				"Content-Type":              "application/json",
 				"Host":                      "xxx.execute-api.ap-northeast-1.amazonaws.com",
 				"User-Agent":                "Slackbot 1.0 (+https://api.slack.com/robots)",
-				"X-Slack-Request-Timestamp": fmt.Sprintf("%d", timestamp),
+				"X-Slack-Request-Timestamp": strconv.FormatInt(timestamp, 10),
 				"X-Slack-Signature":         "v0=invalid-signature-should-be-ignored",
 			},
 			MultiValueHeaders:               make(map[string][]string),
@@ -299,7 +301,7 @@ func TestAwsLambdaAdvanced(t *testing.T) {
 				"content-type":              "application/json",                                       // lowercase with dash
 				"host":                      "xxx.execute-api.ap-northeast-1.amazonaws.com",           // lowercase
 				"user-agent":                "Slackbot 1.0 (+https://api.slack.com/robots)",           // lowercase with dash
-				"x-slack-request-timestamp": fmt.Sprintf("%d", timestamp),                             // lowercase with dashes
+				"x-slack-request-timestamp": strconv.FormatInt(timestamp, 10),                         // lowercase with dashes
 				"x-slack-signature":         createValidSignature(body, timestamp, fakeSigningSecret), // lowercase with dashes
 			},
 			MultiValueHeaders:               make(map[string][]string),
@@ -343,7 +345,7 @@ func TestAwsLambdaAdvanced(t *testing.T) {
 
 		ctx := context.Background()
 		err = receiver.Start(ctx)
-		assert.NoError(t, err, "Start method should work")
+		require.NoError(t, err, "Start method should work")
 	})
 
 	t.Run("should have stop method", func(t *testing.T) {
@@ -365,7 +367,7 @@ func TestAwsLambdaAdvanced(t *testing.T) {
 		require.NoError(t, err)
 
 		err = receiver.Stop(ctx)
-		assert.NoError(t, err, "Stop method should work")
+		require.NoError(t, err, "Stop method should work")
 	})
 
 	t.Run("should return a 404 if app has no registered handlers for an incoming event", func(t *testing.T) {
@@ -410,7 +412,9 @@ func TestAwsLambdaAdvanced(t *testing.T) {
 		app.Event("app_mention", func(args bolt.SlackEventMiddlewareArgs) error {
 			// Acknowledge the event
 			if args.Ack != nil {
-				args.Ack(nil)
+				if err := args.Ack(nil); err != nil {
+					t.Errorf("Failed to acknowledge event: %v", err)
+				}
 			}
 			return args.Next()
 		})
@@ -495,7 +499,7 @@ func TestAwsLambdaAdvanced(t *testing.T) {
 			Body: eventBody,
 			Headers: map[string]string{
 				"Content-Type":              "application/json",
-				"X-Slack-Request-Timestamp": fmt.Sprintf("%d", timestamp),
+				"X-Slack-Request-Timestamp": strconv.FormatInt(timestamp, 10),
 				"X-Slack-Signature":         invalidSignature,
 			},
 			IsBase64Encoded: false,
@@ -589,7 +593,7 @@ func TestAwsLambdaAdvanced(t *testing.T) {
 			Body: eventBody,
 			Headers: map[string]string{
 				"Content-Type":              "application/json",
-				"X-Slack-Request-Timestamp": fmt.Sprintf("%d", timestamp),
+				"X-Slack-Request-Timestamp": strconv.FormatInt(timestamp, 10),
 				"X-Slack-Signature":         "completely_invalid_signature",
 			},
 			IsBase64Encoded: false,
@@ -663,7 +667,7 @@ func TestAwsLambdaAdvanced(t *testing.T) {
 				"Content-Type":              "application/x-www-form-urlencoded",
 				"Host":                      "xxx.execute-api.ap-northeast-1.amazonaws.com",
 				"User-Agent":                "Slackbot 1.0 (+https://api.slack.com/robots)",
-				"X-Slack-Request-Timestamp": fmt.Sprintf("%d", timestamp),
+				"X-Slack-Request-Timestamp": strconv.FormatInt(timestamp, 10),
 				"X-Slack-Signature":         createValidSignature(formBody, timestamp, fakeSigningSecret),
 			},
 			MultiValueHeaders:               make(map[string][]string),
@@ -747,7 +751,7 @@ func createDummyAWSEvent(body string, timestamp int64, signingSecret string) rec
 			"Content-Type":              "application/json",
 			"Host":                      "xxx.execute-api.ap-northeast-1.amazonaws.com",
 			"User-Agent":                "Slackbot 1.0 (+https://api.slack.com/robots)",
-			"X-Slack-Request-Timestamp": fmt.Sprintf("%d", timestamp),
+			"X-Slack-Request-Timestamp": strconv.FormatInt(timestamp, 10),
 			"X-Slack-Signature":         signature,
 		},
 		MultiValueHeaders:               make(map[string][]string),

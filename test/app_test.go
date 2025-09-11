@@ -12,6 +12,7 @@ import (
 // Test constants are now in test_helpers.go
 
 func TestAppBasicFeatures(t *testing.T) {
+	t.Parallel()
 	t.Run("constructor", func(t *testing.T) {
 		t.Run("with minimal configuration", func(t *testing.T) {
 			app, err := bolt.New(bolt.AppOptions{
@@ -38,7 +39,7 @@ func TestAppBasicFeatures(t *testing.T) {
 
 		t.Run("should fail without required configuration", func(t *testing.T) {
 			_, err := bolt.New(bolt.AppOptions{})
-			assert.Error(t, err)
+			require.Error(t, err)
 			assert.Contains(t, err.Error(), "signing secret required")
 		})
 
@@ -47,7 +48,7 @@ func TestAppBasicFeatures(t *testing.T) {
 				SocketMode: true,
 			})
 
-			assert.Error(t, err)
+			require.Error(t, err)
 			assert.Contains(t, err.Error(), "app token required")
 		})
 	})
@@ -66,7 +67,7 @@ func TestAppBasicFeatures(t *testing.T) {
 			// Initialize the app
 			ctx := context.Background()
 			err = app.Init(ctx)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 		})
 	})
 
@@ -201,6 +202,7 @@ func TestAppBasicFeatures(t *testing.T) {
 }
 
 func TestAppLogLevels(t *testing.T) {
+	t.Parallel()
 	t.Run("should set log level correctly", func(t *testing.T) {
 		logLevel := bolt.LogLevelDebug
 		app, err := bolt.New(bolt.AppOptions{
@@ -226,6 +228,7 @@ func TestAppLogLevels(t *testing.T) {
 }
 
 func TestAppIgnoreSelf(t *testing.T) {
+	t.Parallel()
 	t.Run("should enable ignore self by default", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
 			Token:         &fakeToken,

@@ -33,6 +33,7 @@ func createSlashCommandBody(command, text string) []byte {
 }
 
 func TestAppCommandRouting(t *testing.T) {
+	t.Parallel()
 	t.Run("should route slash command to handler", func(t *testing.T) {
 		handlerCalled := false
 

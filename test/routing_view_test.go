@@ -72,6 +72,7 @@ func createViewClosedBody(callbackID string) []byte {
 }
 
 func TestAppViewRouting(t *testing.T) {
+	t.Parallel()
 	t.Run("should route view submission by callback_id", func(t *testing.T) {
 		handlerCalled := false
 

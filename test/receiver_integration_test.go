@@ -13,6 +13,7 @@ import (
 )
 
 func TestHTTPReceiverIntegration(t *testing.T) {
+	t.Parallel()
 	t.Run("should create HTTP receiver with valid options", func(t *testing.T) {
 		receiver := receivers.NewHTTPReceiver(types.HTTPReceiverOptions{
 			SigningSecret: fakeSigningSecret,
@@ -33,7 +34,7 @@ func TestHTTPReceiverIntegration(t *testing.T) {
 		require.NoError(t, err)
 
 		err = receiver.Init(app)
-		assert.NoError(t, err, "Receiver should initialize with app")
+		require.NoError(t, err, "Receiver should initialize with app")
 	})
 
 	t.Run("should start and stop receiver lifecycle", func(t *testing.T) {
@@ -68,13 +69,13 @@ func TestHTTPReceiverIntegration(t *testing.T) {
 		defer stopCancel()
 
 		err = receiver.Stop(stopCtx)
-		assert.NoError(t, err, "Receiver should stop without error")
+		require.NoError(t, err, "Receiver should stop without error")
 
 		// Wait for start to complete
 		select {
 		case err := <-startErr:
 			// Context cancellation is expected
-			assert.Error(t, err, "Start should return error when context is cancelled")
+			require.Error(t, err, "Start should return error when context is cancelled")
 		case <-time.After(2 * time.Second):
 			t.Error("Start did not return within timeout")
 		}
@@ -101,7 +102,7 @@ func TestHTTPReceiverIntegration(t *testing.T) {
 		require.NoError(t, err)
 
 		err = receiver.Init(app)
-		assert.NoError(t, err, "Receiver should initialize with custom endpoints")
+		require.NoError(t, err, "Receiver should initialize with custom endpoints")
 	})
 
 	t.Run("should handle process before response option", func(t *testing.T) {
@@ -119,11 +120,12 @@ func TestHTTPReceiverIntegration(t *testing.T) {
 		require.NoError(t, err)
 
 		err = receiver.Init(app)
-		assert.NoError(t, err, "Receiver should initialize with process before response")
+		require.NoError(t, err, "Receiver should initialize with process before response")
 	})
 }
 
 func TestSocketModeReceiverIntegration(t *testing.T) {
+	t.Parallel()
 	t.Run("should create socket mode receiver with valid options", func(t *testing.T) {
 		receiver := receivers.NewSocketModeReceiver(types.SocketModeReceiverOptions{
 			AppToken: fakeAppToken,
@@ -144,7 +146,7 @@ func TestSocketModeReceiverIntegration(t *testing.T) {
 		require.NoError(t, err)
 
 		err = receiver.Init(app)
-		assert.NoError(t, err, "Socket mode receiver should initialize with app")
+		require.NoError(t, err, "Socket mode receiver should initialize with app")
 	})
 
 	t.Run("should handle connection lifecycle", func(t *testing.T) {
@@ -175,7 +177,7 @@ func TestSocketModeReceiverIntegration(t *testing.T) {
 		select {
 		case err := <-startErr:
 			// We expect an error since we're using a fake token, but it should be a connection error
-			assert.Error(t, err, "Should get connection error with fake token")
+			require.Error(t, err, "Should get connection error with fake token")
 		case <-time.After(2 * time.Second):
 			t.Error("Start did not return within timeout")
 		}
@@ -201,11 +203,12 @@ func TestSocketModeReceiverIntegration(t *testing.T) {
 		require.NoError(t, err)
 
 		err = receiver.Init(app)
-		assert.NoError(t, err, "Receiver should initialize with custom properties")
+		require.NoError(t, err, "Receiver should initialize with custom properties")
 	})
 }
 
 func TestReceiverOptions(t *testing.T) {
+	t.Parallel()
 	t.Run("should validate HTTP receiver options", func(t *testing.T) {
 		// Test with minimal options
 		receiver := receivers.NewHTTPReceiver(types.HTTPReceiverOptions{
@@ -250,6 +253,7 @@ func TestReceiverOptions(t *testing.T) {
 }
 
 func TestReceiverErrorHandling(t *testing.T) {
+	t.Parallel()
 	t.Run("should handle initialization without app", func(t *testing.T) {
 		receiver := receivers.NewHTTPReceiver(types.HTTPReceiverOptions{
 			SigningSecret: fakeSigningSecret,
@@ -260,7 +264,7 @@ func TestReceiverErrorHandling(t *testing.T) {
 		defer cancel()
 
 		err := receiver.Start(ctx)
-		assert.Error(t, err, "Should fail to start without initialization")
+		require.Error(t, err, "Should fail to start without initialization")
 	})
 
 	t.Run("should handle socket mode initialization without app", func(t *testing.T) {
@@ -273,7 +277,7 @@ func TestReceiverErrorHandling(t *testing.T) {
 		defer cancel()
 
 		err := receiver.Start(ctx)
-		assert.Error(t, err, "Should fail to start without initialization")
+		require.Error(t, err, "Should fail to start without initialization")
 	})
 
 	t.Run("should handle stop before start", func(t *testing.T) {
@@ -320,7 +324,7 @@ func TestReceiverErrorHandling(t *testing.T) {
 
 		// Start should handle the cancelled context gracefully
 		err = receiver.Start(ctx)
-		assert.Error(t, err, "Should return error for cancelled context")
+		require.Error(t, err, "Should return error for cancelled context")
 		assert.Contains(t, err.Error(), "context", "Error should mention context cancellation")
 	})
 }

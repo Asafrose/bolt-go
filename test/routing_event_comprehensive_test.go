@@ -14,6 +14,7 @@ import (
 
 // TestEventRoutingComprehensive implements the missing tests from routing-event.spec.ts
 func TestEventRoutingComprehensive(t *testing.T) {
+	t.Parallel()
 	t.Run("should route a Slack event to a handler registered with event(string)", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
 			Token:         &fakeToken,
@@ -196,6 +197,7 @@ func createAppMentionEventBodyComprehensive(userID, channelID, text string) []by
 
 // TestEventRoutingInvalidSubtype tests the invalid message subtype validation
 func TestEventRoutingInvalidSubtype(t *testing.T) {
+	t.Parallel()
 	t.Run("should throw if provided invalid message subtype event names", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
 			Token:         &fakeToken,

@@ -1,0 +1,52 @@
+{
+  "linters": {
+    "enable": [
+      "goimports",
+      "testifylint",
+      "bodyclose",
+      "durationcheck",
+      "errname",
+      "errorlint",
+      "exptostd",
+      "gosec",
+      "misspell",
+      "nilnesserr",
+      "noctx",
+      "perfsprint",
+      "prealloc",
+      "reassign",
+      "rowserrcheck",
+      "sloglint",
+      "spancheck",
+      "sqlclosecheck",
+      "unconvert",
+      "usestdlibvars",
+      "paralleltest"
+    ]
+  },
+  "issues": {
+    "max-issues-per-linter": 0,
+    "max-same-issues": 0,
+    "exclude-rules": [
+      {
+        "path": "_test\\.go",
+        "linters": ["gosec"]
+      }
+    ]
+  },
+  "linters-settings": {
+    "testifylint": {
+      "enable-all": true
+    },
+    "prealloc": {
+      "simple": true
+    },
+    "gosec": {
+      "excludes": ["G115"]
+    },
+    "paralleltest": {
+      "ignore-missing": false,
+      "ignore-missing-subtests": true
+    }
+  }
+}

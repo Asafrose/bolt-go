@@ -14,6 +14,7 @@ import (
 
 // TestShortcutRoutingComprehensive implements the missing tests from routing-shortcut.spec.ts
 func TestShortcutRoutingComprehensive(t *testing.T) {
+	t.Parallel()
 	t.Run("should route a Slack shortcut event to a handler registered with shortcut(string) that matches the callback ID", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
 			Token:         &fakeToken,

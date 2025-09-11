@@ -25,6 +25,7 @@ var mockMiddlewareSingle = []types.Middleware[types.SlackCustomFunctionMiddlewar
 var mockMiddlewareMultiple = []types.Middleware[types.SlackCustomFunctionMiddlewareArgs]{mockFn, mockFn2}
 
 func TestCustomFunctionConstructor(t *testing.T) {
+	t.Parallel()
 	t.Run("should accept single function as middleware", func(t *testing.T) {
 		fn := functions.NewCustomFunctionWithMiddleware("test_callback_id", mockMiddlewareSingle, functions.CustomFunctionOptions{AutoAcknowledge: true})
 		assert.NotNil(t, fn)
@@ -39,6 +40,7 @@ func TestCustomFunctionConstructor(t *testing.T) {
 }
 
 func TestCustomFunctionGetListeners(t *testing.T) {
+	t.Parallel()
 	t.Run("should return an ordered array of listeners used to map function events to handlers", func(t *testing.T) {
 		cbId := "test_executed_callback_id"
 		fn := functions.NewCustomFunctionWithMiddleware(cbId, mockMiddlewareSingle, functions.CustomFunctionOptions{AutoAcknowledge: true})
@@ -72,6 +74,7 @@ func TestCustomFunctionGetListeners(t *testing.T) {
 }
 
 func TestCustomFunctionValidate(t *testing.T) {
+	t.Parallel()
 	t.Run("should throw an error if callback_id is not valid", func(t *testing.T) {
 		defer func() {
 			if r := recover(); r != nil {
@@ -126,6 +129,7 @@ func TestCustomFunctionValidate(t *testing.T) {
 }
 
 func TestCustomFunctionUtilityFunctions(t *testing.T) {
+	t.Parallel()
 	t.Run("complete should call functions.completeSuccess", func(t *testing.T) {
 		// Create a mock client
 		client := slack.New("fake-token")
@@ -141,7 +145,7 @@ func TestCustomFunctionUtilityFunctions(t *testing.T) {
 
 		// Call complete - this will now make a real API call and should get invalid_auth
 		err := complete(map[string]interface{}{})
-		assert.Error(t, err, "Complete function should error with invalid auth")
+		require.Error(t, err, "Complete function should error with invalid auth")
 		assert.Contains(t, err.Error(), "invalid_auth", "Should get invalid_auth error from Slack API")
 	})
 
@@ -184,7 +188,7 @@ func TestCustomFunctionUtilityFunctions(t *testing.T) {
 
 		// Call fail - this will now make a real API call and should get invalid_auth
 		err := fail("boom")
-		assert.Error(t, err, "Fail function should error with invalid auth")
+		require.Error(t, err, "Fail function should error with invalid auth")
 		assert.Contains(t, err.Error(), "invalid_auth", "Should get invalid_auth error from Slack API")
 	})
 
@@ -235,7 +239,7 @@ func TestCustomFunctionUtilityFunctions(t *testing.T) {
 			// This is implementation-specific but the core concept is that when AutoAcknowledge is false,
 			// the automatic acknowledgment should not happen
 			assert.NotNil(t, listeners)
-			assert.True(t, len(listeners) > 0, "Should have some listeners")
+			assert.Positive(t, listeners, "Should have some listeners")
 
 			// The exact verification depends on implementation, but the key is that
 			// autoAcknowledge should not be in the middleware chain when disabled
@@ -286,6 +290,7 @@ func TestCustomFunctionUtilityFunctions(t *testing.T) {
 }
 
 func TestCustomFunctionIntegrationWithApp(t *testing.T) {
+	t.Parallel()
 	t.Run("should integrate with app using custom function", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
 			Token:         &fakeToken,
@@ -373,7 +378,7 @@ func TestCustomFunctionIntegrationWithApp(t *testing.T) {
 		// Test that we can call the listeners (this simulates app processing)
 		for _, listener := range listeners {
 			err := listener(mockArgs)
-			assert.NoError(t, err, "Listener should execute without error")
+			require.NoError(t, err, "Listener should execute without error")
 		}
 
 		// Note: executionCompleted would be true if we had proper payload with test_input="success"
@@ -383,6 +388,7 @@ func TestCustomFunctionIntegrationWithApp(t *testing.T) {
 }
 
 func TestCustomFunctionAdvancedScenarios(t *testing.T) {
+	t.Parallel()
 	t.Run("should handle multiple middleware functions in order", func(t *testing.T) {
 		callbackID := "multi_middleware_test"
 		executionOrder := []string{}
@@ -463,7 +469,7 @@ func TestCustomFunctionAdvancedScenarios(t *testing.T) {
 		assert.NotEmpty(t, manualListeners)
 
 		// Both should have listeners, potentially different counts
-		assert.Greater(t, len(autoListeners), 0)
-		assert.Greater(t, len(manualListeners), 0)
+		assert.NotEmpty(t, autoListeners)
+		assert.NotEmpty(t, manualListeners)
 	})
 }

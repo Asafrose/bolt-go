@@ -12,10 +12,12 @@ import (
 	"github.com/slack-go/slack"
 	"github.com/slack-go/slack/slackevents"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // TestBuiltinComprehensive implements all missing tests from builtin.spec.ts
 func TestBuiltinComprehensive(t *testing.T) {
+	t.Parallel()
 
 	// Test data
 	fakeBotUserId := "B123456"
@@ -32,7 +34,7 @@ func TestBuiltinComprehensive(t *testing.T) {
 				args := createDummyMessageArgs(matchingText, ctx)
 
 				err := middleware(args)
-				assert.NoError(t, err)
+				require.NoError(t, err)
 
 				// Verify Next was called
 				assert.True(t, args.Context.Custom["nextCalled"].(bool))
@@ -44,7 +46,7 @@ func TestBuiltinComprehensive(t *testing.T) {
 				args := createDummyAppMentionArgs(matchingText, ctx)
 
 				err := middleware(args)
-				assert.NoError(t, err)
+				require.NoError(t, err)
 
 				// Verify Next was called
 				assert.True(t, args.Context.Custom["nextCalled"].(bool))
@@ -56,15 +58,12 @@ func TestBuiltinComprehensive(t *testing.T) {
 				args := createDummyMessageArgs(nonMatchingText, ctx)
 
 				err := middleware(args)
-				assert.NoError(t, err)
+				require.NoError(t, err)
 
 				// Verify Next was NOT called
 				nextCalled, exists := args.Context.Custom["nextCalled"]
 				if exists {
 					assert.False(t, nextCalled.(bool))
-				} else {
-					// Next was not called, which is what we expect
-					assert.True(t, true)
 				}
 			})
 
@@ -74,15 +73,12 @@ func TestBuiltinComprehensive(t *testing.T) {
 				args := createDummyAppMentionArgs(nonMatchingText, ctx)
 
 				err := middleware(args)
-				assert.NoError(t, err)
+				require.NoError(t, err)
 
 				// Verify Next was NOT called
 				nextCalled, exists := args.Context.Custom["nextCalled"]
 				if exists {
 					assert.False(t, nextCalled.(bool))
-				} else {
-					// Next was not called, which is what we expect
-					assert.True(t, true)
 				}
 			})
 
@@ -92,15 +88,12 @@ func TestBuiltinComprehensive(t *testing.T) {
 				args := createDummyMessageArgsWithBlocks(ctx)
 
 				err := middleware(args)
-				assert.NoError(t, err)
+				require.NoError(t, err)
 
 				// Verify Next was NOT called
 				nextCalled, exists := args.Context.Custom["nextCalled"]
 				if exists {
 					assert.False(t, nextCalled.(bool))
-				} else {
-					// Next was not called, which is what we expect
-					assert.True(t, true)
 				}
 			})
 		})
@@ -116,7 +109,7 @@ func TestBuiltinComprehensive(t *testing.T) {
 				args := createDummyMessageArgs(matchingText, ctx)
 
 				err := middleware(args)
-				assert.NoError(t, err)
+				require.NoError(t, err)
 
 				// Verify Next was called and matches were set
 				assert.True(t, args.Context.Custom["nextCalled"].(bool))
@@ -129,7 +122,7 @@ func TestBuiltinComprehensive(t *testing.T) {
 				args := createDummyAppMentionArgs(matchingText, ctx)
 
 				err := middleware(args)
-				assert.NoError(t, err)
+				require.NoError(t, err)
 
 				// Verify Next was called and matches were set
 				assert.True(t, args.Context.Custom["nextCalled"].(bool))
@@ -142,15 +135,12 @@ func TestBuiltinComprehensive(t *testing.T) {
 				args := createDummyMessageArgs(nonMatchingText, ctx)
 
 				err := middleware(args)
-				assert.NoError(t, err)
+				require.NoError(t, err)
 
 				// Verify Next was NOT called
 				nextCalled, exists := args.Context.Custom["nextCalled"]
 				if exists {
 					assert.False(t, nextCalled.(bool))
-				} else {
-					// Next was not called, which is what we expect
-					assert.True(t, true)
 				}
 			})
 
@@ -160,15 +150,12 @@ func TestBuiltinComprehensive(t *testing.T) {
 				args := createDummyAppMentionArgs(nonMatchingText, ctx)
 
 				err := middleware(args)
-				assert.NoError(t, err)
+				require.NoError(t, err)
 
 				// Verify Next was NOT called
 				nextCalled, exists := args.Context.Custom["nextCalled"]
 				if exists {
 					assert.False(t, nextCalled.(bool))
-				} else {
-					// Next was not called, which is what we expect
-					assert.True(t, true)
 				}
 			})
 
@@ -178,15 +165,12 @@ func TestBuiltinComprehensive(t *testing.T) {
 				args := createDummyMessageArgsWithBlocks(ctx)
 
 				err := middleware(args)
-				assert.NoError(t, err)
+				require.NoError(t, err)
 
 				// Verify Next was NOT called
 				nextCalled, exists := args.Context.Custom["nextCalled"]
 				if exists {
 					assert.False(t, nextCalled.(bool))
-				} else {
-					// Next was not called, which is what we expect
-					assert.True(t, true)
 				}
 			})
 		})
@@ -200,9 +184,9 @@ func TestBuiltinComprehensive(t *testing.T) {
 			err := middleware.DirectMention()(args)
 
 			// Should return an error about missing bot user ID
-			assert.Error(t, err)
-			var contextErr *errors.ContextMissingPropertyErrorType
-			assert.ErrorAs(t, err, &contextErr)
+			require.Error(t, err)
+			var contextErr *errors.ContextMissingPropertyError
+			require.ErrorAs(t, err, &contextErr)
 			assert.Equal(t, "botUserId", contextErr.MissingProperty)
 		})
 
@@ -215,7 +199,7 @@ func TestBuiltinComprehensive(t *testing.T) {
 			args := createDummyMessageArgs(messageText, ctx)
 
 			err := middleware.DirectMention()(args)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 
 			// Verify Next was called
 			nextCalled, exists := args.Context.Custom["nextCalled"]
@@ -231,15 +215,12 @@ func TestBuiltinComprehensive(t *testing.T) {
 			args := createDummyMessageArgs(messageText, ctx)
 
 			err := middleware.DirectMention()(args)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 
 			// Verify Next was NOT called
 			nextCalled, exists := args.Context.Custom["nextCalled"]
 			if exists {
 				assert.False(t, nextCalled.(bool))
-			} else {
-				// Next was not called, which is what we expect
-				assert.True(t, true)
 			}
 		})
 
@@ -252,15 +233,12 @@ func TestBuiltinComprehensive(t *testing.T) {
 			args := createDummyMessageArgs(messageText, ctx)
 
 			err := middleware.DirectMention()(args)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 
 			// Verify Next was NOT called
 			nextCalled, exists := args.Context.Custom["nextCalled"]
 			if exists {
 				assert.False(t, nextCalled.(bool))
-			} else {
-				// Next was not called, which is what we expect
-				assert.True(t, true)
 			}
 		})
 
@@ -272,15 +250,12 @@ func TestBuiltinComprehensive(t *testing.T) {
 			args := createDummyMessageArgsWithBlocks(ctx)
 
 			err := middleware.DirectMention()(args)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 
 			// Verify Next was NOT called
 			nextCalled, exists := args.Context.Custom["nextCalled"]
 			if exists {
 				assert.False(t, nextCalled.(bool))
-			} else {
-				// Next was not called, which is what we expect
-				assert.True(t, true)
 			}
 		})
 
@@ -293,15 +268,12 @@ func TestBuiltinComprehensive(t *testing.T) {
 			args := createDummyMessageArgs(messageText, ctx)
 
 			err := middleware.DirectMention()(args)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 
 			// Verify Next was NOT called
 			nextCalled, exists := args.Context.Custom["nextCalled"]
 			if exists {
 				assert.False(t, nextCalled.(bool))
-			} else {
-				// Next was not called, which is what we expect
-				assert.True(t, true)
 			}
 		})
 	})
@@ -316,7 +288,7 @@ func TestBuiltinComprehensive(t *testing.T) {
 			args := createDummyCommandArgs(ctx)
 
 			err := middleware.IgnoreSelf()(args)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 
 			// Verify Next was called
 			nextCalled, exists := args.Context.Custom["nextCalled"]
@@ -332,15 +304,12 @@ func TestBuiltinComprehensive(t *testing.T) {
 			args := createDummyBotMessageArgs(fakeBotUserId, ctx)
 
 			err := middleware.IgnoreSelf()(args)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 
 			// Verify Next was NOT called
 			nextCalled, exists := args.Context.Custom["nextCalled"]
 			if exists {
 				assert.False(t, nextCalled.(bool))
-			} else {
-				// Next was not called, which is what we expect
-				assert.True(t, true)
 			}
 		})
 
@@ -352,15 +321,12 @@ func TestBuiltinComprehensive(t *testing.T) {
 			args := createDummyReactionAddedArgs(fakeBotUserId, ctx)
 
 			err := middleware.IgnoreSelf()(args)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 
 			// Verify Next was NOT called
 			nextCalled, exists := args.Context.Custom["nextCalled"]
 			if exists {
 				assert.False(t, nextCalled.(bool))
-			} else {
-				// Next was not called, which is what we expect
-				assert.True(t, true)
 			}
 		})
 
@@ -373,15 +339,12 @@ func TestBuiltinComprehensive(t *testing.T) {
 			args := createDummyReactionAddedArgs(fakeBotUserId, ctx)
 
 			err := middleware.IgnoreSelf()(args)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 
 			// Verify Next was NOT called
 			nextCalled, exists := args.Context.Custom["nextCalled"]
 			if exists {
 				assert.False(t, nextCalled.(bool))
-			} else {
-				// Next was not called, which is what we expect
-				assert.True(t, true)
 			}
 		})
 
@@ -395,14 +358,14 @@ func TestBuiltinComprehensive(t *testing.T) {
 			// Test member_joined_channel
 			args1 := createDummyMemberChannelArgs("member_joined_channel", fakeBotUserId, ctx)
 			err := middleware.IgnoreSelf()(args1)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			nextCalled1, exists1 := args1.Context.Custom["nextCalled"]
 			assert.True(t, exists1 && nextCalled1.(bool))
 
 			// Test member_left_channel
 			args2 := createDummyMemberChannelArgs("member_left_channel", fakeBotUserId, ctx)
 			err = middleware.IgnoreSelf()(args2)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			nextCalled2, exists2 := args2.Context.Custom["nextCalled"]
 			assert.True(t, exists2 && nextCalled2.(bool))
 		})
@@ -414,7 +377,7 @@ func TestBuiltinComprehensive(t *testing.T) {
 			args := createDummyCommandArgs(ctx)
 
 			err := middleware.OnlyCommands(args)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 
 			// Verify Next was called
 			nextCalled, exists := args.Context.Custom["nextCalled"]
@@ -426,15 +389,12 @@ func TestBuiltinComprehensive(t *testing.T) {
 			args := createDummyReactionAddedArgs("U123456", ctx)
 
 			err := middleware.OnlyCommands(args)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 
 			// Verify Next was NOT called
 			nextCalled, exists := args.Context.Custom["nextCalled"]
 			if exists {
 				assert.False(t, nextCalled.(bool))
-			} else {
-				// Next was not called, which is what we expect
-				assert.True(t, true)
 			}
 		})
 	})
@@ -446,7 +406,7 @@ func TestBuiltinComprehensive(t *testing.T) {
 
 			middleware := middleware.MatchCommandName("/hi")
 			err := middleware(args)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 
 			// Verify Next was called
 			nextCalled, exists := args.Context.Custom["nextCalled"]
@@ -459,7 +419,7 @@ func TestBuiltinComprehensive(t *testing.T) {
 
 			middleware := middleware.MatchCommandName(regexp.MustCompile("h"))
 			err := middleware(args)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 
 			// Verify Next was called
 			nextCalled, exists := args.Context.Custom["nextCalled"]
@@ -472,15 +432,12 @@ func TestBuiltinComprehensive(t *testing.T) {
 
 			middleware := middleware.MatchCommandName("/will-not-match")
 			err := middleware(args)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 
 			// Verify Next was NOT called
 			nextCalled, exists := args.Context.Custom["nextCalled"]
 			if exists {
 				assert.False(t, nextCalled.(bool))
-			} else {
-				// Next was not called, which is what we expect
-				assert.True(t, true)
 			}
 		})
 	})
@@ -491,7 +448,7 @@ func TestBuiltinComprehensive(t *testing.T) {
 			args := createDummyAppMentionArgs("hello", ctx)
 
 			err := middleware.OnlyEvents(args)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 
 			// Verify Next was called
 			nextCalled, exists := args.Context.Custom["nextCalled"]
@@ -503,15 +460,12 @@ func TestBuiltinComprehensive(t *testing.T) {
 			args := createDummyCommandArgsWithName("/hi", ctx)
 
 			err := middleware.OnlyEvents(args)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 
 			// Verify Next was NOT called
 			nextCalled, exists := args.Context.Custom["nextCalled"]
 			if exists {
 				assert.False(t, nextCalled.(bool))
-			} else {
-				// Next was not called, which is what we expect
-				assert.True(t, true)
 			}
 		})
 	})
@@ -523,7 +477,7 @@ func TestBuiltinComprehensive(t *testing.T) {
 
 			middleware := middleware.MatchEventType("app_mention")
 			err := middleware(args)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 
 			// Verify Next was called
 			nextCalled, exists := args.Context.Custom["nextCalled"]
@@ -537,14 +491,14 @@ func TestBuiltinComprehensive(t *testing.T) {
 			args1 := createDummyAppMentionArgs("hello", ctx)
 			middleware := middleware.MatchEventType(regexp.MustCompile("app_mention|app_home_opened"))
 			err := middleware(args1)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			nextCalled1, exists1 := args1.Context.Custom["nextCalled"]
 			assert.True(t, exists1 && nextCalled1.(bool))
 
 			// Test app_home_opened
 			args2 := createDummyAppHomeOpenedArgs(ctx)
 			err = middleware(args2)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			nextCalled2, exists2 := args2.Context.Custom["nextCalled"]
 			assert.True(t, exists2 && nextCalled2.(bool))
 		})
@@ -555,15 +509,12 @@ func TestBuiltinComprehensive(t *testing.T) {
 
 			middleware := middleware.MatchEventType("app_home_opened")
 			err := middleware(args)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 
 			// Verify Next was NOT called
 			nextCalled, exists := args.Context.Custom["nextCalled"]
 			if exists {
 				assert.False(t, nextCalled.(bool))
-			} else {
-				// Next was not called, which is what we expect
-				assert.True(t, true)
 			}
 		})
 
@@ -573,15 +524,12 @@ func TestBuiltinComprehensive(t *testing.T) {
 
 			middleware := middleware.MatchEventType(regexp.MustCompile("foo"))
 			err := middleware(args)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 
 			// Verify Next was NOT called
 			nextCalled, exists := args.Context.Custom["nextCalled"]
 			if exists {
 				assert.False(t, nextCalled.(bool))
-			} else {
-				// Next was not called, which is what we expect
-				assert.True(t, true)
 			}
 		})
 	})
@@ -593,7 +541,7 @@ func TestBuiltinComprehensive(t *testing.T) {
 
 			middleware := middleware.Subtype("bot_message")
 			err := middleware(args)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 
 			// Verify Next was called
 			nextCalled, exists := args.Context.Custom["nextCalled"]
@@ -606,15 +554,12 @@ func TestBuiltinComprehensive(t *testing.T) {
 
 			middleware := middleware.Subtype("me_message")
 			err := middleware(args)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 
 			// Verify Next was NOT called
 			nextCalled, exists := args.Context.Custom["nextCalled"]
 			if exists {
 				assert.False(t, nextCalled.(bool))
-			} else {
-				// Next was not called, which is what we expect
-				assert.True(t, true)
 			}
 		})
 	})
@@ -631,7 +576,7 @@ func TestBuiltinComprehensive(t *testing.T) {
 			if middleware.IsSlackEventMiddlewareArgsOptions(options) {
 				// In Go, we can't do compile-time type narrowing like TypeScript,
 				// but we can verify the function correctly identifies the type
-				assert.True(t, true, "Successfully identified as SlackEventMiddlewareArgsOptions")
+				// Success - the type was correctly identified
 			} else {
 				assert.Fail(t, "Should be identified as SlackEventMiddlewareArgsOptions")
 			}

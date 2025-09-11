@@ -7,6 +7,7 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log/slog"
 	"net/url"
@@ -14,7 +15,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Asafrose/bolt-go/pkg/errors"
+	boltErrors "github.com/Asafrose/bolt-go/pkg/errors"
 	"github.com/Asafrose/bolt-go/pkg/types"
 )
 
@@ -109,7 +110,7 @@ func (r *AwsLambdaReceiver) Init(app types.App) error {
 // Start starts the receiver (no-op for Lambda)
 func (r *AwsLambdaReceiver) Start(ctx context.Context) error {
 	if r.app == nil {
-		return errors.NewAppInitializationError("receiver not initialized")
+		return boltErrors.NewAppInitializationError("receiver not initialized")
 	}
 	// Lambda doesn't have a persistent server to start
 	return nil
@@ -287,25 +288,25 @@ func (r *AwsLambdaReceiver) verifySignature(headers map[string]string, body []by
 	}
 
 	if signature == "" || timestamp == "" {
-		return fmt.Errorf("missing signature or timestamp headers")
+		return errors.New("missing signature or timestamp headers")
 	}
 
 	// Parse timestamp
 	ts, err := strconv.ParseInt(timestamp, 10, 64)
 	if err != nil {
-		return fmt.Errorf("invalid timestamp format")
+		return errors.New("invalid timestamp format")
 	}
 
 	// Check if request is too old (5 minutes)
 	fiveMinutesAgo := time.Now().Unix() - 300
 	if ts < fiveMinutesAgo {
-		return fmt.Errorf("request timestamp too old")
+		return errors.New("request timestamp too old")
 	}
 
 	// Parse signature
 	parts := strings.Split(signature, "=")
 	if len(parts) != 2 {
-		return fmt.Errorf("invalid signature format")
+		return errors.New("invalid signature format")
 	}
 	version := parts[0]
 	hash := parts[1]
@@ -317,7 +318,7 @@ func (r *AwsLambdaReceiver) verifySignature(headers map[string]string, body []by
 
 	// Compare hashes using constant time comparison
 	if !hmac.Equal([]byte(hash), []byte(expectedHash)) {
-		return fmt.Errorf("signature verification failed")
+		return errors.New("signature verification failed")
 	}
 
 	return nil
@@ -502,7 +503,10 @@ func (r *AwsLambdaReceiver) parseRequestBody(rawBody, contentType string) map[st
 	result := make(map[string]interface{})
 
 	if strings.Contains(contentType, "application/json") {
-		json.Unmarshal([]byte(rawBody), &result)
+		if err := json.Unmarshal([]byte(rawBody), &result); err != nil {
+			// Log error but return empty result rather than failing
+			return result
+		}
 	} else if strings.Contains(contentType, "application/x-www-form-urlencoded") {
 		// Parse form data
 		values, err := url.ParseQuery(rawBody)

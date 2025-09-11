@@ -11,6 +11,7 @@ import (
 )
 
 func TestWorkflowStep(t *testing.T) {
+	t.Parallel()
 	t.Run("constructor", func(t *testing.T) {
 		t.Run("should create workflow step with required middleware", func(t *testing.T) {
 			config := bolt.WorkflowStepConfig{
@@ -51,7 +52,7 @@ func TestWorkflowStep(t *testing.T) {
 			}
 
 			_, err := bolt.NewWorkflowStep("test_step", config)
-			assert.Error(t, err)
+			require.Error(t, err)
 			assert.Contains(t, err.Error(), "edit middleware is required")
 		})
 
@@ -70,7 +71,7 @@ func TestWorkflowStep(t *testing.T) {
 			}
 
 			_, err := bolt.NewWorkflowStep("test_step", config)
-			assert.Error(t, err)
+			require.Error(t, err)
 			assert.Contains(t, err.Error(), "save middleware is required")
 		})
 
@@ -89,7 +90,7 @@ func TestWorkflowStep(t *testing.T) {
 			}
 
 			_, err := bolt.NewWorkflowStep("test_step", config)
-			assert.Error(t, err)
+			require.Error(t, err)
 			assert.Contains(t, err.Error(), "execute middleware is required")
 		})
 	})
@@ -156,6 +157,7 @@ func TestWorkflowStep(t *testing.T) {
 }
 
 func TestWorkflowStepUtilities(t *testing.T) {
+	t.Parallel()
 	t.Run("utility functions", func(t *testing.T) {
 		// Test utility function creation and usage
 		// This would typically be tested through integration tests
@@ -198,6 +200,7 @@ func TestWorkflowStepUtilities(t *testing.T) {
 }
 
 func TestWorkflowStepDeprecation(t *testing.T) {
+	t.Parallel()
 	t.Run("should still work despite deprecation", func(t *testing.T) {
 		// Even though workflow steps are deprecated, the functionality
 		// should still work for backward compatibility
@@ -230,6 +233,7 @@ func TestWorkflowStepDeprecation(t *testing.T) {
 }
 
 func TestWorkflowStepArgumentAugmentation(t *testing.T) {
+	t.Parallel()
 	t.Run("should augment view_submission with step and update()", func(t *testing.T) {
 		// Test that WorkflowStep middleware args provide the expected utility functions
 		config := bolt.WorkflowStepConfig{
@@ -278,7 +282,7 @@ func TestWorkflowStepArgumentAugmentation(t *testing.T) {
 						}
 						// In a real implementation, this would call views.open API
 						err := args.Configure(configureArgs)
-						assert.NoError(t, err, "Configure function should execute without error")
+						require.NoError(t, err, "Configure function should execute without error")
 						configureCalled = true
 					}
 					return args.Next()
@@ -331,7 +335,7 @@ func TestWorkflowStepArgumentAugmentation(t *testing.T) {
 						}
 						// In a real implementation, this would call workflows.updateStep API
 						err := args.Update(updateArgs)
-						assert.NoError(t, err, "Update function should execute without error")
+						require.NoError(t, err, "Update function should execute without error")
 					}
 					return args.Next()
 				},

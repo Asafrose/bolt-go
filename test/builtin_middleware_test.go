@@ -16,6 +16,7 @@ import (
 // TestBuiltinMiddlewareCore tests the core builtin middleware functionality
 // This implements the missing tests from builtin.spec.ts
 func TestBuiltinMiddlewareCore(t *testing.T) {
+	t.Parallel()
 	t.Run("OnlyActions", func(t *testing.T) {
 		t.Run("should only process action events", func(t *testing.T) {
 			app, err := bolt.New(bolt.AppOptions{

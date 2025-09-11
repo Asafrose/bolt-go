@@ -39,7 +39,8 @@ func NewCustomFunctionWithMiddleware(
 
 // GetListeners returns the ordered array of listeners for this custom function
 func (cf *CustomFunction) GetListeners() []types.Middleware[types.AllMiddlewareArgs] {
-	var listeners []types.Middleware[types.AllMiddlewareArgs]
+	// Pre-allocate slice with capacity for built-in middleware + custom listeners
+	listeners := make([]types.Middleware[types.AllMiddlewareArgs], 0, 4+len(cf.listeners))
 
 	// Add built-in middleware in order: onlyEvents, matchEventType, matchCallbackId
 	listeners = append(listeners, middleware.OnlyEvents)

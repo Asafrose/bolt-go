@@ -21,6 +21,7 @@ type TestConversationState struct {
 }
 
 func TestMemoryStore(t *testing.T) {
+	t.Parallel()
 	t.Run("should store and retrieve conversation state", func(t *testing.T) {
 		store := conversation.NewMemoryStore[TestConversationState]()
 		conversationID := "C123456"
@@ -48,7 +49,7 @@ func TestMemoryStore(t *testing.T) {
 		store := conversation.NewMemoryStore[TestConversationState]()
 
 		_, err := store.Get("nonexistent")
-		assert.Error(t, err)
+		require.Error(t, err)
 		assert.Contains(t, err.Error(), "conversation not found")
 	})
 
@@ -68,7 +69,7 @@ func TestMemoryStore(t *testing.T) {
 
 		// Try to retrieve expired state
 		_, err = store.Get(conversationID)
-		assert.Error(t, err)
+		require.Error(t, err)
 		assert.Contains(t, err.Error(), "conversation expired")
 	})
 
@@ -132,7 +133,9 @@ func TestMemoryStore(t *testing.T) {
 					Count:    index,
 				}
 				err := store.Set(conversationID, state, nil)
-				assert.NoError(t, err)
+				if err != nil {
+					t.Errorf("Failed to set conversation state: %v", err)
+				}
 				done <- true
 			}(i)
 		}
@@ -151,6 +154,7 @@ func TestMemoryStore(t *testing.T) {
 }
 
 func TestConversationMiddleware(t *testing.T) {
+	t.Parallel()
 	t.Run("should load and save conversation state", func(t *testing.T) {
 		store := conversation.NewMemoryStore[TestConversationState]()
 		conversationID := "C123456"
@@ -350,6 +354,7 @@ func TestConversationMiddleware(t *testing.T) {
 }
 
 func TestConversationStoreIntegration(t *testing.T) {
+	t.Parallel()
 	t.Run("should persist conversation state across events", func(t *testing.T) {
 		store := conversation.NewMemoryStore[TestConversationState]()
 		conversationID := "C123456"
@@ -516,6 +521,7 @@ func createMessageEventForConversation(conversationID, text string) []byte {
 
 // TestConversationStoreComprehensive implements missing tests from conversation-store.spec.ts
 func TestConversationStoreComprehensive(t *testing.T) {
+	t.Parallel()
 
 	t.Run("conversationContext middleware", func(t *testing.T) {
 		t.Run("should add to the context for events within a conversation that was not previously stored and pass expiresAt", func(t *testing.T) {
@@ -595,7 +601,7 @@ func TestConversationStoreComprehensive(t *testing.T) {
 
 			// Try to get non-existent conversation
 			_, err := store.Get(conversationID)
-			assert.Error(t, err)
+			require.Error(t, err)
 		})
 
 		t.Run("#set and #get should reject lookup of conversation state when the conversation is expired", func(t *testing.T) {
@@ -614,13 +620,14 @@ func TestConversationStoreComprehensive(t *testing.T) {
 
 			// Try to get expired conversation
 			_, err = store.Get(conversationID)
-			assert.Error(t, err, "Should reject lookup of expired conversation")
+			require.Error(t, err, "Should reject lookup of expired conversation")
 		})
 	})
 }
 
 // TestConversationStoreInitialization tests the missing conversation store initialization test
 func TestConversationStoreInitialization(t *testing.T) {
+	t.Parallel()
 	t.Run("should initialize the conversation store", func(t *testing.T) {
 		// Test that app initializes with conversation store by default
 		app, err := bolt.New(bolt.AppOptions{

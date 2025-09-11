@@ -14,6 +14,7 @@ import (
 
 // TestActionRouting implements the missing tests from routing-action.spec.ts
 func TestActionRouting(t *testing.T) {
+	t.Parallel()
 	t.Run("should route a block action event to a handler registered with action(string) that matches the action ID", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
 			Token:         &fakeToken,

@@ -2,14 +2,14 @@ package test
 
 import (
 	"context"
-	"fmt"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
 
 	"github.com/Asafrose/bolt-go"
-	"github.com/Asafrose/bolt-go/pkg/errors"
+	boltErrors "github.com/Asafrose/bolt-go/pkg/errors"
 	"github.com/Asafrose/bolt-go/pkg/receivers"
 	"github.com/Asafrose/bolt-go/pkg/types"
 	"github.com/stretchr/testify/assert"
@@ -18,6 +18,7 @@ import (
 
 // TestSocketModeAdvanced implements the missing tests from SocketModeReceiver.spec.ts
 func TestSocketModeAdvanced(t *testing.T) {
+	t.Parallel()
 	t.Run("constructor", func(t *testing.T) {
 		t.Run("should accept supported arguments and use default arguments when not provided", func(t *testing.T) {
 			receiver := receivers.NewSocketModeReceiver(types.SocketModeReceiverOptions{
@@ -84,12 +85,12 @@ func TestSocketModeAdvanced(t *testing.T) {
 
 			// Test unhandled request - this would be handled by the HTTP server component
 			// of the Socket Mode receiver for OAuth flows
-			req := httptest.NewRequest("GET", "/unhandled-path", nil)
+			req := httptest.NewRequest(http.MethodGet, "/unhandled-path", nil)
 			w := httptest.NewRecorder()
 
 			// This would typically result in a 404
 			// The exact behavior depends on the HTTP handler implementation
-			assert.Equal(t, "GET", req.Method, "Should be GET request")
+			assert.Equal(t, http.MethodGet, req.Method, "Should be GET request")
 			assert.Equal(t, "/unhandled-path", req.URL.Path, "Should have unhandled path")
 			assert.Equal(t, 200, w.Code, "Default recorder status")
 		})
@@ -104,7 +105,9 @@ func TestSocketModeAdvanced(t *testing.T) {
 				handlerCalled = true
 				receivedReq = r
 				w.WriteHeader(http.StatusOK)
-				w.Write([]byte("custom response"))
+				if _, err := w.Write([]byte("custom response")); err != nil {
+					t.Errorf("Failed to write response: %v", err)
+				}
 			})
 
 			receiver := receivers.NewSocketModeReceiver(types.SocketModeReceiverOptions{
@@ -112,7 +115,7 @@ func TestSocketModeAdvanced(t *testing.T) {
 				CustomRoutes: []types.CustomRoute{
 					{
 						Path:    "/test",
-						Method:  "GET",
+						Method:  http.MethodGet,
 						Handler: customHandler,
 					},
 				},
@@ -128,7 +131,7 @@ func TestSocketModeAdvanced(t *testing.T) {
 			require.NoError(t, err)
 
 			// Test GET request to /test path
-			req := httptest.NewRequest("GET", "/test", nil)
+			req := httptest.NewRequest(http.MethodGet, "/test", nil)
 			w := httptest.NewRecorder()
 
 			// Simulate the custom route handling
@@ -136,7 +139,7 @@ func TestSocketModeAdvanced(t *testing.T) {
 
 			assert.True(t, handlerCalled, "Custom handler should be called for matching route")
 			assert.Equal(t, "/test", receivedReq.URL.Path, "Should receive correct path")
-			assert.Equal(t, "GET", receivedReq.Method, "Should receive correct method")
+			assert.Equal(t, http.MethodGet, receivedReq.Method, "Should receive correct method")
 			assert.Equal(t, http.StatusOK, w.Code, "Should return OK status")
 			assert.Equal(t, "custom response", w.Body.String(), "Should return custom response")
 		})
@@ -154,7 +157,7 @@ func TestSocketModeAdvanced(t *testing.T) {
 				CustomRoutes: []types.CustomRoute{
 					{
 						Path:    "/test",
-						Method:  "GET",
+						Method:  http.MethodGet,
 						Handler: customHandler,
 					},
 				},
@@ -170,7 +173,7 @@ func TestSocketModeAdvanced(t *testing.T) {
 			require.NoError(t, err)
 
 			// Test GET request with query parameters
-			req := httptest.NewRequest("GET", "/test?param1=value1&param2=value2", nil)
+			req := httptest.NewRequest(http.MethodGet, "/test?param1=value1&param2=value2", nil)
 			w := httptest.NewRecorder()
 
 			customHandler.ServeHTTP(w, req)
@@ -194,7 +197,7 @@ func TestSocketModeAdvanced(t *testing.T) {
 				CustomRoutes: []types.CustomRoute{
 					{
 						Path:    "/user/:id",
-						Method:  "GET",
+						Method:  http.MethodGet,
 						Handler: customHandler,
 					},
 				},
@@ -210,7 +213,7 @@ func TestSocketModeAdvanced(t *testing.T) {
 			require.NoError(t, err)
 
 			// Test GET request with path parameters
-			req := httptest.NewRequest("GET", "/user/123", nil)
+			req := httptest.NewRequest(http.MethodGet, "/user/123", nil)
 			w := httptest.NewRecorder()
 
 			customHandler.ServeHTTP(w, req)
@@ -227,13 +230,17 @@ func TestSocketModeAdvanced(t *testing.T) {
 			customHandler1 := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				handler1Called = true
 				w.WriteHeader(http.StatusOK)
-				w.Write([]byte("handler1"))
+				if _, err := w.Write([]byte("handler1")); err != nil {
+					t.Errorf("Failed to write response: %v", err)
+				}
 			})
 
 			customHandler2 := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				handler2Called = true
 				w.WriteHeader(http.StatusOK)
-				w.Write([]byte("handler2"))
+				if _, err := w.Write([]byte("handler2")); err != nil {
+					t.Errorf("Failed to write response: %v", err)
+				}
 			})
 
 			receiver := receivers.NewSocketModeReceiver(types.SocketModeReceiverOptions{
@@ -241,12 +248,12 @@ func TestSocketModeAdvanced(t *testing.T) {
 				CustomRoutes: []types.CustomRoute{
 					{
 						Path:    "/api/v1/users/:id",
-						Method:  "GET",
+						Method:  http.MethodGet,
 						Handler: customHandler1,
 					},
 					{
 						Path:    "/api/v1/posts/:id",
-						Method:  "GET",
+						Method:  http.MethodGet,
 						Handler: customHandler2,
 					},
 				},
@@ -262,7 +269,7 @@ func TestSocketModeAdvanced(t *testing.T) {
 			require.NoError(t, err)
 
 			// Test first route
-			req1 := httptest.NewRequest("GET", "/api/v1/users/123", nil)
+			req1 := httptest.NewRequest(http.MethodGet, "/api/v1/users/123", nil)
 			w1 := httptest.NewRecorder()
 			customHandler1.ServeHTTP(w1, req1)
 
@@ -274,7 +281,7 @@ func TestSocketModeAdvanced(t *testing.T) {
 			handler1Called = false
 			handler2Called = false
 
-			req2 := httptest.NewRequest("GET", "/api/v1/posts/456", nil)
+			req2 := httptest.NewRequest(http.MethodGet, "/api/v1/posts/456", nil)
 			w2 := httptest.NewRecorder()
 			customHandler2.ServeHTTP(w2, req2)
 
@@ -302,12 +309,12 @@ func TestSocketModeAdvanced(t *testing.T) {
 					// Routes in reverse order compared to previous test
 					{
 						Path:    "/api/v1/posts/:id",
-						Method:  "GET",
+						Method:  http.MethodGet,
 						Handler: customHandler2,
 					},
 					{
 						Path:    "/api/v1/users/:id",
-						Method:  "GET",
+						Method:  http.MethodGet,
 						Handler: customHandler1,
 					},
 				},
@@ -323,7 +330,7 @@ func TestSocketModeAdvanced(t *testing.T) {
 			require.NoError(t, err)
 
 			// Test that both routes still work regardless of order
-			req1 := httptest.NewRequest("GET", "/api/v1/users/123", nil)
+			req1 := httptest.NewRequest(http.MethodGet, "/api/v1/users/123", nil)
 			w1 := httptest.NewRecorder()
 			customHandler1.ServeHTTP(w1, req1)
 
@@ -502,7 +509,7 @@ func TestSocketModeAdvanced(t *testing.T) {
 
 			err = receiver.Start(ctx)
 			// Should attempt to start (may fail due to invalid token, but method should exist)
-			assert.Error(t, err, "Should attempt to start and likely fail with invalid token")
+			require.Error(t, err, "Should attempt to start and likely fail with invalid token")
 		})
 	})
 
@@ -524,7 +531,7 @@ func TestSocketModeAdvanced(t *testing.T) {
 			// Test that stop method exists and can be called
 			ctx := context.Background()
 			err = receiver.Stop(ctx)
-			assert.NoError(t, err, "Stop should work even if not started")
+			require.NoError(t, err, "Stop should work even if not started")
 		})
 	})
 
@@ -541,9 +548,11 @@ func TestSocketModeAdvanced(t *testing.T) {
 			require.NoError(t, err)
 
 			// Register an event handler
-			app.Event("app_mention", func(args bolt.SlackEventMiddlewareArgs) error {
+			app.Event("app_mention", func(args types.SlackEventMiddlewareArgs) error {
 				if args.Ack != nil {
-					args.Ack(nil)
+					if err := args.Ack(nil); err != nil {
+						t.Errorf("Failed to acknowledge event: %v", err)
+					}
 				}
 				return args.Next()
 			})
@@ -558,7 +567,7 @@ func TestSocketModeAdvanced(t *testing.T) {
 
 		t.Run("acknowledges events that throw AuthorizationError", func(t *testing.T) {
 			// Test error handling for authorization errors
-			authError := errors.NewAuthorizationError("Authorization failed", fmt.Errorf("original error"))
+			authError := boltErrors.NewAuthorizationError("Authorization failed", errors.New("original error"))
 
 			// Test that authorization errors are handled appropriately
 			assert.NotNil(t, authError, "Should create authorization error")
@@ -567,10 +576,10 @@ func TestSocketModeAdvanced(t *testing.T) {
 
 		t.Run("does not acknowledge events that throw unknown errors", func(t *testing.T) {
 			// Test error handling for non-authorization errors
-			unknownError := fmt.Errorf("unknown error")
+			unknownError := errors.New("unknown error")
 
 			// Test that unknown errors are handled appropriately
-			assert.NotNil(t, unknownError, "Should create unknown error")
+			require.Error(t, unknownError, "Should create unknown error")
 			assert.Contains(t, unknownError.Error(), "unknown error", "Should contain error message")
 		})
 
@@ -598,7 +607,7 @@ func TestSocketModeAdvanced(t *testing.T) {
 				require.NoError(t, err)
 
 				// Register an event handler that acknowledges
-				app.Event("app_mention", func(args bolt.SlackEventMiddlewareArgs) error {
+				app.Event("app_mention", func(args types.SlackEventMiddlewareArgs) error {
 					if args.Ack != nil {
 						return args.Ack(nil)
 					}
@@ -624,8 +633,8 @@ func TestSocketModeAdvanced(t *testing.T) {
 				require.NoError(t, err)
 
 				// Register an event handler that throws authorization error
-				app.Event("app_mention", func(args bolt.SlackEventMiddlewareArgs) error {
-					return errors.NewAuthorizationError("Authorization failed", fmt.Errorf("token invalid"))
+				app.Event("app_mention", func(args types.SlackEventMiddlewareArgs) error {
+					return boltErrors.NewAuthorizationError("Authorization failed", errors.New("token invalid"))
 				})
 
 				err = receiver.Init(app)
@@ -647,8 +656,8 @@ func TestSocketModeAdvanced(t *testing.T) {
 				require.NoError(t, err)
 
 				// Register an event handler that throws unknown error
-				app.Event("app_mention", func(args bolt.SlackEventMiddlewareArgs) error {
-					return fmt.Errorf("internal error")
+				app.Event("app_mention", func(args types.SlackEventMiddlewareArgs) error {
+					return errors.New("internal error")
 				})
 
 				err = receiver.Init(app)
@@ -670,11 +679,11 @@ func TestSocketModeAdvanced(t *testing.T) {
 				require.NoError(t, err)
 
 				// Register an event handler that acknowledges then throws error
-				app.Event("app_mention", func(args bolt.SlackEventMiddlewareArgs) error {
+				app.Event("app_mention", func(args types.SlackEventMiddlewareArgs) error {
 					if args.Ack != nil {
 						_ = args.Ack(nil) // Acknowledge first
 					}
-					return fmt.Errorf("internal error") // Then throw error
+					return errors.New("internal error") // Then throw error
 				})
 
 				err = receiver.Init(app)
@@ -723,9 +732,11 @@ func TestSocketModeAdvanced(t *testing.T) {
 				// Add event handler that throws AuthorizationError
 				app.Event("app_mention", func(args types.SlackEventMiddlewareArgs) error {
 					// Simulate authorization error
-					authError := errors.NewAuthorizationError("Unauthorized", fmt.Errorf("token invalid"))
+					authError := boltErrors.NewAuthorizationError("Unauthorized", errors.New("token invalid"))
 					// Events that throw AuthorizationError should still be acknowledged
-					args.Ack(nil) // Should be called even with auth error
+					if err := args.Ack(nil); err != nil {
+						t.Errorf("Failed to acknowledge event: %v", err)
+					}
 					return authError
 				})
 
@@ -750,7 +761,7 @@ func TestSocketModeAdvanced(t *testing.T) {
 				// Add event handler that throws unknown error
 				app.Event("app_mention", func(args types.SlackEventMiddlewareArgs) error {
 					// Simulate unknown error - these should NOT be acknowledged
-					return fmt.Errorf("unknown processing error")
+					return errors.New("unknown processing error")
 				})
 
 				err = receiver.Init(app)
@@ -779,7 +790,7 @@ func TestSocketModeAdvanced(t *testing.T) {
 						return err
 					}
 					// Then throw an error - should not cause re-acknowledgment
-					return fmt.Errorf("post-ack processing error")
+					return errors.New("post-ack processing error")
 				})
 
 				err = receiver.Init(app)
@@ -805,7 +816,7 @@ func TestSocketModeAdvanced(t *testing.T) {
 				require.NoError(t, err)
 
 				// Register an event handler
-				app.Event("app_mention", func(args bolt.SlackEventMiddlewareArgs) error {
+				app.Event("app_mention", func(args types.SlackEventMiddlewareArgs) error {
 					return args.Ack(nil)
 				})
 
@@ -829,8 +840,8 @@ func TestSocketModeAdvanced(t *testing.T) {
 				require.NoError(t, err)
 
 				// Register an event handler that throws authorization error
-				app.Event("app_mention", func(args bolt.SlackEventMiddlewareArgs) error {
-					return errors.NewAuthorizationError("brokentoken", fmt.Errorf("original error"))
+				app.Event("app_mention", func(args types.SlackEventMiddlewareArgs) error {
+					return boltErrors.NewAuthorizationError("brokentoken", errors.New("original error"))
 				})
 
 				err = receiver.Init(app)
@@ -853,8 +864,8 @@ func TestSocketModeAdvanced(t *testing.T) {
 				require.NoError(t, err)
 
 				// Register an event handler that throws unknown error
-				app.Event("app_mention", func(args bolt.SlackEventMiddlewareArgs) error {
-					return fmt.Errorf("internal error")
+				app.Event("app_mention", func(args types.SlackEventMiddlewareArgs) error {
+					return errors.New("internal error")
 				})
 
 				err = receiver.Init(app)
@@ -877,9 +888,9 @@ func TestSocketModeAdvanced(t *testing.T) {
 				require.NoError(t, err)
 
 				// Register an event handler that acknowledges then throws error
-				app.Event("app_mention", func(args bolt.SlackEventMiddlewareArgs) error {
+				app.Event("app_mention", func(args types.SlackEventMiddlewareArgs) error {
 					_ = args.Ack(nil)                   // Acknowledge first
-					return fmt.Errorf("internal error") // Then throw error
+					return errors.New("internal error") // Then throw error
 				})
 
 				err = receiver.Init(app)
@@ -894,17 +905,18 @@ func TestSocketModeAdvanced(t *testing.T) {
 
 // TestSocketModeFunctions tests the Socket Mode function utilities
 func TestSocketModeFunctions(t *testing.T) {
+	t.Parallel()
 	t.Run("Error handlers for event processing", func(t *testing.T) {
 		t.Run("defaultProcessEventErrorHandler", func(t *testing.T) {
 			t.Run("should return false if passed any Error other than AuthorizationError", func(t *testing.T) {
 				// Create a non-authorization error
-				multipleAckError := errors.NewReceiverMultipleAckError()
+				multipleAckError := boltErrors.NewReceiverMultipleAckError()
 
 				// Test that non-authorization errors return false (should not be acknowledged)
 				shouldBeAcked := false // This would be the result of the error handler
 				if multipleAckError != nil {
 					// Logic: only AuthorizationError should return true
-					shouldBeAcked = multipleAckError.Code() == errors.AuthorizationError
+					shouldBeAcked = multipleAckError.Code() == boltErrors.AuthorizationErrorCode
 				}
 
 				assert.False(t, shouldBeAcked, "Non-authorization errors should not be acknowledged")
@@ -912,13 +924,13 @@ func TestSocketModeFunctions(t *testing.T) {
 
 			t.Run("should return true if passed an AuthorizationError", func(t *testing.T) {
 				// Create an authorization error
-				authError := errors.NewAuthorizationError("Authorization failed", fmt.Errorf("original error"))
+				authError := boltErrors.NewAuthorizationError("Authorization failed", errors.New("original error"))
 
 				// Test that authorization errors return true (should be acknowledged)
 				shouldBeAcked := false
 				if authError != nil {
 					// Logic: only AuthorizationError should return true
-					shouldBeAcked = authError.Code() == errors.AuthorizationError
+					shouldBeAcked = authError.Code() == boltErrors.AuthorizationErrorCode
 				}
 
 				assert.True(t, shouldBeAcked, "Authorization errors should be acknowledged")
@@ -929,6 +941,7 @@ func TestSocketModeFunctions(t *testing.T) {
 
 // TestSocketModeResponseAck tests the Socket Mode response acknowledgment
 func TestSocketModeResponseAck(t *testing.T) {
+	t.Parallel()
 	t.Run("should implement ResponseAck", func(t *testing.T) {
 		// Test that Socket Mode response acknowledgment works
 		ackCalled := false
@@ -939,7 +952,7 @@ func TestSocketModeResponseAck(t *testing.T) {
 
 		// Simulate acknowledgment
 		err := fakeSocketModeClientAck()
-		assert.NoError(t, err, "Ack should work without error")
+		require.NoError(t, err, "Ack should work without error")
 		assert.True(t, ackCalled, "Ack should be called")
 	})
 
@@ -953,7 +966,7 @@ func TestSocketModeResponseAck(t *testing.T) {
 
 			// Test single acknowledgment
 			err := fakeSocketModeClientAck()
-			assert.NoError(t, err, "Ack should work")
+			require.NoError(t, err, "Ack should work")
 			assert.Equal(t, 1, ackCallCount, "Ack should be called once")
 		})
 
@@ -970,8 +983,12 @@ func TestSocketModeResponseAck(t *testing.T) {
 			}
 
 			// Test multiple acknowledgments
-			fakeSocketModeClientAck() // First call
-			fakeSocketModeClientAck() // Second call should trigger warning
+			if err := fakeSocketModeClientAck(); err != nil {
+				t.Errorf("First ack call failed: %v", err)
+			}
+			if err := fakeSocketModeClientAck(); err != nil {
+				t.Errorf("Second ack call failed: %v", err)
+			}
 
 			assert.Equal(t, 2, ackCallCount, "Ack should be called twice")
 			assert.True(t, warningLogged, "Warning should be logged for multiple ack calls")

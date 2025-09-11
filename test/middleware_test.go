@@ -12,6 +12,7 @@ import (
 )
 
 func TestMiddlewareChain(t *testing.T) {
+	t.Parallel()
 	t.Run("should execute global middleware before listeners", func(t *testing.T) {
 		executionOrder := []string{}
 
@@ -136,7 +137,7 @@ func TestMiddlewareChain(t *testing.T) {
 		// Process the event
 		ctx := context.Background()
 		err = app.ProcessEvent(ctx, event)
-		assert.Error(t, err, "Middleware error should propagate")
+		require.Error(t, err, "Middleware error should propagate")
 	})
 
 	t.Run("should pass context between middleware", func(t *testing.T) {
@@ -235,6 +236,7 @@ func TestMiddlewareChain(t *testing.T) {
 }
 
 func TestBuiltinMiddleware(t *testing.T) {
+	t.Parallel()
 	t.Run("should filter message events by text pattern", func(t *testing.T) {
 		matchingHandlerCalled := false
 		nonMatchingHandlerCalled := false
@@ -408,6 +410,7 @@ func TestBuiltinMiddleware(t *testing.T) {
 }
 
 func TestMiddlewareTypes(t *testing.T) {
+	t.Parallel()
 	t.Run("should provide correct middleware args for events", func(t *testing.T) {
 		var receivedArgs bolt.SlackEventMiddlewareArgs
 
@@ -542,6 +545,7 @@ func TestMiddlewareTypes(t *testing.T) {
 // Helper functions are defined in other test files to avoid duplication
 
 func TestMiddlewareExecution(t *testing.T) {
+	t.Parallel()
 	t.Run("should handle middleware that modifies event data", func(t *testing.T) {
 		var modifiedText string
 

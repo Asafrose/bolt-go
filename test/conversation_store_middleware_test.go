@@ -76,6 +76,7 @@ func (m *MockConversationStore[T]) SetSetError(err error) {
 
 // TestConversationStoreMiddleware implements the missing tests from conversation-store.spec.ts
 func TestConversationStoreMiddleware(t *testing.T) {
+	t.Parallel()
 	type ConversationState struct {
 		UserName string `json:"user_name"`
 		Count    int    `json:"count"`
@@ -117,7 +118,7 @@ func TestConversationStoreMiddleware(t *testing.T) {
 
 		ctx := context.Background()
 		err = app.ProcessEvent(ctx, receiverEvent)
-		assert.NoError(t, err, "Should process event without error")
+		require.NoError(t, err, "Should process event without error")
 		assert.True(t, middlewareCalled, "Middleware should be called")
 		assert.Empty(t, store.getCalls, "Store.Get should not be called")
 		assert.Empty(t, store.setCalls, "Store.Set should not be called")
@@ -169,7 +170,7 @@ func TestConversationStoreMiddleware(t *testing.T) {
 
 		ctx := context.Background()
 		err = app.ProcessEvent(ctx, receiverEvent)
-		assert.NoError(t, err, "Should process event without error")
+		require.NoError(t, err, "Should process event without error")
 		assert.True(t, middlewareCalled, "Middleware should be called")
 		assert.Contains(t, store.getCalls, "C123456", "Store.Get should be called with conversation ID")
 
@@ -178,7 +179,7 @@ func TestConversationStoreMiddleware(t *testing.T) {
 
 		newState := ConversationState{UserName: "testuser", Count: 1}
 		err = updateFunc(newState, nil)
-		assert.NoError(t, err, "UpdateConversation should work")
+		require.NoError(t, err, "UpdateConversation should work")
 
 		require.Len(t, store.setCalls, 1, "Store.Set should be called once")
 		assert.Equal(t, "C123456", store.setCalls[0].ConversationID, "Should set correct conversation ID")
@@ -233,7 +234,7 @@ func TestConversationStoreMiddleware(t *testing.T) {
 
 		ctx := context.Background()
 		err = app.ProcessEvent(ctx, receiverEvent)
-		assert.NoError(t, err, "Should process event without error")
+		require.NoError(t, err, "Should process event without error")
 		assert.True(t, middlewareCalled, "Middleware should be called")
 		assert.Contains(t, store.getCalls, "C123456", "Store.Get should be called with conversation ID")
 
@@ -245,7 +246,7 @@ func TestConversationStoreMiddleware(t *testing.T) {
 
 		newState := ConversationState{UserName: "updated_user", Count: 100}
 		err = updateFunc(newState, nil)
-		assert.NoError(t, err, "UpdateConversation should work")
+		require.NoError(t, err, "UpdateConversation should work")
 
 		require.Len(t, store.setCalls, 1, "Store.Set should be called once")
 		assert.Equal(t, "C123456", store.setCalls[0].ConversationID, "Should set correct conversation ID")
@@ -289,7 +290,7 @@ func TestConversationStoreMiddleware(t *testing.T) {
 
 		ctx := context.Background()
 		err = app.ProcessEvent(ctx, receiverEvent)
-		assert.NoError(t, err, "Should process event without error even with store error")
+		require.NoError(t, err, "Should process event without error even with store error")
 		assert.True(t, middlewareCalled, "Middleware should be called")
 		assert.Contains(t, store.getCalls, "C123456", "Store.Get should be called")
 	})
@@ -331,7 +332,7 @@ func TestConversationStoreMiddleware(t *testing.T) {
 
 		ctx := context.Background()
 		err = app.ProcessEvent(ctx, receiverEvent)
-		assert.NoError(t, err, "Should process event without error")
+		require.NoError(t, err, "Should process event without error")
 		assert.True(t, middlewareCalled, "Middleware should be called")
 		assert.Contains(t, store.getCalls, "C123456", "Store.Get should be called")
 	})
@@ -381,7 +382,7 @@ func TestConversationStoreMiddleware(t *testing.T) {
 		expiresAt := time.Now().Add(time.Hour)
 
 		err = updateFunc(newState, &expiresAt)
-		assert.NoError(t, err, "UpdateConversation with expiration should work")
+		require.NoError(t, err, "UpdateConversation with expiration should work")
 
 		require.Len(t, store.setCalls, 1, "Store.Set should be called once")
 		assert.Equal(t, "C123456", store.setCalls[0].ConversationID, "Should set correct conversation ID")
@@ -458,12 +459,12 @@ func TestConversationStoreMiddleware(t *testing.T) {
 
 				ctx := context.Background()
 				err = app.ProcessEvent(ctx, receiverEvent)
-				assert.NoError(t, err, "Should process %s without error", tc.name)
+				require.NoError(t, err, "Should process %s without error", tc.name)
 
 				if tc.expectID {
 					assert.Len(t, conversationIDs, 1, "Should find conversation ID for %s", tc.name)
 				} else {
-					assert.Len(t, conversationIDs, 0, "Should not find conversation ID for %s", tc.name)
+					assert.Empty(t, conversationIDs, "Should not find conversation ID for %s", tc.name)
 				}
 			})
 		}

@@ -13,6 +13,7 @@ import (
 
 // TestCustomFunctionRouting implements the missing tests from routing-function.spec.ts
 func TestCustomFunctionRouting(t *testing.T) {
+	t.Parallel()
 	t.Run("should route a function executed event to a handler registered with function(string) that matches the callback ID", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
 			Token:         &fakeToken,

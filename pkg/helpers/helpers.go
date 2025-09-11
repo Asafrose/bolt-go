@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/url"
 	"regexp"
@@ -422,37 +423,37 @@ func ExtractUserID(body []byte) *string {
 // VerifySlackSignature verifies the signature of a Slack request
 func VerifySlackSignature(signingSecret, signature, timestamp string, body []byte) error {
 	if signingSecret == "" {
-		return fmt.Errorf("signing secret cannot be empty")
+		return errors.New("signing secret cannot be empty")
 	}
 
 	if signature == "" {
-		return fmt.Errorf("signature cannot be empty")
+		return errors.New("signature cannot be empty")
 	}
 
 	if timestamp == "" {
-		return fmt.Errorf("timestamp cannot be empty")
+		return errors.New("timestamp cannot be empty")
 	}
 
 	// Check signature format
 	if !strings.HasPrefix(signature, "v0=") {
-		return fmt.Errorf("invalid signature format")
+		return errors.New("invalid signature format")
 	}
 
 	// Parse timestamp
 	ts, err := strconv.ParseInt(timestamp, 10, 64)
 	if err != nil {
-		return fmt.Errorf("invalid timestamp format: %v", err)
+		return fmt.Errorf("invalid timestamp format: %w", err)
 	}
 
 	// Check if timestamp is too old (more than 5 minutes)
 	now := time.Now().Unix()
 	if now-ts > 300 {
-		return fmt.Errorf("timestamp too old")
+		return errors.New("timestamp too old")
 	}
 
 	// Check if timestamp is in the future (allow 1 minute tolerance)
 	if ts-now > 60 {
-		return fmt.Errorf("timestamp is in the future")
+		return errors.New("timestamp is in the future")
 	}
 
 	// Create the signature base string
@@ -465,7 +466,7 @@ func VerifySlackSignature(signingSecret, signature, timestamp string, body []byt
 
 	// Compare signatures
 	if !hmac.Equal([]byte(signature), []byte(expectedSignature)) {
-		return fmt.Errorf("signature mismatch")
+		return errors.New("signature mismatch")
 	}
 
 	return nil

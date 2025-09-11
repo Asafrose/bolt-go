@@ -15,6 +15,7 @@ import (
 
 // TestOptionsRoutingComprehensive implements the missing tests from routing-options.spec.ts
 func TestOptionsRoutingComprehensive(t *testing.T) {
+	t.Parallel()
 	t.Run("should route a block suggestion event to a handler registered with options(string) that matches the action ID", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
 			Token:         &fakeToken,

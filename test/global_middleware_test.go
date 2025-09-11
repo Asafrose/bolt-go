@@ -14,6 +14,7 @@ import (
 )
 
 func TestGlobalMiddlewareExecution(t *testing.T) {
+	t.Parallel()
 	t.Run("should execute global middleware before listeners", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
 			Token:         &fakeToken,
@@ -236,12 +237,13 @@ func TestGlobalMiddlewareExecution(t *testing.T) {
 		ctx := context.Background()
 		err = app.ProcessEvent(ctx, event)
 
-		assert.Error(t, err, "Should return middleware error")
+		require.Error(t, err, "Should return middleware error")
 		assert.Equal(t, []string{"global1"}, executionOrder, "Execution should stop on middleware error")
 	})
 }
 
 func TestGlobalMiddlewareContextPassing(t *testing.T) {
+	t.Parallel()
 	t.Run("should pass context through global middleware chain", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
 			Token:         &fakeToken,
@@ -363,6 +365,7 @@ func TestGlobalMiddlewareContextPassing(t *testing.T) {
 }
 
 func TestGlobalMiddlewareWithDifferentEventTypes(t *testing.T) {
+	t.Parallel()
 	t.Run("should execute global middleware for all event types", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
 			Token:         &fakeToken,
@@ -583,6 +586,7 @@ func TestGlobalMiddlewareWithDifferentEventTypes(t *testing.T) {
 }
 
 func TestGlobalMiddlewareIgnoreSelf(t *testing.T) {
+	t.Parallel()
 	t.Run("should ignore messages from bot itself", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
 			Token:         &fakeToken,
@@ -634,6 +638,7 @@ func TestGlobalMiddlewareIgnoreSelf(t *testing.T) {
 }
 
 func TestAsyncListenerHandling(t *testing.T) {
+	t.Parallel()
 	t.Run("correctly waits for async listeners", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
 			Token:         &fakeToken,

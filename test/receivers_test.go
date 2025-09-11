@@ -9,6 +9,7 @@ import (
 )
 
 func TestHTTPReceiver(t *testing.T) {
+	t.Parallel()
 	t.Run("constructor", func(t *testing.T) {
 		t.Run("should create HTTP receiver with required options", func(t *testing.T) {
 			options := bolt.HTTPReceiverOptions{
@@ -102,6 +103,7 @@ func TestHTTPReceiver(t *testing.T) {
 }
 
 func TestSocketModeReceiver(t *testing.T) {
+	t.Parallel()
 	t.Run("constructor", func(t *testing.T) {
 		t.Run("should create Socket Mode receiver with app token", func(t *testing.T) {
 			options := bolt.SocketModeReceiverOptions{
@@ -148,6 +150,7 @@ func TestSocketModeReceiver(t *testing.T) {
 }
 
 func TestReceiverIntegration(t *testing.T) {
+	t.Parallel()
 	t.Run("HTTP receiver with app", func(t *testing.T) {
 		options := bolt.HTTPReceiverOptions{
 			SigningSecret: fakeSigningSecret,
@@ -180,6 +183,7 @@ func TestReceiverIntegration(t *testing.T) {
 }
 
 func TestReceiverEvents(t *testing.T) {
+	t.Parallel()
 	t.Run("should handle receiver events", func(t *testing.T) {
 		// Test that receivers can handle events properly
 		// This would typically be tested with mock HTTP requests

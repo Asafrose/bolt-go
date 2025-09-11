@@ -10,6 +10,7 @@ import (
 )
 
 func TestAssistant(t *testing.T) {
+	t.Parallel()
 	t.Run("constructor", func(t *testing.T) {
 		t.Run("should create assistant with required middleware", func(t *testing.T) {
 			config := bolt.AssistantConfig{
@@ -40,7 +41,7 @@ func TestAssistant(t *testing.T) {
 			}
 
 			_, err := bolt.NewAssistant(config)
-			assert.Error(t, err)
+			require.Error(t, err)
 			assert.Contains(t, err.Error(), "threadStarted middleware is required")
 		})
 
@@ -54,7 +55,7 @@ func TestAssistant(t *testing.T) {
 			}
 
 			_, err := bolt.NewAssistant(config)
-			assert.Error(t, err)
+			require.Error(t, err)
 			assert.Contains(t, err.Error(), "userMessage middleware is required")
 		})
 
@@ -152,6 +153,7 @@ func TestAssistant(t *testing.T) {
 }
 
 func TestAssistantThreadContextStore(t *testing.T) {
+	t.Parallel()
 	t.Run("DefaultThreadContextStore", func(t *testing.T) {
 		store := bolt.NewDefaultThreadContextStore()
 		ctx := context.Background()
@@ -187,6 +189,7 @@ func TestAssistantThreadContextStore(t *testing.T) {
 }
 
 func TestAssistantUtilities(t *testing.T) {
+	t.Parallel()
 	t.Run("utility functions", func(t *testing.T) {
 		// Test utility function creation and usage
 		// This would typically be tested through integration tests

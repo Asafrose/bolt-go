@@ -8,6 +8,7 @@ import (
 )
 
 func TestErrors(t *testing.T) {
+	t.Parallel()
 	t.Run("CodedError interface", func(t *testing.T) {
 		t.Run("should identify coded errors", func(t *testing.T) {
 			err := bolt.NewAppInitializationError("test error")
@@ -93,6 +94,7 @@ func TestErrors(t *testing.T) {
 }
 
 func TestErrorCodes(t *testing.T) {
+	t.Parallel()
 	t.Run("should have correct error codes", func(t *testing.T) {
 		assert.Equal(t, "slack_bolt_app_initialization_error", string(bolt.AppInitializationErrorCode))
 		assert.Equal(t, "slack_bolt_assistant_initialization_error", string(bolt.AssistantInitializationErrorCode))

@@ -32,7 +32,7 @@ type Installation struct {
 	IncomingWebhook     *IncomingWebhook       `json:"incoming_webhook,omitempty"`
 	AuthedUser          *AuthedUser            `json:"authed_user,omitempty"`
 	Scope               string                 `json:"scope,omitempty"`
-	TokenType2          string                 `json:"token_type,omitempty"`
+	TokenType2          string                 `json:"token_type_2,omitempty"`
 	AccessToken         string                 `json:"access_token,omitempty"`
 	BotToken            string                 `json:"bot_token,omitempty"`
 	BotID               string                 `json:"bot_id,omitempty"`

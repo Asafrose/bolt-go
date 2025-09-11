@@ -50,6 +50,7 @@ func createMessageShortcutBody(callbackID string) []byte {
 }
 
 func TestAppShortcutRouting(t *testing.T) {
+	t.Parallel()
 	t.Run("should route global shortcut by callback_id", func(t *testing.T) {
 		handlerCalled := false
 

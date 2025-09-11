@@ -9,6 +9,7 @@ import (
 )
 
 func TestGetTypeAndConversation(t *testing.T) {
+	t.Parallel()
 	t.Run("should identify event_callback type", func(t *testing.T) {
 		body := map[string]interface{}{
 			"type":    "event_callback",
@@ -152,6 +153,7 @@ func TestGetTypeAndConversation(t *testing.T) {
 }
 
 func TestExtractTeamID(t *testing.T) {
+	t.Parallel()
 	t.Run("should extract team_id from root level", func(t *testing.T) {
 		body := map[string]interface{}{
 			"team_id": "T123456",
@@ -198,6 +200,7 @@ func TestExtractTeamID(t *testing.T) {
 }
 
 func TestExtractEnterpriseID(t *testing.T) {
+	t.Parallel()
 	t.Run("should extract enterprise_id from root level", func(t *testing.T) {
 		body := map[string]interface{}{
 			"enterprise_id": "E123456",
@@ -237,6 +240,7 @@ func TestExtractEnterpriseID(t *testing.T) {
 }
 
 func TestExtractUserID(t *testing.T) {
+	t.Parallel()
 	t.Run("should extract user_id from root level", func(t *testing.T) {
 		body := map[string]interface{}{
 			"user_id": "U123456",
@@ -290,6 +294,7 @@ func TestExtractUserID(t *testing.T) {
 }
 
 func TestExtractEventType(t *testing.T) {
+	t.Parallel()
 	t.Run("should extract event type from event object", func(t *testing.T) {
 		body := map[string]interface{}{
 			"type": "event_callback",
@@ -328,6 +333,7 @@ func TestExtractEventType(t *testing.T) {
 }
 
 func TestIsBodyWithTypeEnterpriseInstall(t *testing.T) {
+	t.Parallel()
 	t.Run("should identify enterprise install", func(t *testing.T) {
 		body := map[string]interface{}{
 			"is_enterprise_install": true,
@@ -363,6 +369,7 @@ func TestIsBodyWithTypeEnterpriseInstall(t *testing.T) {
 }
 
 func TestIsEventTypeToSkipAuthorize(t *testing.T) {
+	t.Parallel()
 	t.Run("should skip authorization for app_uninstalled", func(t *testing.T) {
 		shouldSkip := helpers.IsEventTypeToSkipAuthorize("app_uninstalled")
 		assert.True(t, shouldSkip, "Should skip authorization for app_uninstalled")
@@ -390,6 +397,7 @@ func TestIsEventTypeToSkipAuthorize(t *testing.T) {
 }
 
 func TestConversationIDExtraction(t *testing.T) {
+	t.Parallel()
 	t.Run("should extract conversation ID from different event types", func(t *testing.T) {
 		testCases := []struct {
 			name           string

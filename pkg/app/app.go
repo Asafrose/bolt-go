@@ -11,6 +11,7 @@ import (
 	"regexp"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/Asafrose/bolt-go/pkg/conversation"
 	bolterrors "github.com/Asafrose/bolt-go/pkg/errors"
@@ -189,7 +190,6 @@ type App struct {
 	listeners                [][]types.Middleware[types.AllMiddlewareArgs] // Deprecated
 	listenerEntries          []*listenerEntry
 	errorHandler             interface{} // ErrorHandler or ExtendedErrorHandler
-	installerOptions         interface{}
 	socketMode               bool
 	developerMode            bool
 	extendedErrorHandler     bool
@@ -753,7 +753,10 @@ func (a *App) createAutoAckMiddleware() types.Middleware[types.AllMiddlewareArgs
 				if eventArgs, ok := middlewareArgs.(types.SlackEventMiddlewareArgs); ok {
 					if eventArgs.Ack != nil {
 						var response interface{}
-						eventArgs.Ack(&response)
+						if err := eventArgs.Ack(&response); err != nil {
+							// Log the error but continue processing
+							a.Logger.Error("Failed to acknowledge event", "error", err)
+						}
 					}
 				}
 			}
@@ -1085,42 +1088,6 @@ func (a *App) wrapOptionsMiddleware(m types.Middleware[types.SlackOptionsMiddlew
 
 // Core processing methods
 
-func (a *App) authorizeRequest(ctx context.Context, body []byte) (*AuthorizeResult, error) {
-	if a.authorize == nil {
-		return nil, bolterrors.NewAppInitializationError("no authorization function configured")
-	}
-
-	// Extract authorization data from body
-	source := a.extractAuthorizationSource(body)
-
-	return a.authorize(ctx, source, body)
-}
-
-func (a *App) extractAuthorizationSource(body []byte) AuthorizeSourceData {
-	// This would parse the body and extract team_id, enterprise_id, user_id, etc.
-	// For now, return empty source
-	return AuthorizeSourceData{}
-}
-
-func (a *App) createContext(authResult *AuthorizeResult, body []byte) *types.Context {
-	context := &types.Context{
-		IsEnterpriseInstall: false, // Would be determined from body
-		Custom:              make(types.StringIndexed),
-	}
-
-	if authResult != nil {
-		context.BotToken = authResult.BotToken
-		context.UserToken = authResult.UserToken
-		context.BotID = authResult.BotID
-		context.BotUserID = authResult.BotUserID
-		context.UserID = authResult.UserID
-		context.TeamID = authResult.TeamID
-		context.EnterpriseID = authResult.EnterpriseID
-	}
-
-	return context
-}
-
 func (a *App) getClientForContext(context *types.Context) *slack.Client {
 	// Return appropriate client based on context
 	if context.BotToken != nil {
@@ -1303,8 +1270,9 @@ func (a *App) buildMiddlewareArgs(ctx context.Context, eventType helpers.Incomin
 					messageEvent := &types.MessageEvent{}
 					// Convert event data to message event
 					if eventBytes, err := json.Marshal(eventData); err == nil {
-						json.Unmarshal(eventBytes, messageEvent)
-						args.Message = messageEvent
+						if err := json.Unmarshal(eventBytes, messageEvent); err == nil {
+							args.Message = messageEvent
+						}
 					}
 				}
 			}
@@ -1410,41 +1378,6 @@ func (a *App) buildMiddlewareArgs(ctx context.Context, eventType helpers.Incomin
 
 // processGlobalMiddleware processes global middleware
 // Returns (shouldContinue, error) where shouldContinue indicates if listeners should be processed
-func (a *App) processGlobalMiddleware(middlewareArgs interface{}) (bool, error) {
-	// Convert to base args for global middleware
-	var baseArgs types.AllMiddlewareArgs
-	switch args := middlewareArgs.(type) {
-	case types.SlackEventMiddlewareArgs:
-		baseArgs = args.AllMiddlewareArgs
-		// Store the full event args in context for IgnoreSelf middleware
-		if baseArgs.Context.Custom == nil {
-			baseArgs.Context.Custom = make(map[string]interface{})
-		}
-		baseArgs.Context.Custom["middlewareArgs"] = args
-	case types.SlackActionMiddlewareArgs:
-		baseArgs = args.AllMiddlewareArgs
-		// Store the full action args in context for IgnoreSelf middleware
-		if baseArgs.Context.Custom == nil {
-			baseArgs.Context.Custom = make(map[string]interface{})
-		}
-		baseArgs.Context.Custom["middlewareArgs"] = args
-	case types.SlackCommandMiddlewareArgs:
-		baseArgs = args.AllMiddlewareArgs
-	case types.SlackShortcutMiddlewareArgs:
-		baseArgs = args.AllMiddlewareArgs
-	case types.SlackViewMiddlewareArgs:
-		baseArgs = args.AllMiddlewareArgs
-	case types.SlackOptionsMiddlewareArgs:
-		baseArgs = args.AllMiddlewareArgs
-	case types.AllMiddlewareArgs:
-		baseArgs = args
-	default:
-		return false, bolterrors.NewAppInitializationError("unknown middleware args type")
-	}
-
-	completed, err := a.executeMiddlewareChainWithCompletion(a.middleware, baseArgs)
-	return completed, err
-}
 
 // processMatchingListeners processes listeners that match the event
 func (a *App) processMatchingListeners(middlewareArgs interface{}, eventType helpers.IncomingEventType) error {
@@ -1503,54 +1436,9 @@ func (a *App) processMatchingListeners(middlewareArgs interface{}, eventType hel
 }
 
 // executeMiddlewareChain executes a middleware chain
-func (a *App) executeMiddlewareChain(chain []types.Middleware[types.AllMiddlewareArgs], args types.AllMiddlewareArgs) error {
-	completed, err := a.executeMiddlewareChainWithCompletion(chain, args)
-	_ = completed // ignore completion status for backward compatibility
-	return err
-}
 
 // executeMiddlewareChainWithCompletion executes a middleware chain and tracks completion
 // Returns (completed, error) where completed indicates if the entire chain was executed
-func (a *App) executeMiddlewareChainWithCompletion(chain []types.Middleware[types.AllMiddlewareArgs], args types.AllMiddlewareArgs) (bool, error) {
-	index := 0
-	chainCompleted := false
-
-	var next types.NextFn
-	next = func() error {
-		if index >= len(chain) {
-			chainCompleted = true // Chain completed fully
-			return nil
-		}
-
-		currentMiddleware := chain[index]
-		index++
-
-		// Create new args with updated Next function
-		newArgs := types.AllMiddlewareArgs{
-			Context: args.Context,
-			Logger:  args.Logger,
-			Client:  args.Client,
-			Next:    next,
-		}
-
-		// Execute middleware with panic recovery
-		var middlewareErr error
-		func() {
-			defer func() {
-				if r := recover(); r != nil {
-					// Convert panic to error
-					middlewareErr = fmt.Errorf("middleware panic: %v", r)
-				}
-			}()
-			middlewareErr = currentMiddleware(newArgs)
-		}()
-
-		return middlewareErr
-	}
-
-	err := next()
-	return chainCompleted, err
-}
 
 // executeListenerChain executes a listener chain with proper argument conversion
 // First executes global middleware, then the listener-specific middleware
@@ -1622,80 +1510,6 @@ func (a *App) createGenericConversationMiddleware(store interface{}) types.Middl
 }
 
 // Helper methods for building specific middleware args
-func (a *App) buildEventMiddlewareArgs(baseArgs types.AllMiddlewareArgs, event types.ReceiverEvent, parsed map[string]interface{}, sayFn types.SayFn) (types.SlackEventMiddlewareArgs, error) {
-	args := types.SlackEventMiddlewareArgs{
-		AllMiddlewareArgs: baseArgs,
-		Say:               sayFn,
-	}
-
-	// Extract event data
-	if eventData, exists := parsed["event"]; exists {
-		args.Event = eventData
-		args.Body = eventData
-
-		// Check if this is a message event
-		if eventMap, ok := eventData.(map[string]interface{}); ok {
-			if eventType, exists := eventMap["type"]; exists {
-				if typeStr, ok := eventType.(string); ok && typeStr == "message" {
-					messageEvent := &types.MessageEvent{}
-					// Convert event data to message event
-					if eventBytes, err := json.Marshal(eventData); err == nil {
-						json.Unmarshal(eventBytes, messageEvent)
-						args.Message = messageEvent
-					}
-				}
-			}
-		}
-	}
-
-	return args, nil
-}
-
-func (a *App) buildActionMiddlewareArgs(baseArgs types.AllMiddlewareArgs, event types.ReceiverEvent, parsed map[string]interface{}, sayFn types.SayFn, respondFn types.RespondFn) (types.SlackActionMiddlewareArgs, error) {
-	args := types.SlackActionMiddlewareArgs{
-		AllMiddlewareArgs: baseArgs,
-		Body:              parsed,
-		Respond:           respondFn,
-		Ack:               a.createAckFunction(event),
-	}
-
-	// Add say function if there's channel context
-	if sayFn != nil {
-		args.Say = &sayFn
-	}
-
-	// Extract action data
-	if actions, exists := parsed["actions"]; exists {
-		if actionList, ok := actions.([]interface{}); ok && len(actionList) > 0 {
-			args.Action = actionList[0] // First action
-			args.Payload = actionList[0]
-		}
-	}
-
-	return args, nil
-}
-
-func (a *App) buildCommandMiddlewareArgs(baseArgs types.AllMiddlewareArgs, event types.ReceiverEvent, parsed map[string]interface{}, sayFn types.SayFn, respondFn types.RespondFn) (types.SlackCommandMiddlewareArgs, error) {
-	args := types.SlackCommandMiddlewareArgs{
-		AllMiddlewareArgs: baseArgs,
-		Body:              parsed,
-		Payload:           parsed,
-		Say:               sayFn,
-		Respond:           respondFn,
-		Ack:               a.createCommandAckFunction(event.Ack),
-	}
-
-	// Convert to SlashCommand struct
-	if commandBytes, err := json.Marshal(parsed); err == nil {
-		var command types.SlashCommand
-		if err := json.Unmarshal(commandBytes, &command); err == nil {
-			args.Command = command
-		}
-	}
-
-	return args, nil
-}
-
 func (a *App) buildShortcutMiddlewareArgs(baseArgs types.AllMiddlewareArgs, event types.ReceiverEvent, parsed map[string]interface{}, sayFn types.SayFn) (types.SlackShortcutMiddlewareArgs, error) {
 	args := types.SlackShortcutMiddlewareArgs{
 		AllMiddlewareArgs: baseArgs,
@@ -1717,65 +1531,19 @@ func (a *App) buildShortcutMiddlewareArgs(baseArgs types.AllMiddlewareArgs, even
 			if typeStr == "shortcut" {
 				var globalShortcut types.GlobalShortcut
 				if shortcutBytes, err := json.Marshal(parsed); err == nil {
-					json.Unmarshal(shortcutBytes, &globalShortcut)
-					args.Shortcut = globalShortcut
+					if err := json.Unmarshal(shortcutBytes, &globalShortcut); err == nil {
+						args.Shortcut = globalShortcut
+					}
 				}
 			} else if typeStr == "message_action" {
 				var messageShortcut types.MessageShortcut
 				if shortcutBytes, err := json.Marshal(parsed); err == nil {
-					json.Unmarshal(shortcutBytes, &messageShortcut)
-					args.Shortcut = messageShortcut
+					if err := json.Unmarshal(shortcutBytes, &messageShortcut); err == nil {
+						args.Shortcut = messageShortcut
+					}
 				}
 			}
 		}
-	}
-
-	return args, nil
-}
-
-func (a *App) buildViewMiddlewareArgs(baseArgs types.AllMiddlewareArgs, event types.ReceiverEvent, parsed map[string]interface{}, respondFn types.RespondFn) (types.SlackViewMiddlewareArgs, error) {
-	args := types.SlackViewMiddlewareArgs{
-		AllMiddlewareArgs: baseArgs,
-		Body:              parsed,
-		Payload:           parsed,
-		Ack:               a.createViewAckFunction(event.Ack),
-	}
-
-	// Build view object based on type
-	if viewType, exists := parsed["type"]; exists {
-		if typeStr, ok := viewType.(string); ok {
-			if typeStr == "view_submission" {
-				var viewSubmission types.ViewSubmission
-				if viewBytes, err := json.Marshal(parsed); err == nil {
-					json.Unmarshal(viewBytes, &viewSubmission)
-					args.View = viewSubmission
-				}
-			} else if typeStr == "view_closed" {
-				var viewClosed types.ViewClosed
-				if viewBytes, err := json.Marshal(parsed); err == nil {
-					json.Unmarshal(viewBytes, &viewClosed)
-					args.View = viewClosed
-				}
-			}
-		}
-	}
-
-	return args, nil
-}
-
-func (a *App) buildOptionsMiddlewareArgs(baseArgs types.AllMiddlewareArgs, event types.ReceiverEvent, parsed map[string]interface{}) (types.SlackOptionsMiddlewareArgs, error) {
-	args := types.SlackOptionsMiddlewareArgs{
-		AllMiddlewareArgs: baseArgs,
-		Body:              parsed,
-		Payload:           parsed,
-		Ack:               a.createOptionsAckFunction(event.Ack),
-	}
-
-	// Build options request
-	var optionsRequest types.OptionsRequest
-	if optionsBytes, err := json.Marshal(parsed); err == nil {
-		json.Unmarshal(optionsBytes, &optionsRequest)
-		args.Options = optionsRequest
 	}
 
 	return args, nil
@@ -1915,7 +1683,27 @@ func (a *App) createRespondFunction(responseURL string) types.RespondFn {
 			return err
 		}
 
-		resp, err := http.Post(responseURL, "application/json", bytes.NewBuffer(payload))
+		// Validate URL to prevent potential security issues
+		if !strings.HasPrefix(responseURL, "https://hooks.slack.com/") {
+			return bolterrors.NewAppInitializationError("invalid response URL")
+		}
+
+		// Use a client with timeout for security
+		client := &http.Client{
+			Timeout: 30 * time.Second,
+		}
+
+		// Create context-aware request
+		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+		defer cancel()
+
+		req, err := http.NewRequestWithContext(ctx, http.MethodPost, responseURL, bytes.NewBuffer(payload))
+		if err != nil {
+			return err
+		}
+		req.Header.Set("Content-Type", "application/json")
+
+		resp, err := client.Do(req)
 		if err != nil {
 			return err
 		}

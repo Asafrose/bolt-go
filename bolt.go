@@ -217,21 +217,21 @@ const (
 
 // Error codes
 const (
-	AppInitializationErrorCode             = errors.AppInitializationError
-	AssistantInitializationErrorCode       = errors.AssistantInitializationError
-	AssistantMissingPropertyErrorCode      = errors.AssistantMissingPropertyError
-	AuthorizationErrorCode                 = errors.AuthorizationError
-	ContextMissingPropertyErrorCode        = errors.ContextMissingPropertyError
-	InvalidCustomPropertyErrorCode         = errors.InvalidCustomPropertyError
+	AppInitializationErrorCode             = errors.AppInitializationErrorCode
+	AssistantInitializationErrorCode       = errors.AssistantInitializationErrorCode
+	AssistantMissingPropertyErrorCode      = errors.AssistantMissingPropertyErrorCode
+	AuthorizationErrorCode                 = errors.AuthorizationErrorCode
+	ContextMissingPropertyErrorCode        = errors.ContextMissingPropertyErrorCode
+	InvalidCustomPropertyErrorCode         = errors.InvalidCustomPropertyErrorCode
 	CustomRouteInitializationErrorCode     = errors.CustomRouteInitializationError
-	ReceiverMultipleAckErrorCode           = errors.ReceiverMultipleAckError
-	ReceiverAuthenticityErrorCode          = errors.ReceiverAuthenticityError
+	ReceiverMultipleAckErrorCode           = errors.ReceiverMultipleAckErrorCode
+	ReceiverAuthenticityErrorCode          = errors.ReceiverAuthenticityErrorCode
 	ReceiverInconsistentStateErrorCode     = errors.ReceiverInconsistentStateError
-	MultipleListenerErrorCode              = errors.MultipleListenerError
-	HTTPReceiverDeferredRequestErrorCode   = errors.HTTPReceiverDeferredRequestError
+	MultipleListenerErrorCode              = errors.MultipleListenerErrorCode
+	HTTPReceiverDeferredRequestErrorCode   = errors.HTTPReceiverDeferredRequestErrorCode
 	UnknownErrorCode                       = errors.UnknownError
-	WorkflowStepInitializationErrorCode    = errors.WorkflowStepInitializationError
-	CustomFunctionInitializationErrorCode  = errors.CustomFunctionInitializationError
-	CustomFunctionCompleteSuccessErrorCode = errors.CustomFunctionCompleteSuccessError
-	CustomFunctionCompleteFailErrorCode    = errors.CustomFunctionCompleteFailError
+	WorkflowStepInitializationErrorCode    = errors.WorkflowStepInitializationErrorCode
+	CustomFunctionInitializationErrorCode  = errors.CustomFunctionInitializationErrorCode
+	CustomFunctionCompleteSuccessErrorCode = errors.CustomFunctionCompleteSuccessErrorCode
+	CustomFunctionCompleteFailErrorCode    = errors.CustomFunctionCompleteFailErrorCode
 )

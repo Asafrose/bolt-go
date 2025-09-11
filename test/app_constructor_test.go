@@ -33,6 +33,7 @@ func (r *FakeReceiver) Stop(ctx context.Context) error {
 }
 
 func TestAppConstructorComprehensive(t *testing.T) {
+	t.Parallel()
 	t.Run("with a custom port value in HTTP Mode", func(t *testing.T) {
 		t.Run("should accept a port value at the top-level", func(t *testing.T) {
 			port := 8080
@@ -130,7 +131,7 @@ func TestAppConstructorComprehensive(t *testing.T) {
 			SigningSecret: &fakeSigningSecret,
 			// No Token, Authorize, or OAuth installer
 		})
-		assert.Error(t, err, "Should fail without authorization method")
+		require.Error(t, err, "Should fail without authorization method")
 	})
 
 	t.Run("should fail when both a token and authorize callback are specified", func(t *testing.T) {
@@ -143,7 +144,7 @@ func TestAppConstructorComprehensive(t *testing.T) {
 			Authorize:     authorizeFn,
 			SigningSecret: &fakeSigningSecret,
 		})
-		assert.Error(t, err, "Should fail when both token and authorize are specified")
+		require.Error(t, err, "Should fail when both token and authorize are specified")
 	})
 
 	t.Run("should fail when both a token is specified and OAuthInstaller is initialized", func(t *testing.T) {
@@ -156,7 +157,7 @@ func TestAppConstructorComprehensive(t *testing.T) {
 		})
 		// For now, this should succeed since OAuth installer isn't fully implemented
 		// Once OAuth is implemented, this should return an error
-		assert.NoError(t, err, "OAuth installer not yet implemented")
+		require.NoError(t, err, "OAuth installer not yet implemented")
 	})
 
 	t.Run("should fail when both a authorize callback is specified and OAuthInstaller is initialized", func(t *testing.T) {
@@ -173,7 +174,7 @@ func TestAppConstructorComprehensive(t *testing.T) {
 		})
 		// For now, this should succeed since OAuth installer isn't fully implemented
 		// Once OAuth is implemented, this should return an error
-		assert.NoError(t, err, "OAuth installer not yet implemented")
+		require.NoError(t, err, "OAuth installer not yet implemented")
 	})
 
 	t.Run("with a custom receiver", func(t *testing.T) {
@@ -194,7 +195,7 @@ func TestAppConstructorComprehensive(t *testing.T) {
 			Token: &fakeToken,
 			// No SigningSecret for default receiver
 		})
-		assert.Error(t, err, "Should fail without signing secret for default receiver")
+		require.Error(t, err, "Should fail without signing secret for default receiver")
 	})
 
 	t.Run("should fail when both socketMode and a custom receiver are specified", func(t *testing.T) {
@@ -205,17 +206,18 @@ func TestAppConstructorComprehensive(t *testing.T) {
 			SocketMode: true,
 			Receiver:   customReceiver,
 		})
-		assert.Error(t, err, "Should fail when both socketMode and custom receiver are specified")
+		require.Error(t, err, "Should fail when both socketMode and custom receiver are specified")
 	})
 }
 
 func TestAppConstructorValidation(t *testing.T) {
+	t.Parallel()
 	t.Run("should validate required signing secret", func(t *testing.T) {
 		_, err := bolt.New(bolt.AppOptions{
 			Token: &fakeToken,
 			// Missing SigningSecret
 		})
-		assert.Error(t, err)
+		require.Error(t, err)
 		assert.Contains(t, err.Error(), "signing secret")
 	})
 
@@ -224,7 +226,7 @@ func TestAppConstructorValidation(t *testing.T) {
 			SigningSecret: &fakeSigningSecret,
 			// Missing Token and Authorize
 		})
-		assert.Error(t, err)
+		require.Error(t, err)
 	})
 
 	t.Run("should validate app token for socket mode", func(t *testing.T) {
@@ -234,7 +236,7 @@ func TestAppConstructorValidation(t *testing.T) {
 			SocketMode:    true,
 			// Missing AppToken
 		})
-		assert.Error(t, err)
+		require.Error(t, err)
 		assert.Contains(t, err.Error(), "app token")
 	})
 
@@ -248,7 +250,7 @@ func TestAppConstructorValidation(t *testing.T) {
 			Authorize:     authorizeFn,
 			SigningSecret: &fakeSigningSecret,
 		})
-		assert.Error(t, err)
+		require.Error(t, err)
 	})
 
 	t.Run("should validate mutual exclusion of socket mode and custom receiver", func(t *testing.T) {
@@ -260,11 +262,12 @@ func TestAppConstructorValidation(t *testing.T) {
 			SocketMode:    true,
 			Receiver:      customReceiver,
 		})
-		assert.Error(t, err)
+		require.Error(t, err)
 	})
 }
 
 func TestAppConstructorOptions(t *testing.T) {
+	t.Parallel()
 	t.Run("should accept custom logger", func(t *testing.T) {
 		// TODO: Test with actual logger when logger interface is defined
 		app, err := bolt.New(bolt.AppOptions{
@@ -322,6 +325,7 @@ func TestAppConstructorOptions(t *testing.T) {
 
 // TestBasicAppConstructorMissing implements the missing tests from basic.spec.ts
 func TestBasicAppConstructorMissing(t *testing.T) {
+	t.Parallel()
 	t.Run("with developerMode", func(t *testing.T) {
 		t.Run("should accept developerMode: true", func(t *testing.T) {
 			app, err := bolt.New(bolt.AppOptions{
@@ -404,7 +408,7 @@ func TestBasicAppConstructorMissing(t *testing.T) {
 			if err == nil {
 				t.Skip("OAuth installer validation not implemented yet")
 			}
-			assert.Error(t, err, "Should fail when redirectUri is provided without installerOptions")
+			require.Error(t, err, "Should fail when redirectUri is provided without installerOptions")
 		})
 
 		t.Run("should fail when missing installerOptions.redirectUriPath", func(t *testing.T) {

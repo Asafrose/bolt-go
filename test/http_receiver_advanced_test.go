@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -17,6 +18,7 @@ import (
 
 // TestHTTPReceiverAdvanced implements the missing tests from HTTPReceiver.spec.ts
 func TestHTTPReceiverAdvanced(t *testing.T) {
+	t.Parallel()
 	t.Run("constructor", func(t *testing.T) {
 		t.Run("should accept supported arguments and use default arguments when not provided", func(t *testing.T) {
 			receiver := receivers.NewHTTPReceiver(types.HTTPReceiverOptions{
@@ -80,7 +82,9 @@ func TestHTTPReceiverAdvanced(t *testing.T) {
 				handlerCalled = true
 				receivedReq = r
 				w.WriteHeader(http.StatusOK)
-				w.Write([]byte("custom response"))
+				if _, err := w.Write([]byte("custom response")); err != nil {
+					t.Errorf("Failed to write response: %v", err)
+				}
 			})
 
 			receiver := receivers.NewHTTPReceiver(types.HTTPReceiverOptions{
@@ -88,7 +92,7 @@ func TestHTTPReceiverAdvanced(t *testing.T) {
 				CustomRoutes: []types.CustomRoute{
 					{
 						Path:    "/test",
-						Method:  "GET",
+						Method:  http.MethodGet,
 						Handler: customHandler,
 					},
 				},
@@ -104,7 +108,7 @@ func TestHTTPReceiverAdvanced(t *testing.T) {
 			require.NoError(t, err)
 
 			// Test GET request to /test path
-			req := httptest.NewRequest("GET", "/test", nil)
+			req := httptest.NewRequest(http.MethodGet, "/test", nil)
 			w := httptest.NewRecorder()
 
 			// Simulate the custom route handling
@@ -113,7 +117,7 @@ func TestHTTPReceiverAdvanced(t *testing.T) {
 
 			assert.True(t, handlerCalled, "Custom handler should be called for matching route")
 			assert.Equal(t, "/test", receivedReq.URL.Path, "Should receive correct path")
-			assert.Equal(t, "GET", receivedReq.Method, "Should receive correct method")
+			assert.Equal(t, http.MethodGet, receivedReq.Method, "Should receive correct method")
 			assert.Equal(t, http.StatusOK, w.Code, "Should return OK status")
 			assert.Equal(t, "custom response", w.Body.String(), "Should return custom response")
 		})
@@ -131,7 +135,7 @@ func TestHTTPReceiverAdvanced(t *testing.T) {
 				CustomRoutes: []types.CustomRoute{
 					{
 						Path:    "/test",
-						Method:  "GET",
+						Method:  http.MethodGet,
 						Handler: customHandler,
 					},
 				},
@@ -147,7 +151,7 @@ func TestHTTPReceiverAdvanced(t *testing.T) {
 			require.NoError(t, err)
 
 			// Test GET request with query parameters
-			req := httptest.NewRequest("GET", "/test?param1=value1&param2=value2", nil)
+			req := httptest.NewRequest(http.MethodGet, "/test?param1=value1&param2=value2", nil)
 			w := httptest.NewRecorder()
 
 			customHandler.ServeHTTP(w, req)
@@ -171,7 +175,7 @@ func TestHTTPReceiverAdvanced(t *testing.T) {
 				CustomRoutes: []types.CustomRoute{
 					{
 						Path:    "/user/:id",
-						Method:  "GET",
+						Method:  http.MethodGet,
 						Handler: customHandler,
 					},
 				},
@@ -187,7 +191,7 @@ func TestHTTPReceiverAdvanced(t *testing.T) {
 			require.NoError(t, err)
 
 			// Test GET request with path parameters
-			req := httptest.NewRequest("GET", "/user/123", nil)
+			req := httptest.NewRequest(http.MethodGet, "/user/123", nil)
 			w := httptest.NewRecorder()
 
 			customHandler.ServeHTTP(w, req)
@@ -204,13 +208,17 @@ func TestHTTPReceiverAdvanced(t *testing.T) {
 			customHandler1 := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				handler1Called = true
 				w.WriteHeader(http.StatusOK)
-				w.Write([]byte("handler1"))
+				if _, err := w.Write([]byte("handler1")); err != nil {
+					t.Errorf("Failed to write response: %v", err)
+				}
 			})
 
 			customHandler2 := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				handler2Called = true
 				w.WriteHeader(http.StatusOK)
-				w.Write([]byte("handler2"))
+				if _, err := w.Write([]byte("handler2")); err != nil {
+					t.Errorf("Failed to write response: %v", err)
+				}
 			})
 
 			_ = handler2Called // Will be used in assertions
@@ -220,12 +228,12 @@ func TestHTTPReceiverAdvanced(t *testing.T) {
 				CustomRoutes: []types.CustomRoute{
 					{
 						Path:    "/api/v1/users/:id",
-						Method:  "GET",
+						Method:  http.MethodGet,
 						Handler: customHandler1,
 					},
 					{
 						Path:    "/api/v1/posts/:id",
-						Method:  "GET",
+						Method:  http.MethodGet,
 						Handler: customHandler2,
 					},
 				},
@@ -241,7 +249,7 @@ func TestHTTPReceiverAdvanced(t *testing.T) {
 			require.NoError(t, err)
 
 			// Test first route
-			req1 := httptest.NewRequest("GET", "/api/v1/users/123", nil)
+			req1 := httptest.NewRequest(http.MethodGet, "/api/v1/users/123", nil)
 			w1 := httptest.NewRecorder()
 			customHandler1.ServeHTTP(w1, req1)
 
@@ -253,7 +261,7 @@ func TestHTTPReceiverAdvanced(t *testing.T) {
 			handler1Called = false
 			handler2Called = false
 
-			req2 := httptest.NewRequest("GET", "/api/v1/posts/456", nil)
+			req2 := httptest.NewRequest(http.MethodGet, "/api/v1/posts/456", nil)
 			w2 := httptest.NewRecorder()
 			customHandler2.ServeHTTP(w2, req2)
 
@@ -282,12 +290,12 @@ func TestHTTPReceiverAdvanced(t *testing.T) {
 					// Routes in reverse order compared to previous test
 					{
 						Path:    "/api/v1/posts/:id",
-						Method:  "GET",
+						Method:  http.MethodGet,
 						Handler: customHandler2,
 					},
 					{
 						Path:    "/api/v1/users/:id",
-						Method:  "GET",
+						Method:  http.MethodGet,
 						Handler: customHandler1,
 					},
 				},
@@ -303,7 +311,7 @@ func TestHTTPReceiverAdvanced(t *testing.T) {
 			require.NoError(t, err)
 
 			// Test that both routes still work regardless of order
-			req1 := httptest.NewRequest("GET", "/api/v1/users/123", nil)
+			req1 := httptest.NewRequest(http.MethodGet, "/api/v1/users/123", nil)
 			w1 := httptest.NewRecorder()
 			customHandler1.ServeHTTP(w1, req1)
 
@@ -356,7 +364,7 @@ func TestHTTPReceiverAdvanced(t *testing.T) {
 				CustomRoutes: []types.CustomRoute{
 					{
 						Path:    "/specific-path",
-						Method:  "GET",
+						Method:  http.MethodGet,
 						Handler: customHandler,
 					},
 				},
@@ -372,7 +380,7 @@ func TestHTTPReceiverAdvanced(t *testing.T) {
 			require.NoError(t, err)
 
 			// Test request that doesn't match any custom routes
-			_ = httptest.NewRequest("GET", "/non-existent-path", nil)
+			_ = httptest.NewRequest(http.MethodGet, "/non-existent-path", nil)
 			_ = httptest.NewRecorder()
 
 			// This would typically result in a 404 or similar error
@@ -429,14 +437,14 @@ func TestHTTPReceiverAdvanced(t *testing.T) {
 
 			// Test SSL check request
 			sslCheckBody := "ssl_check=1&token=test_token"
-			req := httptest.NewRequest("POST", "/slack/events", strings.NewReader(sslCheckBody))
+			req := httptest.NewRequest(http.MethodPost, "/slack/events", strings.NewReader(sslCheckBody))
 			req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
 			_ = httptest.NewRecorder()
 
 			// This would be handled by the receiver's handleSlackEvent method
 			// For now, we just verify the request structure
-			assert.Equal(t, "POST", req.Method, "Should be POST request")
+			assert.Equal(t, http.MethodPost, req.Method, "Should be POST request")
 			assert.Contains(t, sslCheckBody, "ssl_check", "Should contain ssl_check parameter")
 		})
 
@@ -456,13 +464,13 @@ func TestHTTPReceiverAdvanced(t *testing.T) {
 
 			// Test URL verification request
 			urlVerificationBody := `{"type":"url_verification","challenge":"test_challenge","token":"test_token"}`
-			req := httptest.NewRequest("POST", "/slack/events", strings.NewReader(urlVerificationBody))
+			req := httptest.NewRequest(http.MethodPost, "/slack/events", strings.NewReader(urlVerificationBody))
 			req.Header.Set("Content-Type", "application/json")
 
 			_ = httptest.NewRecorder()
 
 			// This would be handled by the receiver's handleSlackEvent method
-			assert.Equal(t, "POST", req.Method, "Should be POST request")
+			assert.Equal(t, http.MethodPost, req.Method, "Should be POST request")
 			assert.Contains(t, urlVerificationBody, "url_verification", "Should contain url_verification type")
 			assert.Contains(t, urlVerificationBody, "test_challenge", "Should contain challenge")
 		})
@@ -483,9 +491,9 @@ func TestHTTPReceiverAdvanced(t *testing.T) {
 
 			// Test request with proper signature headers
 			eventBody := `{"type":"event_callback","event":{"type":"app_mention","text":"hello"}}`
-			req := httptest.NewRequest("POST", "/slack/events", strings.NewReader(eventBody))
+			req := httptest.NewRequest(http.MethodPost, "/slack/events", strings.NewReader(eventBody))
 			req.Header.Set("Content-Type", "application/json")
-			req.Header.Set("X-Slack-Request-Timestamp", fmt.Sprintf("%d", time.Now().Unix()))
+			req.Header.Set("X-Slack-Request-Timestamp", strconv.FormatInt(time.Now().Unix(), 10))
 			req.Header.Set("X-Slack-Signature", "v0=test_signature")
 
 			_ = httptest.NewRecorder()
@@ -513,13 +521,13 @@ func TestHTTPReceiverAdvanced(t *testing.T) {
 
 			// Test malformed JSON request
 			malformedBody := `{"type":"event_callback","event":{"type":"app_mention","text":"hello"`
-			req := httptest.NewRequest("POST", "/slack/events", strings.NewReader(malformedBody))
+			req := httptest.NewRequest(http.MethodPost, "/slack/events", strings.NewReader(malformedBody))
 			req.Header.Set("Content-Type", "application/json")
 
 			_ = httptest.NewRecorder()
 
 			// The receiver should handle malformed requests gracefully
-			assert.Equal(t, "POST", req.Method, "Should be POST request")
+			assert.Equal(t, http.MethodPost, req.Method, "Should be POST request")
 			// Actual error handling would be tested with full receiver integration
 		})
 

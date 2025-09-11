@@ -14,6 +14,7 @@ import (
 
 // TestViewRoutingComprehensive implements the missing tests from routing-view.spec.ts
 func TestViewRoutingComprehensive(t *testing.T) {
+	t.Parallel()
 	t.Run("should throw if provided a constraint with unknown view constraint keys", func(t *testing.T) {
 		// In Go, this would be caught at compile time due to type safety
 		// But we can test that the constraints work as expected

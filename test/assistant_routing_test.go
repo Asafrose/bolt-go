@@ -13,6 +13,7 @@ import (
 
 // TestAssistantRouting implements the missing tests from routing-assistant.spec.ts
 func TestAssistantRouting(t *testing.T) {
+	t.Parallel()
 	t.Run("should route assistant_thread_started event to a registered handler", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
 			Token:         &fakeToken,

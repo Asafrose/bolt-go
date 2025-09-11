@@ -13,6 +13,7 @@ import (
 )
 
 func TestRegExpActionRouting(t *testing.T) {
+	t.Parallel()
 	t.Run("should route a block action event to a handler registered with action(RegExp) that matches the action ID", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
 			Token:         &fakeToken,
@@ -191,6 +192,7 @@ func TestRegExpActionRouting(t *testing.T) {
 }
 
 func TestRegExpCommandRouting(t *testing.T) {
+	t.Parallel()
 	t.Run("should route a command to a handler registered with command(RegExp) if command name matches", func(t *testing.T) {
 		// TODO: Add RegExp support for commands
 		// This test is a placeholder for when we implement Command RegExp support
@@ -199,6 +201,7 @@ func TestRegExpCommandRouting(t *testing.T) {
 }
 
 func TestRegExpEventRouting(t *testing.T) {
+	t.Parallel()
 	t.Run("should route a Slack event to a handler registered with event(RegExp)", func(t *testing.T) {
 		// TODO: Add RegExp support for events
 		// This test is a placeholder for when we implement Event RegExp support
@@ -207,6 +210,7 @@ func TestRegExpEventRouting(t *testing.T) {
 }
 
 func TestRegExpMessageRouting(t *testing.T) {
+	t.Parallel()
 	t.Run("should route a message event to a handler registered with message(RegExp) if message contents match", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
 			Token:         &fakeToken,
@@ -316,6 +320,7 @@ func TestRegExpMessageRouting(t *testing.T) {
 }
 
 func TestRegExpShortcutRouting(t *testing.T) {
+	t.Parallel()
 	t.Run("should route a Slack shortcut event to a handler registered with shortcut(RegExp) that matches the callback ID", func(t *testing.T) {
 		// TODO: Add RegExp support for shortcuts
 		// This test is a placeholder for when we implement Shortcut RegExp support
@@ -324,6 +329,7 @@ func TestRegExpShortcutRouting(t *testing.T) {
 }
 
 func TestRegExpViewRouting(t *testing.T) {
+	t.Parallel()
 	t.Run("should route a view submission event to a handler registered with view(RegExp) that matches the callback ID", func(t *testing.T) {
 		// TODO: Add RegExp support for views
 		// This test is a placeholder for when we implement View RegExp support
@@ -332,6 +338,7 @@ func TestRegExpViewRouting(t *testing.T) {
 }
 
 func TestRegExpOptionsRouting(t *testing.T) {
+	t.Parallel()
 	t.Run("should route a block suggestion event to a handler registered with options(RegExp) that matches the action ID", func(t *testing.T) {
 		// TODO: Add RegExp support for options
 		// This test is a placeholder for when we implement Options RegExp support

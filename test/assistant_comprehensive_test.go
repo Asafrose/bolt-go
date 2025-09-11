@@ -14,6 +14,7 @@ import (
 
 // TestAssistantComprehensive implements all missing tests from Assistant.spec.ts
 func TestAssistantComprehensive(t *testing.T) {
+	t.Parallel()
 
 	t.Run("constructor", func(t *testing.T) {
 		t.Run("should accept config as single functions", func(t *testing.T) {
@@ -73,7 +74,7 @@ func TestAssistantComprehensive(t *testing.T) {
 		t.Run("should throw an error if config is not an object", func(t *testing.T) {
 			// Test direct validation function
 			err := assistant.ValidateAssistantConfig(nil)
-			assert.Error(t, err)
+			require.Error(t, err)
 			assert.Contains(t, err.Error(), "configuration object")
 		})
 
@@ -88,7 +89,7 @@ func TestAssistantComprehensive(t *testing.T) {
 			}
 
 			_, err := assistant.NewAssistant(config)
-			assert.Error(t, err)
+			require.Error(t, err)
 			assert.Contains(t, err.Error(), "userMessage")
 
 			// Missing threadStarted
@@ -101,7 +102,7 @@ func TestAssistantComprehensive(t *testing.T) {
 			}
 
 			_, err2 := assistant.NewAssistant(config2)
-			assert.Error(t, err2)
+			require.Error(t, err2)
 			assert.Contains(t, err2.Error(), "threadStarted")
 		})
 
@@ -114,7 +115,7 @@ func TestAssistantComprehensive(t *testing.T) {
 			}
 
 			_, err := assistant.NewAssistant(config)
-			assert.Error(t, err)
+			require.Error(t, err)
 			assert.Contains(t, err.Error(), "middleware")
 		})
 	})
@@ -176,7 +177,7 @@ func TestAssistantComprehensive(t *testing.T) {
 			}
 
 			err = middleware(args)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			assert.True(t, nextCalled, "Next should be called for non-assistant events")
 		})
 
@@ -233,7 +234,7 @@ func TestAssistantComprehensive(t *testing.T) {
 			}
 
 			err = middleware(args)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			assert.False(t, nextCalled, "Next should NOT be called for assistant events")
 		})
 	})
@@ -533,7 +534,7 @@ func TestAssistantComprehensive(t *testing.T) {
 			// Test that Say function exists and is callable
 			assert.NotNil(t, enrichedArgs.Say)
 			_, err := enrichedArgs.Say("Hello world")
-			assert.NoError(t, err)
+			require.NoError(t, err)
 		})
 
 		t.Run("say should be called with message_metadata that includes thread context", func(t *testing.T) {
@@ -559,7 +560,7 @@ func TestAssistantComprehensive(t *testing.T) {
 					},
 				},
 			})
-			assert.NoError(t, err)
+			require.NoError(t, err)
 		})
 
 		t.Run("say should be called with message_metadata that supplements thread context", func(t *testing.T) {
@@ -574,17 +575,18 @@ func TestAssistantComprehensive(t *testing.T) {
 
 			store := assistant.NewDefaultThreadContextStore()
 			// Store existing context
-			store.Save(context.Background(), &assistant.AssistantThreadContext{
+			err := store.Save(context.Background(), &assistant.AssistantThreadContext{
 				ChannelID: "C123",
 				ThreadTS:  "1234567890.123",
 				Context: map[string]interface{}{
 					"existing": "value",
 				},
 			})
+			require.NoError(t, err)
 
 			enrichedArgs := assistant.EnrichAssistantArgs(store, args)
 
-			_, err := enrichedArgs.Say(map[string]interface{}{
+			_, err = enrichedArgs.Say(map[string]interface{}{
 				"text": "Hello",
 				"metadata": map[string]interface{}{
 					"event_payload": map[string]interface{}{
@@ -592,7 +594,7 @@ func TestAssistantComprehensive(t *testing.T) {
 					},
 				},
 			})
-			assert.NoError(t, err)
+			require.NoError(t, err)
 		})
 
 		t.Run("say should get context from store if no thread context is included in event", func(t *testing.T) {
@@ -609,7 +611,7 @@ func TestAssistantComprehensive(t *testing.T) {
 			enrichedArgs := assistant.EnrichAssistantArgs(store, args)
 
 			context, err := enrichedArgs.GetThreadContext()
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			assert.NotNil(t, context)
 		})
 
@@ -627,7 +629,7 @@ func TestAssistantComprehensive(t *testing.T) {
 			enrichedArgs := assistant.EnrichAssistantArgs(store, args)
 
 			err := enrichedArgs.SetStatus("in_progress")
-			assert.NoError(t, err)
+			require.NoError(t, err)
 		})
 
 		t.Run("setSuggestedPrompts should call assistant.threads.setSuggestedPrompts", func(t *testing.T) {
@@ -647,7 +649,7 @@ func TestAssistantComprehensive(t *testing.T) {
 			err := enrichedArgs.SetSuggestedPrompts(assistant.SetSuggestedPromptsArguments{
 				Prompts: prompts,
 			})
-			assert.NoError(t, err)
+			require.NoError(t, err)
 		})
 
 		t.Run("setTitle should call assistant.threads.setTitle", func(t *testing.T) {
@@ -664,7 +666,7 @@ func TestAssistantComprehensive(t *testing.T) {
 			enrichedArgs := assistant.EnrichAssistantArgs(store, args)
 
 			err := enrichedArgs.SetTitle("My Assistant Thread")
-			assert.NoError(t, err)
+			require.NoError(t, err)
 		})
 	})
 
@@ -699,7 +701,7 @@ func TestAssistantComprehensive(t *testing.T) {
 				"channel":   "C123",
 				"thread_ts": "1234567890.123",
 			})
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			assert.True(t, middleware1Called)
 			assert.True(t, middleware2Called)
 			assert.False(t, middleware3Called) // Different event type
@@ -711,7 +713,7 @@ func TestAssistantComprehensive(t *testing.T) {
 				"thread_ts":    "1234567890.123",
 				"channel_type": "im",
 			})
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			assert.False(t, middleware1Called) // Different event type
 			assert.False(t, middleware2Called) // Different event type
 			assert.True(t, middleware3Called)

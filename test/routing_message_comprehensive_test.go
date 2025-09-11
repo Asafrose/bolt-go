@@ -14,6 +14,7 @@ import (
 
 // TestMessageRoutingComprehensive implements the missing tests from routing-message.spec.ts
 func TestMessageRoutingComprehensive(t *testing.T) {
+	t.Parallel()
 	t.Run("should route a message event to a handler registered with message(string) if message contents match", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
 			Token:         &fakeToken,

@@ -13,6 +13,7 @@ import (
 )
 
 func TestAwsLambdaReceiver(t *testing.T) {
+	t.Parallel()
 	t.Run("should create AWS Lambda receiver with valid options", func(t *testing.T) {
 		receiver := receivers.NewAwsLambdaReceiver(types.AwsLambdaReceiverOptions{
 			SigningSecret: fakeSigningSecret,
@@ -33,7 +34,7 @@ func TestAwsLambdaReceiver(t *testing.T) {
 		require.NoError(t, err)
 
 		err = receiver.Init(app)
-		assert.NoError(t, err, "AWS Lambda receiver should initialize with app")
+		require.NoError(t, err, "AWS Lambda receiver should initialize with app")
 	})
 
 	t.Run("should handle process before response option", func(t *testing.T) {
@@ -51,7 +52,7 @@ func TestAwsLambdaReceiver(t *testing.T) {
 		require.NoError(t, err)
 
 		err = receiver.Init(app)
-		assert.NoError(t, err, "Receiver should initialize with process before response")
+		require.NoError(t, err, "Receiver should initialize with process before response")
 	})
 
 	t.Run("should handle custom properties", func(t *testing.T) {
@@ -75,11 +76,12 @@ func TestAwsLambdaReceiver(t *testing.T) {
 		require.NoError(t, err)
 
 		err = receiver.Init(app)
-		assert.NoError(t, err, "Receiver should initialize with custom properties")
+		require.NoError(t, err, "Receiver should initialize with custom properties")
 	})
 }
 
 func TestAwsLambdaReceiverEventHandling(t *testing.T) {
+	t.Parallel()
 	t.Run("should handle API Gateway event", func(t *testing.T) {
 		receiver := receivers.NewAwsLambdaReceiver(types.AwsLambdaReceiverOptions{
 			SigningSecret: fakeSigningSecret,
@@ -123,7 +125,7 @@ func TestAwsLambdaReceiverEventHandling(t *testing.T) {
 		response, err := receiver.HandleLambdaEvent(ctx, apiGatewayEvent)
 
 		// Should handle the event (may fail signature verification but shouldn't panic)
-		assert.NoError(t, err, "Should handle Lambda event without panicking")
+		require.NoError(t, err, "Should handle Lambda event without panicking")
 		assert.NotZero(t, response.StatusCode, "Should return a response")
 	})
 
@@ -155,7 +157,7 @@ func TestAwsLambdaReceiverEventHandling(t *testing.T) {
 			ctx := context.Background()
 			response, err := receiver.HandleLambdaEvent(ctx, apiGatewayEvent)
 
-			assert.NoError(t, err, "Should handle %s method", method)
+			require.NoError(t, err, "Should handle %s method", method)
 			if method != "POST" {
 				assert.Equal(t, 405, response.StatusCode, "Should return 405 for non-POST methods")
 			}
@@ -190,13 +192,14 @@ func TestAwsLambdaReceiverEventHandling(t *testing.T) {
 			ctx := context.Background()
 			response, err := receiver.HandleLambdaEvent(ctx, apiGatewayEvent)
 
-			assert.NoError(t, err, "Should handle path %s", path)
+			require.NoError(t, err, "Should handle path %s", path)
 			assert.NotZero(t, response.StatusCode, "Should return a response for path %s", path)
 		}
 	})
 }
 
 func TestAwsLambdaReceiverResponses(t *testing.T) {
+	t.Parallel()
 	t.Run("should format response correctly", func(t *testing.T) {
 		receiver := receivers.NewAwsLambdaReceiver(types.AwsLambdaReceiverOptions{
 			SigningSecret: fakeSigningSecret,
@@ -224,7 +227,7 @@ func TestAwsLambdaReceiverResponses(t *testing.T) {
 		ctx := context.Background()
 		response, err := receiver.HandleLambdaEvent(ctx, apiGatewayEvent)
 
-		assert.NoError(t, err, "Should handle event")
+		require.NoError(t, err, "Should handle event")
 		assert.NotZero(t, response.StatusCode, "Should have status code")
 		assert.NotNil(t, response.Headers, "Should have headers")
 		assert.NotEmpty(t, response.Body, "Should have body")
@@ -265,7 +268,7 @@ func TestAwsLambdaReceiverResponses(t *testing.T) {
 		ctx := context.Background()
 		response, err := receiver.HandleLambdaEvent(ctx, apiGatewayEvent)
 
-		assert.NoError(t, err, "Should handle URL verification")
+		require.NoError(t, err, "Should handle URL verification")
 		assert.Equal(t, 200, response.StatusCode, "Should return 200 for URL verification")
 		assert.Equal(t, "test-challenge-string", response.Body, "Should return challenge")
 		assert.Equal(t, "text/plain", response.Headers["Content-Type"], "Should have correct content type")
@@ -288,13 +291,14 @@ func TestAwsLambdaReceiverResponses(t *testing.T) {
 		ctx := context.Background()
 		response, err := receiver.HandleLambdaEvent(ctx, apiGatewayEvent)
 
-		assert.NoError(t, err, "Should not return error from HandleLambdaEvent")
+		require.NoError(t, err, "Should not return error from HandleLambdaEvent")
 		assert.Equal(t, 500, response.StatusCode, "Should return 500 for uninitialized receiver")
 		assert.Contains(t, response.Body, "error", "Error response should contain error message")
 	})
 }
 
 func TestAwsLambdaReceiverConfiguration(t *testing.T) {
+	t.Parallel()
 	t.Run("should handle different signing secrets", func(t *testing.T) {
 		signingSecrets := []string{
 			"short_secret",
@@ -334,6 +338,7 @@ func TestAwsLambdaReceiverConfiguration(t *testing.T) {
 }
 
 func TestAwsLambdaReceiverIntegration(t *testing.T) {
+	t.Parallel()
 	t.Run("should integrate with bolt app", func(t *testing.T) {
 		// Create app with AWS Lambda receiver
 		app, err := bolt.New(bolt.AppOptions{
@@ -355,7 +360,7 @@ func TestAwsLambdaReceiverIntegration(t *testing.T) {
 		// Initialize app
 		ctx := context.Background()
 		err = app.Init(ctx)
-		assert.NoError(t, err, "App should initialize with AWS Lambda receiver")
+		require.NoError(t, err, "App should initialize with AWS Lambda receiver")
 
 		// Verify handler registration
 		assert.False(t, handlerCalled, "Handler should not be called yet")
@@ -371,7 +376,7 @@ func TestAwsLambdaReceiverIntegration(t *testing.T) {
 		})
 
 		// Should return error for invalid configuration
-		assert.Error(t, err, "Should return error for invalid app configuration")
+		require.Error(t, err, "Should return error for invalid app configuration")
 	})
 
 	t.Run("should handle form-encoded slash commands", func(t *testing.T) {
@@ -403,7 +408,7 @@ func TestAwsLambdaReceiverIntegration(t *testing.T) {
 		ctx := context.Background()
 		response, err := receiver.HandleLambdaEvent(ctx, apiGatewayEvent)
 
-		assert.NoError(t, err, "Should handle form-encoded command")
+		require.NoError(t, err, "Should handle form-encoded command")
 		assert.NotZero(t, response.StatusCode, "Should return a response")
 	})
 
@@ -449,7 +454,7 @@ func TestAwsLambdaReceiverIntegration(t *testing.T) {
 		ctx := context.Background()
 		response, err := receiver.HandleLambdaEvent(ctx, apiGatewayEvent)
 
-		assert.NoError(t, err, "Should handle interactive component payload")
+		require.NoError(t, err, "Should handle interactive component payload")
 		assert.NotZero(t, response.StatusCode, "Should return a response")
 	})
 }

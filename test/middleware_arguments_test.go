@@ -3,7 +3,7 @@ package test
 import (
 	"context"
 	"encoding/json"
-	"fmt"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -17,6 +17,7 @@ import (
 )
 
 func TestEventMiddlewareArguments(t *testing.T) {
+	t.Parallel()
 	t.Run("should provide correct event arguments for app_mention", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
 			Token:         &fakeToken,
@@ -24,9 +25,9 @@ func TestEventMiddlewareArguments(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		var receivedArgs bolt.SlackEventMiddlewareArgs
+		var receivedArgs types.SlackEventMiddlewareArgs
 
-		app.Event("app_mention", func(args bolt.SlackEventMiddlewareArgs) error {
+		app.Event("app_mention", func(args types.SlackEventMiddlewareArgs) error {
 			receivedArgs = args
 			return nil
 		})
@@ -83,9 +84,9 @@ func TestEventMiddlewareArguments(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		var receivedArgs bolt.SlackEventMiddlewareArgs
+		var receivedArgs types.SlackEventMiddlewareArgs
 
-		app.Event("message", func(args bolt.SlackEventMiddlewareArgs) error {
+		app.Event("message", func(args types.SlackEventMiddlewareArgs) error {
 			receivedArgs = args
 			return nil
 		})
@@ -128,6 +129,7 @@ func TestEventMiddlewareArguments(t *testing.T) {
 }
 
 func TestActionMiddlewareArguments(t *testing.T) {
+	t.Parallel()
 	t.Run("should provide correct action arguments for button click", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
 			Token:         &fakeToken,
@@ -135,12 +137,12 @@ func TestActionMiddlewareArguments(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		var receivedArgs bolt.SlackActionMiddlewareArgs
+		var receivedArgs types.SlackActionMiddlewareArgs
 
 		actionID := "button_1"
 		app.Action(bolt.ActionConstraints{
 			ActionID: &actionID,
-		}, func(args bolt.SlackActionMiddlewareArgs) error {
+		}, func(args types.SlackActionMiddlewareArgs) error {
 			receivedArgs = args
 			return nil
 		})
@@ -203,12 +205,12 @@ func TestActionMiddlewareArguments(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		var receivedArgs bolt.SlackActionMiddlewareArgs
+		var receivedArgs types.SlackActionMiddlewareArgs
 
 		actionID := "select_1"
 		app.Action(bolt.ActionConstraints{
 			ActionID: &actionID,
-		}, func(args bolt.SlackActionMiddlewareArgs) error {
+		}, func(args types.SlackActionMiddlewareArgs) error {
 			receivedArgs = args
 			return nil
 		})
@@ -257,6 +259,7 @@ func TestActionMiddlewareArguments(t *testing.T) {
 }
 
 func TestCommandMiddlewareArguments(t *testing.T) {
+	t.Parallel()
 	t.Run("should provide correct command arguments", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
 			Token:         &fakeToken,
@@ -264,9 +267,9 @@ func TestCommandMiddlewareArguments(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		var receivedArgs bolt.SlackCommandMiddlewareArgs
+		var receivedArgs types.SlackCommandMiddlewareArgs
 
-		app.Command("/test", func(args bolt.SlackCommandMiddlewareArgs) error {
+		app.Command("/test", func(args types.SlackCommandMiddlewareArgs) error {
 			receivedArgs = args
 			return nil
 		})
@@ -322,9 +325,9 @@ func TestCommandMiddlewareArguments(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		var receivedArgs bolt.SlackCommandMiddlewareArgs
+		var receivedArgs types.SlackCommandMiddlewareArgs
 
-		app.Command("/empty", func(args bolt.SlackCommandMiddlewareArgs) error {
+		app.Command("/empty", func(args types.SlackCommandMiddlewareArgs) error {
 			receivedArgs = args
 			return nil
 		})
@@ -361,6 +364,7 @@ func TestCommandMiddlewareArguments(t *testing.T) {
 }
 
 func TestShortcutMiddlewareArguments(t *testing.T) {
+	t.Parallel()
 	t.Run("should provide correct shortcut arguments for global shortcut", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
 			Token:         &fakeToken,
@@ -368,12 +372,12 @@ func TestShortcutMiddlewareArguments(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		var receivedArgs bolt.SlackShortcutMiddlewareArgs
+		var receivedArgs types.SlackShortcutMiddlewareArgs
 
 		callbackID := "test_shortcut"
 		app.Shortcut(bolt.ShortcutConstraints{
 			CallbackID: &callbackID,
-		}, func(args bolt.SlackShortcutMiddlewareArgs) error {
+		}, func(args types.SlackShortcutMiddlewareArgs) error {
 			receivedArgs = args
 			return nil
 		})
@@ -419,12 +423,12 @@ func TestShortcutMiddlewareArguments(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		var receivedArgs bolt.SlackShortcutMiddlewareArgs
+		var receivedArgs types.SlackShortcutMiddlewareArgs
 
 		callbackID := "message_shortcut"
 		app.Shortcut(bolt.ShortcutConstraints{
 			CallbackID: &callbackID,
-		}, func(args bolt.SlackShortcutMiddlewareArgs) error {
+		}, func(args types.SlackShortcutMiddlewareArgs) error {
 			receivedArgs = args
 			return nil
 		})
@@ -465,6 +469,7 @@ func TestShortcutMiddlewareArguments(t *testing.T) {
 }
 
 func TestViewMiddlewareArguments(t *testing.T) {
+	t.Parallel()
 	t.Run("should provide correct view arguments for view submission", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
 			Token:         &fakeToken,
@@ -472,12 +477,12 @@ func TestViewMiddlewareArguments(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		var receivedArgs bolt.SlackViewMiddlewareArgs
+		var receivedArgs types.SlackViewMiddlewareArgs
 
 		callbackID := "test_modal"
 		app.View(bolt.ViewConstraints{
 			CallbackID: &callbackID,
-		}, func(args bolt.SlackViewMiddlewareArgs) error {
+		}, func(args types.SlackViewMiddlewareArgs) error {
 			receivedArgs = args
 			return nil
 		})
@@ -536,12 +541,12 @@ func TestViewMiddlewareArguments(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		var receivedArgs bolt.SlackViewMiddlewareArgs
+		var receivedArgs types.SlackViewMiddlewareArgs
 
 		callbackID := "closable_modal"
 		app.View(bolt.ViewConstraints{
 			CallbackID: &callbackID,
-		}, func(args bolt.SlackViewMiddlewareArgs) error {
+		}, func(args types.SlackViewMiddlewareArgs) error {
 			receivedArgs = args
 			return nil
 		})
@@ -581,6 +586,7 @@ func TestViewMiddlewareArguments(t *testing.T) {
 }
 
 func TestOptionsMiddlewareArguments(t *testing.T) {
+	t.Parallel()
 	t.Run("should provide correct options arguments", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
 			Token:         &fakeToken,
@@ -641,6 +647,7 @@ func TestOptionsMiddlewareArguments(t *testing.T) {
 }
 
 func TestMiddlewareArgumentsAdvanced(t *testing.T) {
+	t.Parallel()
 	t.Run("should extract valid enterprise_id in a shared channel", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
 			Token:         &fakeToken,
@@ -648,9 +655,9 @@ func TestMiddlewareArgumentsAdvanced(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		var receivedArgs bolt.SlackEventMiddlewareArgs
+		var receivedArgs types.SlackEventMiddlewareArgs
 
-		app.Event("app_mention", func(args bolt.SlackEventMiddlewareArgs) error {
+		app.Event("app_mention", func(args types.SlackEventMiddlewareArgs) error {
 			receivedArgs = args
 			return nil
 		})
@@ -698,7 +705,7 @@ func TestMiddlewareArgumentsAdvanced(t *testing.T) {
 
 		_ = false // handlerCalled not used in this test
 
-		app.Event("tokens_revoked", func(args bolt.SlackEventMiddlewareArgs) error {
+		app.Event("tokens_revoked", func(args types.SlackEventMiddlewareArgs) error {
 			return nil
 		})
 
@@ -745,7 +752,7 @@ func TestMiddlewareArgumentsAdvanced(t *testing.T) {
 
 		_ = false // handlerCalled not used in this test
 
-		app.Event("app_uninstalled", func(args bolt.SlackEventMiddlewareArgs) error {
+		app.Event("app_uninstalled", func(args types.SlackEventMiddlewareArgs) error {
 			return nil
 		})
 
@@ -780,6 +787,7 @@ func TestMiddlewareArgumentsAdvanced(t *testing.T) {
 }
 
 func TestMiddlewareArgumentsRespond(t *testing.T) {
+	t.Parallel()
 	t.Run("should respond to events with a response_url", func(t *testing.T) {
 		// Create mock server for response_url
 		responseReceived := false
@@ -795,12 +803,12 @@ func TestMiddlewareArgumentsRespond(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		var receivedArgs bolt.SlackActionMiddlewareArgs
+		var receivedArgs types.SlackActionMiddlewareArgs
 
 		actionID := "button_1"
 		app.Action(bolt.ActionConstraints{
 			ActionID: &actionID,
-		}, func(args bolt.SlackActionMiddlewareArgs) error {
+		}, func(args types.SlackActionMiddlewareArgs) error {
 			receivedArgs = args
 			return nil
 		})
@@ -843,7 +851,7 @@ func TestMiddlewareArgumentsRespond(t *testing.T) {
 		err = receivedArgs.Respond(map[string]interface{}{
 			"text": "Button clicked!",
 		})
-		assert.NoError(t, err, "Respond should work with response_url")
+		require.NoError(t, err, "Respond should work with response_url")
 		assert.True(t, responseReceived, "Response should be sent to mock server")
 	})
 
@@ -854,12 +862,12 @@ func TestMiddlewareArgumentsRespond(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		var receivedArgs bolt.SlackActionMiddlewareArgs
+		var receivedArgs types.SlackActionMiddlewareArgs
 
 		actionID := "button_1"
 		app.Action(bolt.ActionConstraints{
 			ActionID: &actionID,
-		}, func(args bolt.SlackActionMiddlewareArgs) error {
+		}, func(args types.SlackActionMiddlewareArgs) error {
 			receivedArgs = args
 			return nil
 		})
@@ -918,7 +926,7 @@ func TestMiddlewareArgumentsRespond(t *testing.T) {
 		}
 
 		err = receivedArgs.Respond(response)
-		assert.NoError(t, err, "Respond should work with complex response object")
+		require.NoError(t, err, "Respond should work with complex response object")
 		assert.True(t, responseReceived, "Response should be sent to mock server")
 	})
 
@@ -929,12 +937,12 @@ func TestMiddlewareArgumentsRespond(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		var receivedArgs bolt.SlackViewMiddlewareArgs
+		var receivedArgs types.SlackViewMiddlewareArgs
 
 		callbackID := "modal_1"
 		app.View(bolt.ViewConstraints{
 			CallbackID: &callbackID,
-		}, func(args bolt.SlackViewMiddlewareArgs) error {
+		}, func(args types.SlackViewMiddlewareArgs) error {
 			receivedArgs = args
 			return nil
 		})
@@ -982,6 +990,7 @@ func TestMiddlewareArgumentsRespond(t *testing.T) {
 }
 
 func TestMiddlewareArgumentsLogger(t *testing.T) {
+	t.Parallel()
 	t.Run("should be available in middleware/listener args", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
 			Token:         &fakeToken,
@@ -989,9 +998,9 @@ func TestMiddlewareArgumentsLogger(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		var receivedArgs bolt.SlackEventMiddlewareArgs
+		var receivedArgs types.SlackEventMiddlewareArgs
 
-		app.Event("app_mention", func(args bolt.SlackEventMiddlewareArgs) error {
+		app.Event("app_mention", func(args types.SlackEventMiddlewareArgs) error {
 			receivedArgs = args
 			return nil
 		})
@@ -1038,9 +1047,9 @@ func TestMiddlewareArgumentsLogger(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		var receivedArgs bolt.SlackEventMiddlewareArgs
+		var receivedArgs types.SlackEventMiddlewareArgs
 
-		app.Event("app_mention", func(args bolt.SlackEventMiddlewareArgs) error {
+		app.Event("app_mention", func(args types.SlackEventMiddlewareArgs) error {
 			receivedArgs = args
 			return nil
 		})
@@ -1079,6 +1088,7 @@ func TestMiddlewareArgumentsLogger(t *testing.T) {
 }
 
 func TestMiddlewareArgumentsClient(t *testing.T) {
+	t.Parallel()
 	t.Run("should be available in middleware/listener args", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
 			Token:         &fakeToken,
@@ -1086,9 +1096,9 @@ func TestMiddlewareArgumentsClient(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		var receivedArgs bolt.SlackEventMiddlewareArgs
+		var receivedArgs types.SlackEventMiddlewareArgs
 
-		app.Event("app_mention", func(args bolt.SlackEventMiddlewareArgs) error {
+		app.Event("app_mention", func(args types.SlackEventMiddlewareArgs) error {
 			receivedArgs = args
 			return nil
 		})
@@ -1143,9 +1153,9 @@ func TestMiddlewareArgumentsClient(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		var receivedArgs bolt.SlackEventMiddlewareArgs
+		var receivedArgs types.SlackEventMiddlewareArgs
 
-		app.Event("app_mention", func(args bolt.SlackEventMiddlewareArgs) error {
+		app.Event("app_mention", func(args types.SlackEventMiddlewareArgs) error {
 			receivedArgs = args
 			return nil
 		})
@@ -1185,6 +1195,7 @@ func TestMiddlewareArgumentsClient(t *testing.T) {
 }
 
 func TestMiddlewareArgumentsSay(t *testing.T) {
+	t.Parallel()
 	t.Run("should send a simple message to a channel where the incoming event originates", func(t *testing.T) {
 		// Create mock Slack API server
 		mockAPIServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -1200,7 +1211,9 @@ func TestMiddlewareArgumentsSay(t *testing.T) {
 						"text": "Hello back!",
 					},
 				}
-				json.NewEncoder(w).Encode(response)
+				if err := json.NewEncoder(w).Encode(response); err != nil {
+					t.Errorf("Failed to encode response: %v", err)
+				}
 				return
 			}
 			w.WriteHeader(http.StatusNotFound)
@@ -1214,9 +1227,9 @@ func TestMiddlewareArgumentsSay(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		var receivedArgs bolt.SlackEventMiddlewareArgs
+		var receivedArgs types.SlackEventMiddlewareArgs
 
-		app.Event("app_mention", func(args bolt.SlackEventMiddlewareArgs) error {
+		app.Event("app_mention", func(args types.SlackEventMiddlewareArgs) error {
 			receivedArgs = args
 			return nil
 		})
@@ -1254,7 +1267,7 @@ func TestMiddlewareArgumentsSay(t *testing.T) {
 
 		// Test Say function
 		_, err = receivedArgs.Say("Hello back!")
-		assert.NoError(t, err, "Say should work for channel events")
+		require.NoError(t, err, "Say should work for channel events")
 	})
 
 	t.Run("for events that should include say() utility", func(t *testing.T) {
@@ -1273,7 +1286,9 @@ func TestMiddlewareArgumentsSay(t *testing.T) {
 							"text": "Hello from the bot!",
 						},
 					}
-					json.NewEncoder(w).Encode(response)
+					if err := json.NewEncoder(w).Encode(response); err != nil {
+						t.Errorf("Failed to encode response: %v", err)
+					}
 					return
 				}
 				w.WriteHeader(http.StatusNotFound)
@@ -1298,7 +1313,7 @@ func TestMiddlewareArgumentsSay(t *testing.T) {
 				// Test calling say with a simple message
 				if args.Say != nil {
 					_, err := args.Say("Hello from the bot!")
-					assert.NoError(t, err, "Say should work without error")
+					require.NoError(t, err, "Say should work without error")
 				}
 
 				return args.Ack(nil)
@@ -1351,7 +1366,9 @@ func TestMiddlewareArgumentsSay(t *testing.T) {
 							"text": "Complex message",
 						},
 					}
-					json.NewEncoder(w).Encode(response)
+					if err := json.NewEncoder(w).Encode(response); err != nil {
+						t.Errorf("Failed to encode response: %v", err)
+					}
 					return
 				}
 				w.WriteHeader(http.StatusNotFound)
@@ -1399,7 +1416,7 @@ func TestMiddlewareArgumentsSay(t *testing.T) {
 					}
 
 					_, err := args.Say(complexMessage)
-					assert.NoError(t, err, "Complex message should be sent successfully")
+					require.NoError(t, err, "Complex message should be sent successfully")
 				}
 
 				return args.Ack(nil)
@@ -1500,7 +1517,7 @@ func TestMiddlewareArgumentsSay(t *testing.T) {
 				assert.Nil(t, args.Say, "Say utility should NOT be available for app_uninstalled events")
 
 				// Simulate an error in processing
-				return fmt.Errorf("processing failed")
+				return errors.New("processing failed")
 			})
 
 			// Create app_uninstalled event
@@ -1526,7 +1543,7 @@ func TestMiddlewareArgumentsSay(t *testing.T) {
 
 			err = app.ProcessEvent(context.Background(), event)
 			// The app should handle the error - we expect an error to be returned
-			assert.Error(t, err, "App should return error from handler")
+			require.Error(t, err, "App should return error from handler")
 		})
 	})
 

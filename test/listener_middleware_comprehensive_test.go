@@ -3,7 +3,7 @@ package test
 import (
 	"context"
 	"encoding/json"
-	"fmt"
+	"errors"
 	"testing"
 
 	"github.com/Asafrose/bolt-go"
@@ -14,6 +14,7 @@ import (
 
 // TestListenerMiddlewareComprehensive implements the missing tests from listener.spec.ts
 func TestListenerMiddlewareComprehensive(t *testing.T) {
+	t.Parallel()
 	t.Run("App listener middleware processing", func(t *testing.T) {
 		t.Run("should bubble up errors in listeners to the global error handler", func(t *testing.T) {
 			app, err := bolt.New(bolt.AppOptions{
@@ -24,7 +25,7 @@ func TestListenerMiddlewareComprehensive(t *testing.T) {
 
 			// Add a listener that throws an error
 			app.Event("app_mention", func(args types.SlackEventMiddlewareArgs) error {
-				return fmt.Errorf("test error from listener")
+				return errors.New("test error from listener")
 			})
 
 			// Create app mention event
@@ -55,7 +56,7 @@ func TestListenerMiddlewareComprehensive(t *testing.T) {
 			err = app.ProcessEvent(ctx, event)
 
 			// Error should be bubbled up from the listener
-			assert.Error(t, err, "Error should be bubbled up from listener")
+			require.Error(t, err, "Error should be bubbled up from listener")
 			// The error format may be wrapped, so just check that an error occurred
 			assert.Contains(t, err.Error(), "error", "Error should contain error information")
 		})
@@ -69,11 +70,11 @@ func TestListenerMiddlewareComprehensive(t *testing.T) {
 
 			// Add multiple listeners that throw errors
 			app.Event("app_mention", func(args types.SlackEventMiddlewareArgs) error {
-				return fmt.Errorf("first error")
+				return errors.New("first error")
 			})
 
 			app.Event("app_mention", func(args types.SlackEventMiddlewareArgs) error {
-				return fmt.Errorf("second error")
+				return errors.New("second error")
 			})
 
 			// Create app mention event
@@ -104,7 +105,7 @@ func TestListenerMiddlewareComprehensive(t *testing.T) {
 			err = app.ProcessEvent(ctx, event)
 
 			// Should aggregate errors from multiple listeners
-			assert.Error(t, err, "Should aggregate errors from multiple listeners")
+			require.Error(t, err, "Should aggregate errors from multiple listeners")
 			// In Go, typically the first error would be returned, but this depends on implementation
 			assert.Contains(t, err.Error(), "error", "Error should contain error information")
 		})
@@ -157,7 +158,7 @@ func TestListenerMiddlewareComprehensive(t *testing.T) {
 			err = app.ProcessEvent(ctx, event)
 
 			// Should not cause runtime exception
-			assert.NoError(t, err, "Should not cause runtime exception when last middleware calls next()")
+			require.NoError(t, err, "Should not cause runtime exception when last middleware calls next()")
 		})
 	})
 }

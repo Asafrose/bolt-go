@@ -56,6 +56,7 @@ func createSelectOptionsRequestBody(actionID string) []byte {
 }
 
 func TestAppOptionsRouting(t *testing.T) {
+	t.Parallel()
 	t.Run("should route options request by action_id", func(t *testing.T) {
 		handlerCalled := false
 

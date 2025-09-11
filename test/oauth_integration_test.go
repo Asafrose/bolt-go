@@ -14,6 +14,7 @@ import (
 
 // TestOAuthIntegration tests the complete OAuth implementation
 func TestOAuthIntegration(t *testing.T) {
+	t.Parallel()
 	t.Run("InstallProvider", func(t *testing.T) {
 		t.Run("should create provider with minimal configuration", func(t *testing.T) {
 			provider, err := oauth.NewInstallProvider(oauth.InstallProviderOptions{
@@ -28,7 +29,7 @@ func TestOAuthIntegration(t *testing.T) {
 			_, err := oauth.NewInstallProvider(oauth.InstallProviderOptions{
 				ClientSecret: "test-client-secret",
 			})
-			assert.Error(t, err, "Should fail without client ID")
+			require.Error(t, err, "Should fail without client ID")
 			assert.Contains(t, err.Error(), "clientID is required")
 		})
 
@@ -36,7 +37,7 @@ func TestOAuthIntegration(t *testing.T) {
 			_, err := oauth.NewInstallProvider(oauth.InstallProviderOptions{
 				ClientID: "test-client-id",
 			})
-			assert.Error(t, err, "Should fail without client secret")
+			require.Error(t, err, "Should fail without client secret")
 			assert.Contains(t, err.Error(), "clientSecret is required")
 		})
 
@@ -110,7 +111,7 @@ func TestOAuthIntegration(t *testing.T) {
 			require.NoError(t, err)
 
 			_, err = store.FetchInstallation(ctx, query)
-			assert.Error(t, err, "Should not find deleted installation")
+			require.Error(t, err, "Should not find deleted installation")
 		})
 	})
 
@@ -139,7 +140,7 @@ func TestOAuthIntegration(t *testing.T) {
 			ctx := context.Background()
 
 			_, err := store.VerifyStateParam(ctx, "invalid-state")
-			assert.Error(t, err, "Should fail with invalid state")
+			require.Error(t, err, "Should fail with invalid state")
 		})
 	})
 

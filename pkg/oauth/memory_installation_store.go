@@ -2,6 +2,7 @@ package oauth
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"sync"
 )
@@ -23,7 +24,7 @@ func NewMemoryInstallationStore() *MemoryInstallationStore {
 // StoreInstallation stores an installation in memory
 func (m *MemoryInstallationStore) StoreInstallation(ctx context.Context, installation *Installation) error {
 	if installation == nil {
-		return fmt.Errorf("installation cannot be nil")
+		return errors.New("installation cannot be nil")
 	}
 
 	m.mutex.Lock()
@@ -66,14 +67,14 @@ func (m *MemoryInstallationStore) DeleteInstallation(ctx context.Context, query 
 // generateKey generates a storage key from an installation
 func (m *MemoryInstallationStore) generateKey(installation *Installation) string {
 	if installation.IsEnterpriseInstall && installation.Enterprise != nil {
-		return fmt.Sprintf("enterprise:%s", installation.Enterprise.ID)
+		return "enterprise:" + installation.Enterprise.ID
 	}
 	if installation.Team != nil {
-		return fmt.Sprintf("team:%s", installation.Team.ID)
+		return "team:" + installation.Team.ID
 	}
 	// Fallback to app ID if available
 	if installation.AppID != "" {
-		return fmt.Sprintf("app:%s", installation.AppID)
+		return "app:" + installation.AppID
 	}
 	return "unknown"
 }
@@ -81,10 +82,10 @@ func (m *MemoryInstallationStore) generateKey(installation *Installation) string
 // generateKeyFromQuery generates a storage key from a query
 func (m *MemoryInstallationStore) generateKeyFromQuery(query InstallationQuery) string {
 	if query.IsEnterpriseInstall && query.EnterpriseID != "" {
-		return fmt.Sprintf("enterprise:%s", query.EnterpriseID)
+		return "enterprise:" + query.EnterpriseID
 	}
 	if query.TeamID != "" {
-		return fmt.Sprintf("team:%s", query.TeamID)
+		return "team:" + query.TeamID
 	}
 	return "unknown"
 }

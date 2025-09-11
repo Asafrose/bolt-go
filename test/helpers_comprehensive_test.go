@@ -11,6 +11,7 @@ import (
 
 // TestHelpersComprehensive implements the missing tests from helpers.spec.ts
 func TestHelpersComprehensive(t *testing.T) {
+	t.Parallel()
 	t.Run("event types", func(t *testing.T) {
 		t.Run("should find Event type for generic event", func(t *testing.T) {
 			conversationID := "CONVERSATION_ID"
@@ -201,6 +202,7 @@ func TestHelpersComprehensive(t *testing.T) {
 
 // TestEnterpriseInstallHelpers tests enterprise install detection
 func TestEnterpriseInstallHelpers(t *testing.T) {
+	t.Parallel()
 	t.Run("with body of event type", func(t *testing.T) {
 		t.Run("should resolve the is_enterprise_install field", func(t *testing.T) {
 			eventBody := map[string]interface{}{
@@ -287,6 +289,7 @@ func TestEnterpriseInstallHelpers(t *testing.T) {
 
 // TestEventTypeSkipHelpers tests event type authorization skipping
 func TestEventTypeSkipHelpers(t *testing.T) {
+	t.Parallel()
 	t.Run("receiver events that can be skipped", func(t *testing.T) {
 		t.Run("should return truthy when event can be skipped", func(t *testing.T) {
 			skippableEvents := []string{
@@ -330,6 +333,7 @@ func TestEventTypeSkipHelpers(t *testing.T) {
 
 // TestEventTypeExtraction tests event type extraction
 func TestEventTypeExtraction(t *testing.T) {
+	t.Parallel()
 	t.Run("should extract event type from event body", func(t *testing.T) {
 		eventBody := map[string]interface{}{
 			"event": map[string]interface{}{

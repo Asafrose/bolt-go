@@ -20,7 +20,6 @@ import (
 type SocketModeReceiver struct {
 	appToken                  string
 	logger                    *slog.Logger
-	logLevel                  interface{}
 	pingTimeout               time.Duration
 	customProperties          map[string]interface{}
 	customPropertiesExtractor func(map[string]interface{}) map[string]interface{}
@@ -209,9 +208,12 @@ func (r *SocketModeReceiver) getWebSocketURL() (string, error) {
 // connect establishes the WebSocket connection
 func (r *SocketModeReceiver) connect(wsURL string) error {
 	dialer := websocket.DefaultDialer
-	conn, _, err := dialer.Dial(wsURL, nil)
+	conn, resp, err := dialer.Dial(wsURL, nil)
 	if err != nil {
 		return err
+	}
+	if resp != nil && resp.Body != nil {
+		defer resp.Body.Close()
 	}
 
 	r.conn = conn
@@ -327,7 +329,10 @@ func (r *SocketModeReceiver) processEvent(msg SocketModeMessage) error {
 	if err := r.app.ProcessEvent(r.ctx, event); err != nil {
 		r.logger.Error("Failed to process event", "error", err)
 		if !ackCalled {
-			event.Ack(nil) // Still acknowledge to avoid retries
+			if ackErr := event.Ack(nil); ackErr != nil {
+				// Log error but don't fail the request
+				r.logger.Error("Failed to ack event", "error", ackErr)
+			}
 		}
 		return err
 	}
@@ -376,8 +381,9 @@ func (r *SocketModeReceiver) startHTTPServer() error {
 	}
 
 	r.httpServer = &http.Server{
-		Addr:    fmt.Sprintf(":%d", r.httpServerPort),
-		Handler: mux,
+		Addr:              fmt.Sprintf(":%d", r.httpServerPort),
+		Handler:           mux,
+		ReadHeaderTimeout: 30 * time.Second,
 	}
 
 	// Start server in background
@@ -426,7 +432,7 @@ func (r *SocketModeReceiver) handleInstallRedirect(w http.ResponseWriter, req *h
 		Success: func(installation *oauth.Installation, installOptions *oauth.InstallURLOptions, req *http.Request, res http.ResponseWriter) {
 			res.Header().Set("Content-Type", "text/html")
 			res.WriteHeader(http.StatusOK)
-			res.Write([]byte(`
+			if _, err := res.Write([]byte(`
 <!DOCTYPE html>
 <html>
 <head>
@@ -441,13 +447,16 @@ func (r *SocketModeReceiver) handleInstallRedirect(w http.ResponseWriter, req *h
     <p>Your Slack app has been successfully installed.</p>
     <p>You can now close this window and return to Slack.</p>
 </body>
-</html>`))
+</html>`)); err != nil {
+				// Error already sent to client, just log it
+				_ = err
+			}
 		},
 		Failure: func(err error, installOptions *oauth.InstallURLOptions, req *http.Request, res http.ResponseWriter) {
 			r.logger.Error("OAuth installation failed", "error", err)
 			res.Header().Set("Content-Type", "text/html")
 			res.WriteHeader(http.StatusBadRequest)
-			res.Write([]byte(fmt.Sprintf(`
+			if _, writeErr := res.Write([]byte(fmt.Sprintf(`
 <!DOCTYPE html>
 <html>
 <head>
@@ -463,7 +472,10 @@ func (r *SocketModeReceiver) handleInstallRedirect(w http.ResponseWriter, req *h
     <p><code>%s</code></p>
     <p>Please try again or contact support.</p>
 </body>
-</html>`, err.Error())))
+</html>`, err.Error()))); writeErr != nil {
+				// Error already sent to client, just log it
+				_ = writeErr
+			}
 		},
 	}
 
@@ -485,6 +497,9 @@ func (r *SocketModeReceiver) cleanup() {
 	if r.httpServer != nil {
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
-		r.httpServer.Shutdown(ctx)
+		if err := r.httpServer.Shutdown(ctx); err != nil {
+			// Log error but don't fail cleanup
+			_ = err
+		}
 	}
 }

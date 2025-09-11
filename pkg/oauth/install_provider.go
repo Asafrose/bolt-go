@@ -2,6 +2,7 @@ package oauth
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -33,10 +34,10 @@ type InstallProvider struct {
 // NewInstallProvider creates a new OAuth install provider
 func NewInstallProvider(options InstallProviderOptions) (*InstallProvider, error) {
 	if options.ClientID == "" {
-		return nil, fmt.Errorf("clientID is required")
+		return nil, errors.New("clientID is required")
 	}
 	if options.ClientSecret == "" {
-		return nil, fmt.Errorf("clientSecret is required")
+		return nil, errors.New("clientSecret is required")
 	}
 
 	provider := &InstallProvider{
@@ -179,7 +180,9 @@ func (p *InstallProvider) HandleInstallPath(req *http.Request, res http.Response
 
 	res.Header().Set("Content-Type", "text/html")
 	res.WriteHeader(http.StatusOK)
-	res.Write([]byte(html))
+	if _, err := res.Write([]byte(html)); err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -255,7 +258,9 @@ func (p *InstallProvider) HandleCallback(req *http.Request, res http.ResponseWri
 	// Default success response
 	res.Header().Set("Content-Type", "text/html")
 	res.WriteHeader(http.StatusOK)
-	res.Write([]byte(p.defaultSuccessHTML()))
+	if _, err := res.Write([]byte(p.defaultSuccessHTML())); err != nil {
+		return err
+	}
 
 	return nil
 }

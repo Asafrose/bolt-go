@@ -15,6 +15,7 @@ import (
 
 // TestHTTPResponseAck implements the missing tests from HTTPResponseAck.spec.ts
 func TestHTTPResponseAck(t *testing.T) {
+	t.Parallel()
 	t.Run("should implement ResponseAck and work", func(t *testing.T) {
 		receiver := receivers.NewHTTPReceiver(types.HTTPReceiverOptions{
 			SigningSecret: fakeSigningSecret,
@@ -56,7 +57,7 @@ func TestHTTPResponseAck(t *testing.T) {
 		require.NoError(t, err)
 
 		// Create a request that won't be handled
-		req := httptest.NewRequest("POST", "/unhandled", nil)
+		req := httptest.NewRequest(http.MethodPost, "/unhandled", nil)
 		w := httptest.NewRecorder()
 
 		// This would normally trigger the unhandled request handler after timeout
@@ -138,7 +139,7 @@ func TestHTTPResponseAck(t *testing.T) {
 
 		// The actual multiple ack error would be handled by the framework
 		multipleAckErr := errors.NewReceiverMultipleAckError()
-		assert.Equal(t, errors.ReceiverMultipleAckError, multipleAckErr.Code(), "Should create multiple ack error")
+		assert.Equal(t, errors.ReceiverMultipleAckErrorCode, multipleAckErr.Code(), "Should create multiple ack error")
 	})
 
 	t.Run("should store response body if processBeforeResponse=true", func(t *testing.T) {
@@ -242,6 +243,7 @@ func TestHTTPResponseAck(t *testing.T) {
 
 // TestHTTPResponseTimeout tests timeout handling in HTTP responses
 func TestHTTPResponseTimeout(t *testing.T) {
+	t.Parallel()
 	t.Run("should handle request timeout gracefully", func(t *testing.T) {
 		receiver := receivers.NewHTTPReceiver(types.HTTPReceiverOptions{
 			SigningSecret:                 fakeSigningSecret,
@@ -283,6 +285,7 @@ func TestHTTPResponseTimeout(t *testing.T) {
 
 // TestHTTPResponseIntegration tests HTTP response integration with the app
 func TestHTTPResponseIntegration(t *testing.T) {
+	t.Parallel()
 	t.Run("should integrate HTTP response acknowledgment with app processing", func(t *testing.T) {
 		receiver := receivers.NewHTTPReceiver(types.HTTPReceiverOptions{
 			SigningSecret: fakeSigningSecret,

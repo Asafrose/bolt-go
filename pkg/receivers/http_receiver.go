@@ -28,7 +28,6 @@ type HTTPReceiver struct {
 	logger                        interface{}
 	processBeforeResponse         bool
 	signatureVerification         bool
-	unhandledRequestHandler       http.HandlerFunc
 	unhandledRequestTimeoutMillis int
 	customProperties              map[string]interface{}
 
@@ -165,13 +164,17 @@ func (r *HTTPReceiver) Start(ctx context.Context) error {
 	}
 
 	r.server = &http.Server{
-		Addr:    fmt.Sprintf(":%d", r.port),
-		Handler: mux,
+		Addr:              fmt.Sprintf(":%d", r.port),
+		Handler:           mux,
+		ReadHeaderTimeout: 30 * time.Second,
 	}
 
 	go func() {
 		<-ctx.Done()
-		r.Stop(context.Background())
+		if err := r.Stop(context.Background()); err != nil {
+			// Log the error but don't fail the goroutine
+			_ = err
+		}
 	}()
 
 	err := r.server.ListenAndServe()
@@ -243,7 +246,9 @@ func (r *HTTPReceiver) handleSlackEvent(w http.ResponseWriter, req *http.Request
 			} else if responseStr, ok := response.(string); ok {
 				// String response
 				w.WriteHeader(http.StatusOK)
-				w.Write([]byte(responseStr))
+				if _, err := w.Write([]byte(responseStr)); err != nil {
+					return fmt.Errorf("failed to write response: %w", err)
+				}
 			} else {
 				// Object response - JSON encode
 				w.Header().Set("Content-Type", "application/json")
@@ -253,7 +258,9 @@ func (r *HTTPReceiver) handleSlackEvent(w http.ResponseWriter, req *http.Request
 					// Fallback to empty response if JSON marshaling fails
 					return fmt.Errorf("failed to marshal response body: %w", err)
 				}
-				w.Write(responseBytes)
+				if _, err := w.Write(responseBytes); err != nil {
+					return fmt.Errorf("failed to write response: %w", err)
+				}
 			}
 			return nil
 		},
@@ -270,7 +277,10 @@ func (r *HTTPReceiver) handleSlackEvent(w http.ResponseWriter, req *http.Request
 
 	// Auto-ack if not already acknowledged and processBeforeResponse is false
 	if !ackCalled && !r.processBeforeResponse {
-		event.Ack(nil)
+		if err := event.Ack(nil); err != nil {
+			// Log error but don't fail the request
+			_ = err
+		}
 	}
 }
 
@@ -333,7 +343,10 @@ func (r *HTTPReceiver) handleURLVerification(w http.ResponseWriter, body []byte)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(fmt.Sprintf(`{"challenge":"%s"}`, challenge)))
+	if _, err := w.Write([]byte(fmt.Sprintf(`{"challenge":"%s"}`, challenge))); err != nil {
+		// Error already sent to client, just log it
+		_ = err
+	}
 }
 
 // handleInstallPath handles OAuth install path requests
@@ -374,7 +387,7 @@ func (r *HTTPReceiver) handleInstallRedirect(w http.ResponseWriter, req *http.Re
 		Success: func(installation *oauth.Installation, installOptions *oauth.InstallURLOptions, req *http.Request, res http.ResponseWriter) {
 			res.Header().Set("Content-Type", "text/html")
 			res.WriteHeader(http.StatusOK)
-			res.Write([]byte(`
+			if _, err := res.Write([]byte(`
 <!DOCTYPE html>
 <html>
 <head>
@@ -389,7 +402,10 @@ func (r *HTTPReceiver) handleInstallRedirect(w http.ResponseWriter, req *http.Re
     <p>Your Slack app has been successfully installed.</p>
     <p>You can now close this window and return to Slack.</p>
 </body>
-</html>`))
+</html>`)); err != nil {
+				// Error already sent to client, just log it
+				_ = err
+			}
 		},
 		Failure: func(err error, installOptions *oauth.InstallURLOptions, req *http.Request, res http.ResponseWriter) {
 			if logger, ok := r.logger.(*slog.Logger); ok {
@@ -397,7 +413,7 @@ func (r *HTTPReceiver) handleInstallRedirect(w http.ResponseWriter, req *http.Re
 			}
 			res.Header().Set("Content-Type", "text/html")
 			res.WriteHeader(http.StatusBadRequest)
-			res.Write([]byte(fmt.Sprintf(`
+			if _, writeErr := res.Write([]byte(fmt.Sprintf(`
 <!DOCTYPE html>
 <html>
 <head>
@@ -413,7 +429,10 @@ func (r *HTTPReceiver) handleInstallRedirect(w http.ResponseWriter, req *http.Re
     <p><code>%s</code></p>
     <p>Please try again or contact support.</p>
 </body>
-</html>`, err.Error())))
+</html>`, err.Error()))); writeErr != nil {
+				// Error already sent to client, just log it
+				_ = writeErr
+			}
 		},
 	}
 

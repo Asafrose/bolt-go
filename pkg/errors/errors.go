@@ -1,6 +1,7 @@
 package errors
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 )
@@ -9,35 +10,35 @@ import (
 type ErrorCode string
 
 const (
-	AppInitializationError ErrorCode = "slack_bolt_app_initialization_error"
+	AppInitializationErrorCode ErrorCode = "slack_bolt_app_initialization_error"
 
-	AssistantInitializationError  ErrorCode = "slack_bolt_assistant_initialization_error"
-	AssistantMissingPropertyError ErrorCode = "slack_bolt_assistant_missing_property_error"
+	AssistantInitializationErrorCode  ErrorCode = "slack_bolt_assistant_initialization_error"
+	AssistantMissingPropertyErrorCode ErrorCode = "slack_bolt_assistant_missing_property_error"
 
-	AuthorizationError ErrorCode = "slack_bolt_authorization_error"
+	AuthorizationErrorCode ErrorCode = "slack_bolt_authorization_error"
 
-	ContextMissingPropertyError ErrorCode = "slack_bolt_context_missing_property_error"
-	InvalidCustomPropertyError  ErrorCode = "slack_bolt_context_invalid_custom_property_error"
+	ContextMissingPropertyErrorCode ErrorCode = "slack_bolt_context_missing_property_error"
+	InvalidCustomPropertyErrorCode  ErrorCode = "slack_bolt_context_invalid_custom_property_error"
 
 	CustomRouteInitializationError ErrorCode = "slack_bolt_custom_route_initialization_error"
 
-	ReceiverMultipleAckError       ErrorCode = "slack_bolt_receiver_ack_multiple_error"
-	ReceiverAuthenticityError      ErrorCode = "slack_bolt_receiver_authenticity_error"
+	ReceiverMultipleAckErrorCode   ErrorCode = "slack_bolt_receiver_ack_multiple_error"
+	ReceiverAuthenticityErrorCode  ErrorCode = "slack_bolt_receiver_authenticity_error"
 	ReceiverInconsistentStateError ErrorCode = "slack_bolt_receiver_inconsistent_state_error"
 
-	MultipleListenerError ErrorCode = "slack_bolt_multiple_listener_error"
+	MultipleListenerErrorCode ErrorCode = "slack_bolt_multiple_listener_error"
 
-	HTTPReceiverDeferredRequestError ErrorCode = "slack_bolt_http_receiver_deferred_request_error"
+	HTTPReceiverDeferredRequestErrorCode ErrorCode = "slack_bolt_http_receiver_deferred_request_error"
 
 	UnknownError ErrorCode = "slack_bolt_unknown_error"
 
 	EventProcessingError ErrorCode = "slack_bolt_event_processing_error"
 
-	WorkflowStepInitializationError ErrorCode = "slack_bolt_workflow_step_initialization_error"
+	WorkflowStepInitializationErrorCode ErrorCode = "slack_bolt_workflow_step_initialization_error"
 
-	CustomFunctionInitializationError  ErrorCode = "slack_bolt_custom_function_initialization_error"
-	CustomFunctionCompleteSuccessError ErrorCode = "slack_bolt_custom_function_complete_success_error"
-	CustomFunctionCompleteFailError    ErrorCode = "slack_bolt_custom_function_complete_fail_error"
+	CustomFunctionInitializationErrorCode  ErrorCode = "slack_bolt_custom_function_initialization_error"
+	CustomFunctionCompleteSuccessErrorCode ErrorCode = "slack_bolt_custom_function_complete_success_error"
+	CustomFunctionCompleteFailErrorCode    ErrorCode = "slack_bolt_custom_function_complete_fail_error"
 )
 
 // CodedError represents an error with a specific error code
@@ -91,13 +92,14 @@ func NewBaseErrorWithOriginal(code ErrorCode, message string, original error) *B
 
 // IsCodedError checks if an error implements CodedError
 func IsCodedError(err error) bool {
-	_, ok := err.(CodedError)
-	return ok
+	var codedErr CodedError
+	return errors.As(err, &codedErr)
 }
 
 // AsCodedError converts an error to a CodedError
 func AsCodedError(err error) CodedError {
-	if codedErr, ok := err.(CodedError); ok {
+	var codedErr CodedError
+	if errors.As(err, &codedErr) {
 		return codedErr
 	}
 	return NewBaseErrorWithOriginal(UnknownError, err.Error(), err)
@@ -106,182 +108,182 @@ func AsCodedError(err error) CodedError {
 // Specific error types
 
 // AppInitializationErrorType represents an app initialization error
-type AppInitializationErrorType struct {
+type AppInitializationError struct {
 	*BaseError
 }
 
 // NewAppInitializationError creates a new AppInitializationError
-func NewAppInitializationError(message string) *AppInitializationErrorType {
-	return &AppInitializationErrorType{
-		BaseError: NewBaseError(AppInitializationError, message),
+func NewAppInitializationError(message string) *AppInitializationError {
+	return &AppInitializationError{
+		BaseError: NewBaseError(AppInitializationErrorCode, message),
 	}
 }
 
 // AssistantInitializationErrorType represents an assistant initialization error
-type AssistantInitializationErrorType struct {
+type AssistantInitializationError struct {
 	*BaseError
 }
 
 // NewAssistantInitializationError creates a new AssistantInitializationError
-func NewAssistantInitializationError(message string) *AssistantInitializationErrorType {
-	return &AssistantInitializationErrorType{
-		BaseError: NewBaseError(AssistantInitializationError, message),
+func NewAssistantInitializationError(message string) *AssistantInitializationError {
+	return &AssistantInitializationError{
+		BaseError: NewBaseError(AssistantInitializationErrorCode, message),
 	}
 }
 
 // AssistantMissingPropertyErrorType represents an assistant missing property error
-type AssistantMissingPropertyErrorType struct {
+type AssistantMissingPropertyError struct {
 	*BaseError
 }
 
 // NewAssistantMissingPropertyError creates a new AssistantMissingPropertyError
-func NewAssistantMissingPropertyError(message string) *AssistantMissingPropertyErrorType {
-	return &AssistantMissingPropertyErrorType{
-		BaseError: NewBaseError(AssistantMissingPropertyError, message),
+func NewAssistantMissingPropertyError(message string) *AssistantMissingPropertyError {
+	return &AssistantMissingPropertyError{
+		BaseError: NewBaseError(AssistantMissingPropertyErrorCode, message),
 	}
 }
 
 // AuthorizationErrorType represents an authorization error
-type AuthorizationErrorType struct {
+type AuthorizationError struct {
 	*BaseError
 }
 
 // NewAuthorizationError creates a new AuthorizationError
-func NewAuthorizationError(message string, original error) *AuthorizationErrorType {
-	return &AuthorizationErrorType{
-		BaseError: NewBaseErrorWithOriginal(AuthorizationError, message, original),
+func NewAuthorizationError(message string, original error) *AuthorizationError {
+	return &AuthorizationError{
+		BaseError: NewBaseErrorWithOriginal(AuthorizationErrorCode, message, original),
 	}
 }
 
 // ContextMissingPropertyErrorType represents a context missing property error
-type ContextMissingPropertyErrorType struct {
+type ContextMissingPropertyError struct {
 	*BaseError
 	MissingProperty string
 }
 
 // NewContextMissingPropertyError creates a new ContextMissingPropertyError
-func NewContextMissingPropertyError(missingProperty, message string) *ContextMissingPropertyErrorType {
-	return &ContextMissingPropertyErrorType{
-		BaseError:       NewBaseError(ContextMissingPropertyError, message),
+func NewContextMissingPropertyError(missingProperty, message string) *ContextMissingPropertyError {
+	return &ContextMissingPropertyError{
+		BaseError:       NewBaseError(ContextMissingPropertyErrorCode, message),
 		MissingProperty: missingProperty,
 	}
 }
 
 // InvalidCustomPropertyErrorType represents an invalid custom property error
-type InvalidCustomPropertyErrorType struct {
+type InvalidCustomPropertyError struct {
 	*BaseError
 }
 
 // NewInvalidCustomPropertyError creates a new InvalidCustomPropertyError
-func NewInvalidCustomPropertyError(message string) *InvalidCustomPropertyErrorType {
-	return &InvalidCustomPropertyErrorType{
-		BaseError: NewBaseError(InvalidCustomPropertyError, message),
+func NewInvalidCustomPropertyError(message string) *InvalidCustomPropertyError {
+	return &InvalidCustomPropertyError{
+		BaseError: NewBaseError(InvalidCustomPropertyErrorCode, message),
 	}
 }
 
 // ReceiverMultipleAckErrorType represents a receiver multiple ack error
-type ReceiverMultipleAckErrorType struct {
+type ReceiverMultipleAckError struct {
 	*BaseError
 }
 
 // NewReceiverMultipleAckError creates a new ReceiverMultipleAckError
-func NewReceiverMultipleAckError() *ReceiverMultipleAckErrorType {
-	return &ReceiverMultipleAckErrorType{
-		BaseError: NewBaseError(ReceiverMultipleAckError, "The receiver's `ack` function was called multiple times."),
+func NewReceiverMultipleAckError() *ReceiverMultipleAckError {
+	return &ReceiverMultipleAckError{
+		BaseError: NewBaseError(ReceiverMultipleAckErrorCode, "The receiver's `ack` function was called multiple times."),
 	}
 }
 
-// ReceiverAuthenticityErrorType represents a receiver authenticity error
-type ReceiverAuthenticityErrorType struct {
+// ReceiverAuthenticityError represents a receiver authenticity error
+type ReceiverAuthenticityError struct {
 	*BaseError
 }
 
 // NewReceiverAuthenticityError creates a new ReceiverAuthenticityError
-func NewReceiverAuthenticityError(message string) *ReceiverAuthenticityErrorType {
-	return &ReceiverAuthenticityErrorType{
-		BaseError: NewBaseError(ReceiverAuthenticityError, message),
+func NewReceiverAuthenticityError(message string) *ReceiverAuthenticityError {
+	return &ReceiverAuthenticityError{
+		BaseError: NewBaseError(ReceiverAuthenticityErrorCode, message),
 	}
 }
 
-// HTTPReceiverDeferredRequestErrorType represents an HTTP receiver deferred request error
-type HTTPReceiverDeferredRequestErrorType struct {
+// HTTPReceiverDeferredRequestError represents an HTTP receiver deferred request error
+type HTTPReceiverDeferredRequestError struct {
 	*BaseError
 	Request  *http.Request
 	Response http.ResponseWriter
 }
 
 // NewHTTPReceiverDeferredRequestError creates a new HTTPReceiverDeferredRequestError
-func NewHTTPReceiverDeferredRequestError(message string, req *http.Request, res http.ResponseWriter) *HTTPReceiverDeferredRequestErrorType {
-	return &HTTPReceiverDeferredRequestErrorType{
-		BaseError: NewBaseError(HTTPReceiverDeferredRequestError, message),
+func NewHTTPReceiverDeferredRequestError(message string, req *http.Request, res http.ResponseWriter) *HTTPReceiverDeferredRequestError {
+	return &HTTPReceiverDeferredRequestError{
+		BaseError: NewBaseError(HTTPReceiverDeferredRequestErrorCode, message),
 		Request:   req,
 		Response:  res,
 	}
 }
 
-// MultipleListenerErrorType represents multiple listener errors
-type MultipleListenerErrorType struct {
+// MultipleListenerError represents multiple listener errors
+type MultipleListenerError struct {
 	*BaseError
 }
 
 // NewMultipleListenerError creates a new MultipleListenerError
-func NewMultipleListenerError(originals []error) *MultipleListenerErrorType {
+func NewMultipleListenerError(originals []error) *MultipleListenerError {
 	message := fmt.Sprintf("Multiple errors occurred while handling several listeners. %d errors occurred.", len(originals))
-	return &MultipleListenerErrorType{
+	return &MultipleListenerError{
 		BaseError: &BaseError{
-			code:      MultipleListenerError,
+			code:      MultipleListenerErrorCode,
 			message:   message,
 			originals: originals,
 		},
 	}
 }
 
-// WorkflowStepInitializationErrorType represents a workflow step initialization error
+// WorkflowStepInitializationError represents a workflow step initialization error
 // Deprecated: Workflow steps from apps are no longer supported
-type WorkflowStepInitializationErrorType struct {
+type WorkflowStepInitializationError struct {
 	*BaseError
 }
 
 // NewWorkflowStepInitializationError creates a new WorkflowStepInitializationError
 // Deprecated: Workflow steps from apps are no longer supported
-func NewWorkflowStepInitializationError(message string) *WorkflowStepInitializationErrorType {
-	return &WorkflowStepInitializationErrorType{
-		BaseError: NewBaseError(WorkflowStepInitializationError, message),
+func NewWorkflowStepInitializationError(message string) *WorkflowStepInitializationError {
+	return &WorkflowStepInitializationError{
+		BaseError: NewBaseError(WorkflowStepInitializationErrorCode, message),
 	}
 }
 
-// CustomFunctionCompleteSuccessErrorType represents a custom function complete success error
-type CustomFunctionCompleteSuccessErrorType struct {
+// CustomFunctionCompleteSuccessError represents a custom function complete success error
+type CustomFunctionCompleteSuccessError struct {
 	*BaseError
 }
 
 // NewCustomFunctionCompleteSuccessError creates a new CustomFunctionCompleteSuccessError
-func NewCustomFunctionCompleteSuccessError(message string) *CustomFunctionCompleteSuccessErrorType {
-	return &CustomFunctionCompleteSuccessErrorType{
-		BaseError: NewBaseError(CustomFunctionCompleteSuccessError, message),
+func NewCustomFunctionCompleteSuccessError(message string) *CustomFunctionCompleteSuccessError {
+	return &CustomFunctionCompleteSuccessError{
+		BaseError: NewBaseError(CustomFunctionCompleteSuccessErrorCode, message),
 	}
 }
 
-// CustomFunctionCompleteFailErrorType represents a custom function complete fail error
-type CustomFunctionCompleteFailErrorType struct {
+// CustomFunctionCompleteFailError represents a custom function complete fail error
+type CustomFunctionCompleteFailError struct {
 	*BaseError
 }
 
 // NewCustomFunctionCompleteFailError creates a new CustomFunctionCompleteFailError
-func NewCustomFunctionCompleteFailError(message string) *CustomFunctionCompleteFailErrorType {
-	return &CustomFunctionCompleteFailErrorType{
-		BaseError: NewBaseError(CustomFunctionCompleteFailError, message),
+func NewCustomFunctionCompleteFailError(message string) *CustomFunctionCompleteFailError {
+	return &CustomFunctionCompleteFailError{
+		BaseError: NewBaseError(CustomFunctionCompleteFailErrorCode, message),
 	}
 }
 
-// CustomFunctionInitializationErrorType represents a custom function initialization error
-type CustomFunctionInitializationErrorType struct {
+// CustomFunctionInitializationError represents a custom function initialization error
+type CustomFunctionInitializationError struct {
 	*BaseError
 }
 
 // NewCustomFunctionInitializationError creates a new CustomFunctionInitializationError
-func NewCustomFunctionInitializationError(message string) *CustomFunctionInitializationErrorType {
-	return &CustomFunctionInitializationErrorType{
-		BaseError: NewBaseError(CustomFunctionInitializationError, message),
+func NewCustomFunctionInitializationError(message string) *CustomFunctionInitializationError {
+	return &CustomFunctionInitializationError{
+		BaseError: NewBaseError(CustomFunctionInitializationErrorCode, message),
 	}
 }

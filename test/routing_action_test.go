@@ -62,6 +62,7 @@ func createBlockActionBody(actionID, blockID string) []byte {
 }
 
 func TestAppActionRouting(t *testing.T) {
+	t.Parallel()
 	t.Run("should route action by action_id", func(t *testing.T) {
 		handlerCalled := false
 

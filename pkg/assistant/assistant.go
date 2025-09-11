@@ -142,13 +142,6 @@ func (s *DefaultThreadContextStore) SaveWithArgs(args AllAssistantMiddlewareArgs
 	return nil
 }
 
-// extractChannelAndThreadFromArgs extracts channel and thread info from middleware args
-func (s *DefaultThreadContextStore) extractChannelAndThreadFromArgs(args AllAssistantMiddlewareArgs) (string, string) {
-	// This would extract from the actual event payload in a real implementation
-	// For now, return empty strings as this is primarily used in tests
-	return "", ""
-}
-
 // SetInstanceContext sets the context for the instance (helper for testing)
 func (s *DefaultThreadContextStore) SetInstanceContext(context map[string]interface{}) {
 	s.context = context
@@ -337,13 +330,6 @@ func (a *Assistant) processEvent(args types.AllMiddlewareArgs) error {
 		args.Logger.Debug("Calling args.Next()")
 	}
 	return args.Next()
-}
-
-// extractEventType extracts the event type from the middleware args
-func (a *Assistant) extractEventType(args types.AllMiddlewareArgs) string {
-	// This would need to extract from the actual event body
-	// For now, return empty string
-	return ""
 }
 
 // processThreadStarted processes thread started events

@@ -14,6 +14,7 @@ import (
 
 // TestCommandRouting implements the missing tests from routing-command.spec.ts
 func TestCommandRouting(t *testing.T) {
+	t.Parallel()
 	t.Run("should route a command to a handler registered with command(string) if command name matches", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
 			Token:         &fakeToken,

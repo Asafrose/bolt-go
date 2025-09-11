@@ -8,6 +8,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 	"sync"
@@ -66,12 +67,12 @@ func (c *ClearStateStore) VerifyStateParam(ctx context.Context, state string) (*
 
 	data, exists := c.states[state]
 	if !exists {
-		return nil, fmt.Errorf("invalid or expired state parameter")
+		return nil, errors.New("invalid or expired state parameter")
 	}
 
 	// Check if expired
 	if time.Now().After(data.ExpiresAt) {
-		return nil, fmt.Errorf("state parameter has expired")
+		return nil, errors.New("state parameter has expired")
 	}
 
 	return data.InstallOptions, nil
@@ -184,7 +185,7 @@ func (e *EncryptedStateStore) decrypt(data []byte) ([]byte, error) {
 	// Extract nonce and ciphertext
 	nonceSize := gcm.NonceSize()
 	if len(data) < nonceSize {
-		return nil, fmt.Errorf("ciphertext too short")
+		return nil, errors.New("ciphertext too short")
 	}
 
 	nonce, ciphertext := data[:nonceSize], data[nonceSize:]
@@ -217,7 +218,7 @@ func (e *EncryptedStateStore) VerifyStateParam(ctx context.Context, state string
 	// Parse timestamp and data
 	parts := strings.SplitN(stateStr, ":", 2)
 	if len(parts) != 2 {
-		return nil, fmt.Errorf("invalid state parameter structure")
+		return nil, errors.New("invalid state parameter structure")
 	}
 
 	var timestamp int64
@@ -227,7 +228,7 @@ func (e *EncryptedStateStore) VerifyStateParam(ctx context.Context, state string
 
 	// Check if expired (10 minutes)
 	if time.Now().Unix()-timestamp > 600 {
-		return nil, fmt.Errorf("state parameter has expired")
+		return nil, errors.New("state parameter has expired")
 	}
 
 	// Parse the install options

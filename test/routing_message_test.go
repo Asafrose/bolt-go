@@ -35,6 +35,7 @@ func createMessageEventBodyWithText(text string) []byte {
 }
 
 func TestAppMessageRouting(t *testing.T) {
+	t.Parallel()
 	t.Run("should route message with string pattern", func(t *testing.T) {
 		handlerCalled := false
 

@@ -57,6 +57,7 @@ func createMessageEventBody() []byte {
 }
 
 func TestAppEventRouting(t *testing.T) {
+	t.Parallel()
 	t.Run("should route Slack event to handler registered with event type string", func(t *testing.T) {
 		handlerCalled := false
 		ackCalled := false

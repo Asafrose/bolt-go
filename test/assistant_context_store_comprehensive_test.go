@@ -14,6 +14,7 @@ import (
 
 // TestAssistantThreadContextStoreComprehensive implements all missing tests from AssistantThreadContextStore.spec.ts
 func TestAssistantThreadContextStoreComprehensive(t *testing.T) {
+	t.Parallel()
 
 	t.Run("DefaultThreadContextStore", func(t *testing.T) {
 

@@ -13,6 +13,7 @@ import (
 
 // TestIgnoreSelfComprehensive implements the missing tests from ignore-self.spec.ts
 func TestIgnoreSelfComprehensive(t *testing.T) {
+	t.Parallel()
 	t.Run("with ignoreSelf true (default)", func(t *testing.T) {
 		t.Run("should ack & ignore message events identified as a bot message from the same bot ID as this app", func(t *testing.T) {
 			// Test with default ignoreSelf=true behavior
