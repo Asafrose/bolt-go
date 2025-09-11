@@ -52,7 +52,7 @@ func TestEventRoutingComprehensive(t *testing.T) {
 		assert.NotNil(t, receivedArgs.Event, "Event should be available")
 
 		// Verify event data
-		if eventMap, ok := receivedArgs.Event.(map[string]interface{}); ok {
+		if eventMap, ok := ExtractRawEventData(receivedArgs.Event); ok {
 			assert.Equal(t, "app_mention", eventMap["type"], "Event type should match")
 			assert.Equal(t, "Hello <@U987654321>!", eventMap["text"], "Event text should match")
 		}
@@ -96,7 +96,7 @@ func TestEventRoutingComprehensive(t *testing.T) {
 		assert.NotNil(t, receivedArgs.Event, "Event should be available")
 
 		// Verify event data
-		if eventMap, ok := receivedArgs.Event.(map[string]interface{}); ok {
+		if eventMap, ok := ExtractRawEventData(receivedArgs.Event); ok {
 			assert.Equal(t, "app_mention", eventMap["type"], "Event type should match")
 		}
 	})

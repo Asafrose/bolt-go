@@ -347,7 +347,7 @@ func TestAppViewRouting(t *testing.T) {
 	})
 
 	t.Run("should handle view submission with form data", func(t *testing.T) {
-		var formValues map[string]interface{}
+		var formValues map[string]map[string]interface{}
 
 		app, err := bolt.New(bolt.AppOptions{
 			Token:         &fakeToken,
@@ -360,22 +360,8 @@ func TestAppViewRouting(t *testing.T) {
 		app.View(bolt.ViewConstraints{
 			CallbackID: &callbackID,
 		}, func(args bolt.SlackViewMiddlewareArgs) error {
-			// Extract form values from the body
-			if bodyMap, ok := args.Body.(map[string]interface{}); ok {
-				if view, exists := bodyMap["view"]; exists {
-					if viewMap, ok := view.(map[string]interface{}); ok {
-						if state, exists := viewMap["state"]; exists {
-							if stateMap, ok := state.(map[string]interface{}); ok {
-								if values, exists := stateMap["values"]; exists {
-									if valuesMap, ok := values.(map[string]interface{}); ok {
-										formValues = valuesMap
-									}
-								}
-							}
-						}
-					}
-				}
-			}
+			// Extract form values from the strongly typed view
+			formValues = args.View.Values
 			return nil
 		})
 
@@ -399,11 +385,9 @@ func TestAppViewRouting(t *testing.T) {
 
 		// Verify form structure
 		if block1, exists := formValues["block_1"]; exists {
-			if block1Map, ok := block1.(map[string]interface{}); ok {
-				if input1, exists := block1Map["input_1"]; exists {
-					if input1Map, ok := input1.(map[string]interface{}); ok {
-						assert.Equal(t, "test value", input1Map["value"], "Form input value should be correct")
-					}
+			if input1, exists := block1["input_1"]; exists {
+				if input1Map, ok := input1.(map[string]interface{}); ok {
+					assert.Equal(t, "test value", input1Map["value"], "Form input value should be correct")
 				}
 			}
 		}

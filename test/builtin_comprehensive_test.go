@@ -601,14 +601,16 @@ func createDummyMessageArgs(text string, ctx *types.Context) types.AllMiddleware
 	ctx.Custom["eventType"] = helpers.IncomingEventTypeEvent
 
 	// Set up middleware args in context
+	eventData := map[string]interface{}{
+		"type":    "message",
+		"text":    text,
+		"user":    "U123456",
+		"channel": "C123456",
+		"ts":      "1234567890.123456",
+	}
+
 	ctx.Custom["middlewareArgs"] = types.SlackEventMiddlewareArgs{
-		Event: map[string]interface{}{
-			"type":    "message",
-			"text":    text,
-			"user":    "U123456",
-			"channel": "C123456",
-			"ts":      "1234567890.123456",
-		},
+		Event: func() types.SlackEvent { parsedEvent, _ := helpers.ParseSlackEvent(eventData); return parsedEvent }(),
 		Message: &types.MessageEvent{
 			MessageEvent: slackevents.MessageEvent{
 				Text:      text,
@@ -639,14 +641,16 @@ func createDummyAppMentionArgs(text string, ctx *types.Context) types.AllMiddlew
 	ctx.Custom["eventType"] = helpers.IncomingEventTypeEvent
 
 	// Set up middleware args in context
+	eventData := map[string]interface{}{
+		"type":    "app_mention",
+		"text":    text,
+		"user":    "U123456",
+		"channel": "C123456",
+		"ts":      "1234567890.123456",
+	}
+
 	ctx.Custom["middlewareArgs"] = types.SlackEventMiddlewareArgs{
-		Event: map[string]interface{}{
-			"type":    "app_mention",
-			"text":    text,
-			"user":    "U123456",
-			"channel": "C123456",
-			"ts":      "1234567890.123456",
-		},
+		Event: func() types.SlackEvent { parsedEvent, _ := helpers.ParseSlackEvent(eventData); return parsedEvent }(),
 		Message: &types.MessageEvent{
 			MessageEvent: slackevents.MessageEvent{
 				Text:      text,
@@ -677,19 +681,21 @@ func createDummyMessageArgsWithBlocks(ctx *types.Context) types.AllMiddlewareArg
 	ctx.Custom["eventType"] = helpers.IncomingEventTypeEvent
 
 	// Set up middleware args in context
-	ctx.Custom["middlewareArgs"] = types.SlackEventMiddlewareArgs{
-		Event: map[string]interface{}{
-			"type":    "message",
-			"text":    "", // Empty text
-			"user":    "U123456",
-			"channel": "C123456",
-			"ts":      "1234567890.123456",
-			"blocks": []interface{}{
-				map[string]interface{}{
-					"type": "divider",
-				},
+	eventData := map[string]interface{}{
+		"type":    "message",
+		"text":    "", // Empty text
+		"user":    "U123456",
+		"channel": "C123456",
+		"ts":      "1234567890.123456",
+		"blocks": []interface{}{
+			map[string]interface{}{
+				"type": "divider",
 			},
 		},
+	}
+
+	ctx.Custom["middlewareArgs"] = types.SlackEventMiddlewareArgs{
+		Event: func() types.SlackEvent { parsedEvent, _ := helpers.ParseSlackEvent(eventData); return parsedEvent }(),
 		Message: &types.MessageEvent{
 			MessageEvent: slackevents.MessageEvent{
 				Text:      "", // Empty text
@@ -778,15 +784,18 @@ func createDummyBotMessageArgs(botID string, ctx *types.Context) types.AllMiddle
 	ctx.Custom["eventType"] = helpers.IncomingEventTypeEvent
 
 	// Set up middleware args in context
+	eventData := map[string]interface{}{
+		"type":    "message",
+		"subtype": "bot_message",
+		"bot_id":  botID,
+		"text":    "hi",
+		"channel": "C123456",
+		"ts":      "1234567890.123456",
+	}
+	parsedEvent, _ := helpers.ParseSlackEvent(eventData)
+
 	ctx.Custom["middlewareArgs"] = types.SlackEventMiddlewareArgs{
-		Event: map[string]interface{}{
-			"type":    "message",
-			"subtype": "bot_message",
-			"bot_id":  botID,
-			"text":    "hi",
-			"channel": "C123456",
-			"ts":      "1234567890.123456",
-		},
+		Event: parsedEvent,
 		Message: &types.MessageEvent{
 			MessageEvent: slackevents.MessageEvent{
 				SubType:   "bot_message",
@@ -818,17 +827,20 @@ func createDummyReactionAddedArgs(userID string, ctx *types.Context) types.AllMi
 	ctx.Custom["eventType"] = helpers.IncomingEventTypeEvent
 
 	// Set up middleware args in context
-	ctx.Custom["middlewareArgs"] = types.SlackEventMiddlewareArgs{
-		Event: map[string]interface{}{
-			"type":     "reaction_added",
-			"user":     userID,
-			"reaction": "thumbsup",
-			"item": map[string]interface{}{
-				"type":    "message",
-				"channel": "C123456",
-				"ts":      "1234567890.123456",
-			},
+	eventData := map[string]interface{}{
+		"type":     "reaction_added",
+		"user":     userID,
+		"reaction": "thumbsup",
+		"item": map[string]interface{}{
+			"type":    "message",
+			"channel": "C123456",
+			"ts":      "1234567890.123456",
 		},
+	}
+	parsedEvent, _ := helpers.ParseSlackEvent(eventData)
+
+	ctx.Custom["middlewareArgs"] = types.SlackEventMiddlewareArgs{
+		Event: parsedEvent,
 	}
 
 	return types.AllMiddlewareArgs{
@@ -851,13 +863,16 @@ func createDummyMemberChannelArgs(eventType, userID string, ctx *types.Context) 
 	ctx.Custom["eventType"] = helpers.IncomingEventTypeEvent
 
 	// Set up middleware args in context
+	eventData := map[string]interface{}{
+		"type":    eventType,
+		"user":    userID,
+		"channel": "C123456",
+		"ts":      "1234567890.123456",
+	}
+	parsedEvent, _ := helpers.ParseSlackEvent(eventData)
+
 	ctx.Custom["middlewareArgs"] = types.SlackEventMiddlewareArgs{
-		Event: map[string]interface{}{
-			"type":    eventType,
-			"user":    userID,
-			"channel": "C123456",
-			"ts":      "1234567890.123456",
-		},
+		Event: parsedEvent,
 	}
 
 	return types.AllMiddlewareArgs{
@@ -880,13 +895,16 @@ func createDummyAppHomeOpenedArgs(ctx *types.Context) types.AllMiddlewareArgs {
 	ctx.Custom["eventType"] = helpers.IncomingEventTypeEvent
 
 	// Set up middleware args in context
+	eventData := map[string]interface{}{
+		"type":    "app_home_opened",
+		"user":    "U123456",
+		"channel": "D123456",
+		"tab":     "home",
+	}
+	parsedEvent, _ := helpers.ParseSlackEvent(eventData)
+
 	ctx.Custom["middlewareArgs"] = types.SlackEventMiddlewareArgs{
-		Event: map[string]interface{}{
-			"type":    "app_home_opened",
-			"user":    "U123456",
-			"channel": "D123456",
-			"tab":     "home",
-		},
+		Event: parsedEvent,
 	}
 
 	return types.AllMiddlewareArgs{

@@ -78,7 +78,7 @@ func TestViewRoutingComprehensive(t *testing.T) {
 		assert.NotNil(t, receivedArgs.View, "View should be available")
 
 		// Verify view data
-		if bodyMap, ok := receivedArgs.Body.(map[string]interface{}); ok {
+		if bodyMap, ok := ExtractRawViewData(receivedArgs.Body); ok {
 			if view, exists := bodyMap["view"]; exists {
 				if viewMap, ok := view.(map[string]interface{}); ok {
 					assert.Equal(t, "my_id", viewMap["callback_id"], "Callback ID should match")
@@ -293,7 +293,7 @@ func TestViewRoutingComprehensive(t *testing.T) {
 			assert.NotNil(t, receivedArgs.View, "View should be available")
 
 			// Verify callback ID
-			if bodyMap, ok := receivedArgs.Body.(map[string]interface{}); ok {
+			if bodyMap, ok := ExtractRawViewData(receivedArgs.Body); ok {
 				if view, ok := bodyMap["view"].(map[string]interface{}); ok {
 					assert.Equal(t, "my_callback_id", view["callback_id"], "Callback ID should match")
 				}
@@ -341,7 +341,7 @@ func TestViewRoutingComprehensive(t *testing.T) {
 			assert.NotNil(t, receivedArgs.View, "View should be available")
 
 			// Verify type
-			if bodyMap, ok := receivedArgs.Body.(map[string]interface{}); ok {
+			if bodyMap, ok := ExtractRawViewData(receivedArgs.Body); ok {
 				assert.Equal(t, "view_closed", bodyMap["type"], "Type should match")
 			}
 		})

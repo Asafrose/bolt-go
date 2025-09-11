@@ -52,7 +52,7 @@ func TestShortcutRoutingComprehensive(t *testing.T) {
 		assert.NotNil(t, receivedArgs.Body, "Body should be available")
 
 		// Verify shortcut data
-		if bodyMap, ok := receivedArgs.Body.(map[string]interface{}); ok {
+		if bodyMap, ok := ExtractRawShortcutData(receivedArgs.Body); ok {
 			assert.Equal(t, "my_callback_id", bodyMap["callback_id"], "Callback ID should match")
 		}
 	})
@@ -251,7 +251,7 @@ func TestShortcutRoutingComprehensive(t *testing.T) {
 		assert.NotNil(t, receivedArgs.Body, "Body should be available")
 
 		// Verify both type and callback_id
-		if bodyMap, ok := receivedArgs.Body.(map[string]interface{}); ok {
+		if bodyMap, ok := ExtractRawShortcutData(receivedArgs.Body); ok {
 			assert.Equal(t, "message_action", bodyMap["type"], "Type should match")
 			assert.Equal(t, "my_callback_id", bodyMap["callback_id"], "Callback ID should match")
 		}
@@ -348,7 +348,7 @@ func TestShortcutRoutingComprehensive(t *testing.T) {
 		assert.NotNil(t, receivedArgs.Body, "Body should be available")
 
 		// Verify that the handler processed the shortcut properly
-		if bodyMap, ok := receivedArgs.Body.(map[string]interface{}); ok {
+		if bodyMap, ok := ExtractRawShortcutData(receivedArgs.Body); ok {
 			assert.Equal(t, "my_callback_id", bodyMap["callback_id"], "Callback ID should match")
 			assert.Equal(t, "message_action", bodyMap["type"], "Type should be message_action")
 		}

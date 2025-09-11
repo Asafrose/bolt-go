@@ -239,7 +239,7 @@ func TestCustomFunctionUtilityFunctions(t *testing.T) {
 			// This is implementation-specific but the core concept is that when AutoAcknowledge is false,
 			// the automatic acknowledgment should not happen
 			assert.NotNil(t, listeners)
-			assert.Positive(t, listeners, "Should have some listeners")
+			assert.NotEmpty(t, listeners, "Should have some listeners")
 
 			// The exact verification depends on implementation, but the key is that
 			// autoAcknowledge should not be in the middleware chain when disabled

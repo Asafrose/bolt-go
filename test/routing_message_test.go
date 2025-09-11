@@ -178,8 +178,8 @@ func TestAppMessageRouting(t *testing.T) {
 		assert.NotNil(t, receivedEvent, "Event data should have been passed to handler")
 
 		// Verify event structure
-		eventMap, ok := receivedEvent.(map[string]interface{})
-		require.True(t, ok, "Event should be a map")
+		eventMap, ok := ExtractRawEventData(receivedEvent.(types.SlackEvent))
+		require.True(t, ok, "Event should be extractable as map")
 		assert.Equal(t, "message", eventMap["type"], "Event type should be message")
 		assert.Equal(t, "test message", eventMap["text"], "Message text should be correct")
 		assert.Equal(t, "U123456", eventMap["user"], "Message user should be correct")

@@ -14,6 +14,29 @@ type SlackEvent interface {
 	GetType() string
 }
 
+// EventEnvelope represents the envelope that wraps Slack events from the Events API
+type EventEnvelope struct {
+	Token              string          `json:"token"`
+	TeamID             string          `json:"team_id"`
+	APIAppID           string          `json:"api_app_id"`
+	Event              SlackEvent      `json:"event"`
+	Type               string          `json:"type"` // "event_callback"
+	EventID            string          `json:"event_id"`
+	EventTime          int64           `json:"event_time"`
+	Authorizations     []Authorization `json:"authorizations,omitempty"`
+	IsExtSharedChannel bool            `json:"is_ext_shared_channel,omitempty"`
+	EventContext       string          `json:"event_context,omitempty"`
+}
+
+// Authorization represents an authorization in the event envelope
+type Authorization struct {
+	EnterpriseID        *string `json:"enterprise_id,omitempty"`
+	TeamID              string  `json:"team_id"`
+	UserID              string  `json:"user_id"`
+	IsBot               bool    `json:"is_bot"`
+	IsEnterpriseInstall bool    `json:"is_enterprise_install"`
+}
+
 // EventConstraints represents constraints for matching events
 type EventConstraints struct {
 	Type    *string `json:"type,omitempty"`
@@ -25,8 +48,8 @@ type EventConstraints struct {
 // SlackEventMiddlewareArgs represents arguments for event middleware
 type SlackEventMiddlewareArgs struct {
 	AllMiddlewareArgs
-	Event   interface{}        `json:"event"`
-	Body    interface{}        `json:"body"`
+	Event   SlackEvent         `json:"event"` // Strongly typed event
+	Body    EventEnvelope      `json:"body"`  // Strongly typed event envelope
 	Message *MessageEvent      `json:"message,omitempty"`
 	Say     SayFn              `json:"-"`
 	Ack     AckFn[interface{}] `json:"-"`

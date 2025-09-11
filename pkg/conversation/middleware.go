@@ -38,7 +38,7 @@ func ConversationContext(store ConversationStore) types.Middleware[types.AllMidd
 			conversationID := *typeAndConv.ConversationID
 
 			// Add update function to context
-			args.Context.UpdateConversation = func(conversation types.ConversationState, expiresAt *time.Time) error {
+			args.Context.UpdateConversation = func(conversation any, expiresAt *time.Time) error {
 				return store.Set(conversationID, conversation, expiresAt)
 			}
 

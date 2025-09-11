@@ -69,7 +69,7 @@ func TestActionRouting(t *testing.T) {
 		require.NoError(t, err)
 
 		assert.True(t, handlerCalled, "Handler should have been called for matching action ID")
-		if actionMap, ok := receivedArgs.Action.(map[string]interface{}); ok {
+		if actionMap, ok := ExtractRawActionData(receivedArgs.Action); ok {
 			assert.Equal(t, "submit_button", actionMap["action_id"], "Action ID should match")
 		}
 	})
@@ -129,7 +129,7 @@ func TestActionRouting(t *testing.T) {
 		require.NoError(t, err)
 
 		assert.True(t, handlerCalled, "Handler should have been called for matching RegExp action ID")
-		if actionMap, ok := receivedArgs.Action.(map[string]interface{}); ok {
+		if actionMap, ok := ExtractRawActionData(receivedArgs.Action); ok {
 			assert.Equal(t, "btn_submit", actionMap["action_id"], "Action ID should match")
 		}
 	})
@@ -188,7 +188,7 @@ func TestActionRouting(t *testing.T) {
 		require.NoError(t, err)
 
 		assert.True(t, handlerCalled, "Handler should have been called for matching block ID")
-		if actionMap, ok := receivedArgs.Action.(map[string]interface{}); ok {
+		if actionMap, ok := ExtractRawActionData(receivedArgs.Action); ok {
 			assert.Equal(t, "approval_section", actionMap["block_id"], "Block ID should match")
 		}
 	})
@@ -372,7 +372,7 @@ func TestActionRouting(t *testing.T) {
 		assert.NotNil(t, receivedArgs.Body, "Body should contain function context")
 
 		// Verify function context is available
-		if bodyMap, ok := receivedArgs.Body.(map[string]interface{}); ok {
+		if bodyMap, ok := ExtractRawActionData(receivedArgs.Body); ok {
 			assert.Equal(t, "Fx123456789", bodyMap["function_execution_id"], "Function execution ID should be available")
 		}
 	})

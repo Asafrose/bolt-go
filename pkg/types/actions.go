@@ -57,6 +57,24 @@ func (wse WorkflowStepEdit) GetType() string {
 	return wse.Type
 }
 
+// FunctionScopedAction represents an action within a function execution context
+type FunctionScopedAction struct {
+	Type                string                 `json:"type"`
+	Actions             []interface{}          `json:"actions,omitempty"`
+	User                map[string]interface{} `json:"user,omitempty"`
+	Channel             map[string]interface{} `json:"channel,omitempty"`
+	Team                map[string]interface{} `json:"team,omitempty"`
+	FunctionExecutionID string                 `json:"function_execution_id,omitempty"`
+	// Include all other common fields that might be present
+	CallbackID  string `json:"callback_id,omitempty"`
+	TriggerID   string `json:"trigger_id,omitempty"`
+	ResponseURL string `json:"response_url,omitempty"`
+}
+
+func (fsa FunctionScopedAction) GetType() string {
+	return fsa.Type
+}
+
 // ActionConstraints represents constraints for matching actions
 type ActionConstraints struct {
 	Type       *string `json:"type,omitempty"`
@@ -72,9 +90,9 @@ type ActionConstraints struct {
 // SlackActionMiddlewareArgs represents arguments for action middleware
 type SlackActionMiddlewareArgs struct {
 	AllMiddlewareArgs
-	Payload interface{}        `json:"payload"`
-	Action  interface{}        `json:"action"`
-	Body    interface{}        `json:"body"`
+	Payload SlackAction        `json:"payload"` // Strongly typed payload (the specific action)
+	Action  SlackAction        `json:"action"`  // Strongly typed action (same as payload)
+	Body    SlackAction        `json:"body"`    // Strongly typed body (the full action request)
 	Respond RespondFn          `json:"-"`
 	Ack     AckFn[interface{}] `json:"-"`
 	Say     *SayFn             `json:"-"` // Optional, only for actions with channel context

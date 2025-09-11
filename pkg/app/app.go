@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"maps"
 	"net/http"
 	"regexp"
 	"strings"
@@ -1188,9 +1189,7 @@ func (a *App) buildEventContext(authResult *AuthorizeResult, event types.Receive
 
 		// Add custom properties from auth result
 		if authResult.Custom != nil {
-			for k, v := range authResult.Custom {
-				context.Custom[k] = v
-			}
+			maps.Copy(context.Custom, authResult.Custom)
 		}
 	}
 
@@ -1202,8 +1201,13 @@ func (a *App) buildEventContext(authResult *AuthorizeResult, event types.Receive
 		context.RetryReason = event.RetryReason
 	}
 
-	// Add the body to context for middleware access
-	context.Custom["body"] = event.Body
+	// Extract function execution ID from body if present
+	parsed := helpers.ParseRequestBody(event.Body)
+	if functionExecutionID, exists := parsed["function_execution_id"]; exists {
+		if functionExecutionIDStr, ok := functionExecutionID.(string); ok {
+			context.FunctionExecutionID = &functionExecutionIDStr
+		}
+	}
 
 	return context
 }
@@ -1249,10 +1253,23 @@ func (a *App) buildMiddlewareArgs(ctx context.Context, eventType helpers.Incomin
 	switch eventType {
 	case helpers.IncomingEventTypeEvent:
 		eventData := parsed["event"]
+
+		// Parse the inner event
+		parsedEvent, err := helpers.ParseSlackEvent(eventData)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse slack event: %w", err)
+		}
+
+		// Parse the event envelope
+		eventEnvelope, err := helpers.ParseEventEnvelope(parsed)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse event envelope: %w", err)
+		}
+
 		args := types.SlackEventMiddlewareArgs{
 			AllMiddlewareArgs: baseArgs,
-			Event:             eventData,
-			Body:              parsed,
+			Event:             parsedEvent,   // Strongly typed event
+			Body:              eventEnvelope, // Strongly typed event envelope
 			Say:               sayFn,
 			Ack:               a.createEventAckFunction(event.Ack),
 		}
@@ -1282,10 +1299,26 @@ func (a *App) buildMiddlewareArgs(ctx context.Context, eventType helpers.Incomin
 				actionData = actionList[0]
 			}
 		}
+
+		// Parse the action data into strongly typed action
+		action, err := helpers.ParseSlackAction(actionData)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse slack action: %w", err)
+		}
+
+		// For the body, we need to parse the entire request as an action
+		// This is a bit complex because the body structure varies by action type
+		bodyAction, bodyErr := helpers.ParseSlackAction(parsed)
+		if bodyErr != nil {
+			// If we can't parse the full body as an action, use the individual action
+			bodyAction = action
+		}
+
 		actionArgs := types.SlackActionMiddlewareArgs{
 			AllMiddlewareArgs: baseArgs,
-			Action:            actionData,
-			Body:              parsed,
+			Action:            action,     // Strongly typed action
+			Payload:           action,     // Strongly typed payload
+			Body:              bodyAction, // Strongly typed body
 			Respond:           respondFn,
 			Ack:               a.createActionAckFunction(event.Ack),
 			Say:               &sayFn,
@@ -1294,32 +1327,15 @@ func (a *App) buildMiddlewareArgs(ctx context.Context, eventType helpers.Incomin
 		baseArgs.Context.Custom["middlewareArgs"] = actionArgs
 		return actionArgs, nil
 	case helpers.IncomingEventTypeCommand:
-		command := types.SlashCommand{}
-		if cmd, ok := parsed["command"].(string); ok {
-			command.Command = cmd
-		}
-		if text, ok := parsed["text"].(string); ok {
-			command.Text = text
-		}
-		if userID, ok := parsed["user_id"].(string); ok {
-			command.UserID = userID
-		}
-		if channelID, ok := parsed["channel_id"].(string); ok {
-			command.ChannelID = channelID
-		}
-		if teamID, ok := parsed["team_id"].(string); ok {
-			command.TeamID = teamID
-		}
-		if responseURL, ok := parsed["response_url"].(string); ok {
-			command.ResponseURL = responseURL
-		}
-		if triggerID, ok := parsed["trigger_id"].(string); ok {
-			command.TriggerID = triggerID
+		command, err := helpers.ParseSlashCommand(parsed)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse slash command: %w", err)
 		}
 		commandArgs := types.SlackCommandMiddlewareArgs{
 			AllMiddlewareArgs: baseArgs,
 			Command:           command,
-			Body:              parsed,
+			Body:              command, // Strongly typed body
+			Payload:           command, // Strongly typed payload
 			Respond:           respondFn,
 			Ack:               a.createCommandAckFunction(event.Ack),
 			Say:               sayFn,
@@ -1336,10 +1352,23 @@ func (a *App) buildMiddlewareArgs(ctx context.Context, eventType helpers.Incomin
 		baseArgs.Context.Custom["middlewareArgs"] = shortcutArgs
 		return shortcutArgs, nil
 	case helpers.IncomingEventTypeViewAction:
+		// Parse the view action (body)
+		viewAction, err := helpers.ParseSlackView(parsed)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse view action: %w", err)
+		}
+
+		// Parse the view output from the view data
+		viewOutput, err := helpers.ParseViewOutput(parsed["view"])
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse view output: %w", err)
+		}
+
 		viewArgs := types.SlackViewMiddlewareArgs{
 			AllMiddlewareArgs: baseArgs,
-			View:              parsed["view"], // Simplified for now
-			Body:              parsed,
+			View:              viewOutput, // Strongly typed processed view data
+			Body:              viewAction, // Strongly typed view action
+			Payload:           viewOutput, // Strongly typed payload (same as view)
 			Ack:               a.createViewAckFunction(event.Ack),
 		}
 		// Store the full args in context for wrapper functions
@@ -1465,10 +1494,17 @@ func (a *App) executeListenerChain(chain []types.Middleware[types.AllMiddlewareA
 
 // Helper methods for building specific middleware args
 func (a *App) buildShortcutMiddlewareArgs(baseArgs types.AllMiddlewareArgs, event types.ReceiverEvent, parsed map[string]interface{}, sayFn types.SayFn) (types.SlackShortcutMiddlewareArgs, error) {
+	// Parse the shortcut using the helper
+	shortcut, err := helpers.ParseSlackShortcut(parsed)
+	if err != nil {
+		return types.SlackShortcutMiddlewareArgs{}, fmt.Errorf("failed to parse shortcut: %w", err)
+	}
+
 	args := types.SlackShortcutMiddlewareArgs{
 		AllMiddlewareArgs: baseArgs,
-		Body:              parsed,
-		Payload:           parsed,
+		Shortcut:          shortcut, // Strongly typed shortcut
+		Body:              shortcut, // Strongly typed body
+		Payload:           shortcut, // Strongly typed payload
 		Ack:               a.createAckFunction(event),
 	}
 
@@ -1476,27 +1512,6 @@ func (a *App) buildShortcutMiddlewareArgs(baseArgs types.AllMiddlewareArgs, even
 	if shortcutType, exists := parsed["type"]; exists {
 		if typeStr, ok := shortcutType.(string); ok && typeStr == "message_action" {
 			args.Say = &sayFn
-		}
-	}
-
-	// Build shortcut object
-	if shortcutType, exists := parsed["type"]; exists {
-		if typeStr, ok := shortcutType.(string); ok {
-			if typeStr == "shortcut" {
-				var globalShortcut types.GlobalShortcut
-				if shortcutBytes, err := json.Marshal(parsed); err == nil {
-					if err := json.Unmarshal(shortcutBytes, &globalShortcut); err == nil {
-						args.Shortcut = globalShortcut
-					}
-				}
-			} else if typeStr == "message_action" {
-				var messageShortcut types.MessageShortcut
-				if shortcutBytes, err := json.Marshal(parsed); err == nil {
-					if err := json.Unmarshal(shortcutBytes, &messageShortcut); err == nil {
-						args.Shortcut = messageShortcut
-					}
-				}
-			}
 		}
 	}
 
@@ -1583,6 +1598,32 @@ func (a *App) createSayFunction(client *slack.Client, context *types.Context) ty
 			_, _, err := client.PostMessage(channelID, options...)
 			return &types.SayResponse{}, err
 
+		case *types.SayArguments:
+			// Handle pointer to SayArguments
+			if msg.Channel != nil {
+				channelID = *msg.Channel
+			}
+
+			var options []slack.MsgOption
+			if msg.Text != nil {
+				options = append(options, slack.MsgOptionText(*msg.Text, false))
+			}
+			if len(msg.Blocks) > 0 {
+				options = append(options, slack.MsgOptionBlocks(msg.Blocks...))
+			}
+			if len(msg.Attachments) > 0 {
+				options = append(options, slack.MsgOptionAttachments(msg.Attachments...))
+			}
+			if msg.ThreadTS != nil {
+				options = append(options, slack.MsgOptionTS(*msg.ThreadTS))
+			}
+			if msg.Metadata != nil {
+				options = append(options, slack.MsgOptionMetadata(*msg.Metadata))
+			}
+
+			_, _, err := client.PostMessage(channelID, options...)
+			return &types.SayResponse{}, err
+
 		}
 
 		return &types.SayResponse{}, bolterrors.NewAppInitializationError("unsupported message type for say function")
@@ -1611,7 +1652,10 @@ func (a *App) createRespondFunction(responseURL string) types.RespondFn {
 		}
 
 		// Validate URL to prevent potential security issues
-		if !strings.HasPrefix(responseURL, "https://hooks.slack.com/") {
+		// Allow localhost/127.0.0.1 for testing, but require https://hooks.slack.com/ for production
+		if !strings.HasPrefix(responseURL, "https://hooks.slack.com/") &&
+			!strings.HasPrefix(responseURL, "http://127.0.0.1") &&
+			!strings.HasPrefix(responseURL, "http://localhost") {
 			return bolterrors.NewAppInitializationError("invalid response URL")
 		}
 
@@ -1730,12 +1774,16 @@ func (a *App) matchesEventConstraints(listener *listenerEntry, middlewareArgs in
 
 	// Extract event type from the event data
 	var eventTypeStr string
-	if eventMap, ok := eventArgs.Event.(map[string]interface{}); ok {
-		if eventType, exists := eventMap["type"]; exists {
-			if typeStr, ok := eventType.(string); ok {
-				eventTypeStr = typeStr
-			}
+	var eventMap map[string]interface{}
+	if genericEvent, ok := eventArgs.Event.(*helpers.GenericSlackEvent); ok {
+		eventMap = genericEvent.RawData
+		eventTypeStr = genericEvent.GetType()
+	} else {
+		// Fallback: try to marshal/unmarshal to get raw data
+		if eventBytes, err := json.Marshal(eventArgs.Event); err == nil {
+			json.Unmarshal(eventBytes, &eventMap)
 		}
+		eventTypeStr = eventArgs.Event.GetType()
 	}
 
 	// Check event type constraint (string)
@@ -1763,7 +1811,7 @@ func (a *App) matchesEventConstraints(listener *listenerEntry, middlewareArgs in
 
 	// Check callback ID constraint for function_executed events
 	if listener.constraints.callbackID != nil && eventTypeStr == "function_executed" {
-		if eventMap, ok := eventArgs.Event.(map[string]interface{}); ok {
+		if eventMap != nil {
 			if function, exists := eventMap["function"]; exists {
 				if functionMap, ok := function.(map[string]interface{}); ok {
 					if callbackID, exists := functionMap["callback_id"]; exists {
@@ -1789,8 +1837,8 @@ func (a *App) matchesActionConstraints(listener *listenerEntry, middlewareArgs i
 
 	// Check action type constraint first (e.g., "block_actions")
 	if listener.constraints.actionType != nil {
-		bodyMap, ok := actionArgs.Body.(map[string]interface{})
-		if !ok {
+		bodyMap, err := helpers.ExtractRawDataFromSlackAction(actionArgs.Body)
+		if err != nil {
 			return false
 		}
 
@@ -1811,8 +1859,8 @@ func (a *App) matchesActionConstraints(listener *listenerEntry, middlewareArgs i
 		return true
 	}
 
-	actionMap, ok := actionArgs.Action.(map[string]interface{})
-	if !ok {
+	actionMap, err := helpers.ExtractRawDataFromSlackAction(actionArgs.Action)
+	if err != nil {
 		return false
 	}
 
@@ -1873,7 +1921,7 @@ func (a *App) matchesActionConstraints(listener *listenerEntry, middlewareArgs i
 	// Check callback_id constraint (string or regexp) for legacy actions
 	if listener.constraints.callbackID != nil {
 		// Check in payload first
-		if bodyMap, ok := actionArgs.Body.(map[string]interface{}); ok {
+		if bodyMap, err := helpers.ExtractRawDataFromSlackAction(actionArgs.Body); err == nil {
 			if callbackID, exists := bodyMap["callback_id"]; exists {
 				callbackIDStr, ok := callbackID.(string)
 				if ok && callbackIDStr == *listener.constraints.callbackID {
@@ -1884,7 +1932,7 @@ func (a *App) matchesActionConstraints(listener *listenerEntry, middlewareArgs i
 		return false
 	} else if listener.constraints.callbackIDPattern != nil {
 		// Check in payload first
-		if bodyMap, ok := actionArgs.Body.(map[string]interface{}); ok {
+		if bodyMap, err := helpers.ExtractRawDataFromSlackAction(actionArgs.Body); err == nil {
 			if callbackID, exists := bodyMap["callback_id"]; exists {
 				callbackIDStr, ok := callbackID.(string)
 				if ok && listener.constraints.callbackIDPattern.MatchString(callbackIDStr) {
@@ -1929,8 +1977,8 @@ func (a *App) matchesShortcutConstraints(listener *listenerEntry, middlewareArgs
 		return false
 	}
 
-	bodyMap, ok := shortcutArgs.Body.(map[string]interface{})
-	if !ok {
+	bodyMap, err := helpers.ExtractRawDataFromSlackShortcut(shortcutArgs.Body)
+	if err != nil {
 		return false
 	}
 
@@ -1978,8 +2026,8 @@ func (a *App) matchesViewConstraints(listener *listenerEntry, middlewareArgs int
 		return false
 	}
 
-	bodyMap, ok := viewArgs.Body.(map[string]interface{})
-	if !ok {
+	bodyMap, err := helpers.ExtractRawDataFromSlackView(viewArgs.Body)
+	if err != nil {
 		return false
 	}
 

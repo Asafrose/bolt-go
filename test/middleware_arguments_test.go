@@ -70,7 +70,7 @@ func TestEventMiddlewareArguments(t *testing.T) {
 		assert.NotNil(t, receivedArgs.Say, "Say function should be present")
 
 		// Verify event data
-		if eventMap, ok := receivedArgs.Event.(map[string]interface{}); ok {
+		if eventMap, ok := ExtractRawEventData(receivedArgs.Event); ok {
 			assert.Equal(t, "app_mention", eventMap["type"], "Event type should be app_mention")
 			assert.Equal(t, "U123456", eventMap["user"], "User ID should match")
 			assert.Equal(t, "<@U987654> hello world", eventMap["text"], "Text should match")
@@ -121,7 +121,7 @@ func TestEventMiddlewareArguments(t *testing.T) {
 		require.NoError(t, err)
 
 		// Verify event data
-		if eventMap, ok := receivedArgs.Event.(map[string]interface{}); ok {
+		if eventMap, ok := ExtractRawEventData(receivedArgs.Event); ok {
 			assert.Equal(t, "message", eventMap["type"], "Event type should be message")
 			assert.Equal(t, "Hello world", eventMap["text"], "Text should match")
 		}
@@ -192,7 +192,7 @@ func TestActionMiddlewareArguments(t *testing.T) {
 		assert.NotNil(t, receivedArgs.Say, "Say function should be present")
 
 		// Verify action data
-		if actionMap, ok := receivedArgs.Action.(map[string]interface{}); ok {
+		if actionMap, ok := ExtractRawActionData(receivedArgs.Action); ok {
 			assert.Equal(t, "button_1", actionMap["action_id"], "Action ID should match")
 			assert.Equal(t, "button", actionMap["type"], "Action type should be button")
 		}
@@ -251,7 +251,7 @@ func TestActionMiddlewareArguments(t *testing.T) {
 		require.NoError(t, err)
 
 		// Verify action data
-		if actionMap, ok := receivedArgs.Action.(map[string]interface{}); ok {
+		if actionMap, ok := ExtractRawActionData(receivedArgs.Action); ok {
 			assert.Equal(t, "select_1", actionMap["action_id"], "Action ID should match")
 			assert.Equal(t, "static_select", actionMap["type"], "Action type should be static_select")
 		}

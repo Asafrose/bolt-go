@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/Asafrose/bolt-go/pkg/assistant"
+	"github.com/Asafrose/bolt-go/pkg/helpers"
 	"github.com/Asafrose/bolt-go/pkg/types"
 	"github.com/slack-go/slack"
 	"github.com/stretchr/testify/assert"
@@ -159,20 +160,28 @@ func TestAssistantComprehensive(t *testing.T) {
 			}
 
 			// Add regular message event (not assistant)
+			eventData := map[string]interface{}{
+				"type":    "message",
+				"user":    "U123",
+				"text":    "hello",
+				"channel": "C123",
+			}
+			bodyData := map[string]interface{}{
+				"event":      eventData,
+				"team_id":    "T123",
+				"api_app_id": "A123",
+				"type":       "event_callback",
+			}
+
+			// Parse into strongly typed structures
+			parsedEvent, _ := helpers.ParseSlackEvent(eventData)
+			parsedEnvelope, _ := helpers.ParseEventEnvelope(bodyData)
+
 			args.Context.Custom = map[string]interface{}{
 				"middlewareArgs": types.SlackEventMiddlewareArgs{
 					AllMiddlewareArgs: args,
-					Event: map[string]interface{}{
-						"type":    "message",
-						"user":    "U123",
-						"text":    "hello",
-						"channel": "C123",
-					},
-					Body: map[string]interface{}{
-						"event": map[string]interface{}{
-							"type": "message",
-						},
-					},
+					Event:             parsedEvent,
+					Body:              parsedEnvelope,
 				},
 			}
 
@@ -217,19 +226,28 @@ func TestAssistantComprehensive(t *testing.T) {
 			}
 
 			// Add assistant event
+			// Create assistant thread started event
+			eventData := map[string]interface{}{
+				"type":      "assistant_thread_started",
+				"channel":   "C123",
+				"thread_ts": "1234567890.123",
+			}
+			bodyData := map[string]interface{}{
+				"event":      eventData,
+				"team_id":    "T123",
+				"api_app_id": "A123",
+				"type":       "event_callback",
+			}
+
+			// Parse into strongly typed structures
+			parsedEvent, _ := helpers.ParseSlackEvent(eventData)
+			parsedEnvelope, _ := helpers.ParseEventEnvelope(bodyData)
+
 			args.Context.Custom = map[string]interface{}{
 				"middlewareArgs": types.SlackEventMiddlewareArgs{
 					AllMiddlewareArgs: args,
-					Event: map[string]interface{}{
-						"type":      "assistant_thread_started",
-						"channel":   "C123",
-						"thread_ts": "1234567890.123",
-					},
-					Body: map[string]interface{}{
-						"event": map[string]interface{}{
-							"type": "assistant_thread_started",
-						},
-					},
+					Event:             parsedEvent,
+					Body:              parsedEnvelope,
 				},
 			}
 

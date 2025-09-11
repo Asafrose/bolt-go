@@ -2,9 +2,11 @@ package assistant
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 
 	"github.com/Asafrose/bolt-go/pkg/errors"
+	"github.com/Asafrose/bolt-go/pkg/helpers"
 	"github.com/Asafrose/bolt-go/pkg/types"
 	"github.com/slack-go/slack"
 )
@@ -275,9 +277,19 @@ func (a *Assistant) processEvent(args types.AllMiddlewareArgs) error {
 				args.Logger.Debug("Successfully cast to SlackEventMiddlewareArgs")
 			}
 			// Extract event type from event data
-			if eventMap, ok := eventArgs.Event.(map[string]interface{}); ok {
+			var eventMap map[string]interface{}
+			if genericEvent, ok := eventArgs.Event.(*helpers.GenericSlackEvent); ok {
+				eventMap = genericEvent.RawData
+			} else {
+				// Fallback: try to marshal/unmarshal to get raw data
+				if eventBytes, err := json.Marshal(eventArgs.Event); err == nil {
+					json.Unmarshal(eventBytes, &eventMap)
+				}
+			}
+
+			if eventMap != nil {
 				if args.Logger != nil {
-					args.Logger.Debug("Event data is map[string]interface{}", "event", eventMap)
+					args.Logger.Debug("Event data extracted", "event", eventMap)
 				}
 				if IsAssistantEvent(eventMap) {
 					if args.Logger != nil {

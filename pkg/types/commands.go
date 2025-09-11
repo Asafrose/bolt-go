@@ -21,8 +21,8 @@ type CommandConstraints struct {
 type SlackCommandMiddlewareArgs struct {
 	AllMiddlewareArgs
 	Command SlashCommand           `json:"command"`
-	Body    interface{}            `json:"body"`
-	Payload interface{}            `json:"payload"`
+	Body    SlashCommand           `json:"body"`    // Strongly typed body
+	Payload SlashCommand           `json:"payload"` // Strongly typed payload
 	Respond RespondFn              `json:"-"`
 	Ack     AckFn[CommandResponse] `json:"-"`
 	Say     SayFn                  `json:"-"`

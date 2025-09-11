@@ -256,8 +256,8 @@ func TestAppActionRouting(t *testing.T) {
 		assert.NotNil(t, receivedBody, "Body data should have been passed to handler")
 
 		// Verify action structure
-		actionMap, ok := receivedAction.(map[string]interface{})
-		require.True(t, ok, "Action should be a map")
+		actionMap, ok := ExtractRawActionData(receivedAction.(types.SlackAction))
+		require.True(t, ok, "Action should be extractable as map")
 		assert.Equal(t, "button_1", actionMap["action_id"], "Action ID should be correct")
 		assert.Equal(t, "block_1", actionMap["block_id"], "Block ID should be correct")
 	})

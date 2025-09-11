@@ -89,7 +89,17 @@ func MatchEventType(pattern interface{}) types.Middleware[types.AllMiddlewareArg
 		if middlewareArgs, exists := args.Context.Custom["middlewareArgs"]; exists {
 			if eventArgs, ok := middlewareArgs.(types.SlackEventMiddlewareArgs); ok {
 				// Extract event type from event data
-				if eventMap, ok := eventArgs.Event.(map[string]interface{}); ok {
+				var eventMap map[string]interface{}
+				if genericEvent, ok := eventArgs.Event.(*helpers.GenericSlackEvent); ok {
+					eventMap = genericEvent.RawData
+				} else {
+					// Fallback: try to marshal/unmarshal to get raw data
+					if eventBytes, err := json.Marshal(eventArgs.Event); err == nil {
+						json.Unmarshal(eventBytes, &eventMap)
+					}
+				}
+
+				if eventMap != nil {
 					if actualEventType, exists := eventMap["type"]; exists {
 						if typeStr, ok := actualEventType.(string); ok {
 							// Match using pattern (string or RegExp)
@@ -223,7 +233,17 @@ func IgnoreSelf() types.Middleware[types.AllMiddlewareArgs] {
 				eventsWhichShouldBeKept := []string{"member_joined_channel", "member_left_channel"}
 
 				if botUserID != nil {
-					if eventMap, ok := eventArgs.Event.(map[string]interface{}); ok {
+					var eventMap map[string]interface{}
+					if genericEvent, ok := eventArgs.Event.(*helpers.GenericSlackEvent); ok {
+						eventMap = genericEvent.RawData
+					} else {
+						// Fallback: try to marshal/unmarshal to get raw data
+						if eventBytes, err := json.Marshal(eventArgs.Event); err == nil {
+							json.Unmarshal(eventBytes, &eventMap)
+						}
+					}
+
+					if eventMap != nil {
 						if eventUserID := ExtractUserFromEvent(eventMap); eventUserID != nil && *eventUserID == *botUserID {
 							// Check if this event type should be kept
 							if eventType, exists := eventMap["type"]; exists {

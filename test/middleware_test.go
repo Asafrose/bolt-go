@@ -564,7 +564,7 @@ func TestMiddlewareExecution(t *testing.T) {
 
 		// Register message handler
 		app.Event("message", func(args bolt.SlackEventMiddlewareArgs) error {
-			if eventMap, ok := args.Event.(map[string]interface{}); ok {
+			if eventMap, ok := ExtractRawEventData(args.Event); ok {
 				modifiedText = eventMap["text"].(string)
 			}
 			return nil

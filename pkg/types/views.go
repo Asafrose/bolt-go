@@ -62,12 +62,18 @@ type ViewConstraints struct {
 	ExternalIDPattern *regexp.Regexp `json:"-"`
 }
 
+// ViewOutput represents the processed view data
+type ViewOutput struct {
+	State  *slack.ViewState                  `json:"state,omitempty"`
+	Values map[string]map[string]interface{} `json:"values,omitempty"`
+}
+
 // SlackViewMiddlewareArgs represents arguments for view middleware
 type SlackViewMiddlewareArgs struct {
 	AllMiddlewareArgs
-	View    interface{}         `json:"view"`
-	Body    interface{}         `json:"body"`
-	Payload interface{}         `json:"payload"`
+	View    ViewOutput          `json:"view"`    // Strongly typed processed view data
+	Body    SlackView           `json:"body"`    // Strongly typed view action
+	Payload ViewOutput          `json:"payload"` // Strongly typed payload (same as view)
 	Ack     AckFn[ViewResponse] `json:"-"`
 }
 

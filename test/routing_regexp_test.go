@@ -70,7 +70,7 @@ func TestRegExpActionRouting(t *testing.T) {
 		require.NoError(t, err)
 
 		assert.True(t, handlerCalled, "Handler should have been called for matching RegExp")
-		if actionMap, ok := receivedArgs.Action.(map[string]interface{}); ok {
+		if actionMap, ok := ExtractRawActionData(receivedArgs.Action); ok {
 			assert.Equal(t, "btn_submit", actionMap["action_id"], "Action ID should match")
 		}
 	})
@@ -185,7 +185,7 @@ func TestRegExpActionRouting(t *testing.T) {
 		require.NoError(t, err)
 
 		assert.True(t, handlerCalled, "Handler should have been called for matching block RegExp")
-		if actionMap, ok := receivedArgs.Action.(map[string]interface{}); ok {
+		if actionMap, ok := ExtractRawActionData(receivedArgs.Action); ok {
 			assert.Equal(t, "header_section", actionMap["block_id"], "Block ID should match")
 		}
 	})

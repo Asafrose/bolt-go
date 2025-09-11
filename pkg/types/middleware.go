@@ -10,12 +10,8 @@ import (
 // StringIndexed represents a map with string keys and any values
 type StringIndexed map[string]interface{}
 
-// ConversationState represents the state stored in conversation context
-// This can be any user-defined data structure
-type ConversationState interface{}
-
 // UpdateConversationFn represents a function to update conversation state
-type UpdateConversationFn func(conversation ConversationState, expiresAt *time.Time) error
+type UpdateConversationFn func(conversation any, expiresAt *time.Time) error
 
 // Context provides contextual information associated with an incoming request
 type Context struct {
@@ -47,7 +43,7 @@ type Context struct {
 	RetryReason *string `json:"retry_reason,omitempty"`
 
 	// Conversation context fields
-	Conversation       ConversationState    `json:"conversation,omitempty"`
+	Conversation       any                  `json:"conversation,omitempty"`
 	UpdateConversation UpdateConversationFn `json:"-"` // Function, not serialized
 
 	// Custom properties

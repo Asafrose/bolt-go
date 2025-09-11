@@ -62,9 +62,9 @@ type ShortcutConstraints struct {
 // SlackShortcutMiddlewareArgs represents arguments for shortcut middleware
 type SlackShortcutMiddlewareArgs struct {
 	AllMiddlewareArgs
-	Shortcut interface{}        `json:"shortcut"`
-	Body     interface{}        `json:"body"`
-	Payload  interface{}        `json:"payload"`
+	Shortcut SlackShortcut      `json:"shortcut"` // Strongly typed shortcut
+	Body     SlackShortcut      `json:"body"`     // Strongly typed body
+	Payload  SlackShortcut      `json:"payload"`  // Strongly typed payload
 	Ack      AckFn[interface{}] `json:"-"`
 	Say      *SayFn             `json:"-"` // Optional, only for message shortcuts
 }
