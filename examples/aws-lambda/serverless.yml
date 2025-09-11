@@ -1,0 +1,23 @@
+service: bolt-go-slack-app
+
+provider:
+  name: aws
+  runtime: go1.x
+  region: us-east-1
+  environment:
+    SLACK_BOT_TOKEN: ${env:SLACK_BOT_TOKEN}
+    SLACK_SIGNING_SECRET: ${env:SLACK_SIGNING_SECRET}
+
+functions:
+  slack:
+    handler: bin/main
+    events:
+      - http:
+          path: slack/events
+          method: post
+
+package:
+  exclude:
+    - ./**
+  include:
+    - ./bin/**
