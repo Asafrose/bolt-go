@@ -3,7 +3,9 @@ package test
 import (
 	"context"
 	"encoding/json"
+	"sync"
 	"testing"
+	"time"
 
 	"github.com/Asafrose/bolt-go"
 	"github.com/Asafrose/bolt-go/pkg/types"
@@ -628,5 +630,149 @@ func TestGlobalMiddlewareIgnoreSelf(t *testing.T) {
 		// (This depends on the ignore-self middleware being enabled by default)
 		// The exact behavior may vary based on implementation
 		_ = listenerCalled
+	})
+}
+
+func TestAsyncListenerHandling(t *testing.T) {
+	t.Run("correctly waits for async listeners", func(t *testing.T) {
+		app, err := bolt.New(bolt.AppOptions{
+			Token:         &fakeToken,
+			SigningSecret: &fakeSigningSecret,
+		})
+		require.NoError(t, err)
+
+		var changed bool
+		var mu sync.Mutex
+
+		// Add async middleware that modifies state after a delay
+		app.Use(func(args bolt.AllMiddlewareArgs) error {
+			// Simulate async work with delay
+			time.Sleep(10 * time.Millisecond)
+
+			mu.Lock()
+			changed = true
+			mu.Unlock()
+
+			return args.Next()
+		})
+
+		// Add event listener
+		app.Event("message", func(args bolt.SlackEventMiddlewareArgs) error {
+			return nil
+		})
+
+		// Create event
+		eventBody := map[string]interface{}{
+			"type": "event_callback",
+			"event": map[string]interface{}{
+				"type":    "message",
+				"user":    "U123456",
+				"text":    "hello world",
+				"channel": "C123456",
+			},
+		}
+
+		bodyBytes, _ := json.Marshal(eventBody)
+
+		event := types.ReceiverEvent{
+			Body: bodyBytes,
+			Headers: map[string]string{
+				"Content-Type": "application/json",
+			},
+			Ack: func(response interface{}) error {
+				return nil
+			},
+		}
+
+		ctx := context.Background()
+		err = app.ProcessEvent(ctx, event)
+		require.NoError(t, err)
+
+		// Check that the async middleware completed before ProcessEvent returned
+		mu.Lock()
+		isChanged := changed
+		mu.Unlock()
+
+		assert.True(t, isChanged, "Async middleware should complete before ProcessEvent returns")
+	})
+
+	t.Run("throws errors which can be caught by upstream async listeners", func(t *testing.T) {
+		app, err := bolt.New(bolt.AppOptions{
+			Token:         &fakeToken,
+			SigningSecret: &fakeSigningSecret,
+		})
+		require.NoError(t, err)
+
+		thrownError := assert.AnError
+		var caughtError error
+		var mu sync.Mutex
+
+		// Add upstream middleware that catches errors
+		app.Use(func(args bolt.AllMiddlewareArgs) error {
+			defer func() {
+				if r := recover(); r != nil {
+					if err, ok := r.(error); ok {
+						mu.Lock()
+						caughtError = err
+						mu.Unlock()
+					}
+				}
+			}()
+
+			// Call next which will throw an error
+			err := args.Next()
+			if err != nil {
+				mu.Lock()
+				caughtError = err
+				mu.Unlock()
+				return nil // Handle the error, don't propagate it
+			}
+			return nil
+		})
+
+		// Add middleware that throws an error
+		app.Use(func(args bolt.AllMiddlewareArgs) error {
+			return thrownError
+		})
+
+		// Add event listener
+		app.Event("message", func(args bolt.SlackEventMiddlewareArgs) error {
+			return nil
+		})
+
+		// Create event
+		eventBody := map[string]interface{}{
+			"type": "event_callback",
+			"event": map[string]interface{}{
+				"type":    "message",
+				"user":    "U123456",
+				"text":    "hello world",
+				"channel": "C123456",
+			},
+		}
+
+		bodyBytes, _ := json.Marshal(eventBody)
+
+		event := types.ReceiverEvent{
+			Body: bodyBytes,
+			Headers: map[string]string{
+				"Content-Type": "application/json",
+			},
+			Ack: func(response interface{}) error {
+				return nil
+			},
+		}
+
+		ctx := context.Background()
+		err = app.ProcessEvent(ctx, event)
+		// Should not return error since upstream middleware caught it
+		require.NoError(t, err)
+
+		// Check that the error was caught
+		mu.Lock()
+		caught := caughtError
+		mu.Unlock()
+
+		assert.Equal(t, thrownError, caught, "Upstream middleware should catch thrown error")
 	})
 }
