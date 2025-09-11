@@ -276,7 +276,7 @@ func TestBuiltinMiddleware(t *testing.T) {
 		assert.False(t, nonMatchingHandlerCalled, "Non-matching handler should not be called")
 	})
 
-	t.Run("should handle case-insensitive message matching", func(t *testing.T) {
+	t.Run("should handle case-sensitive message matching", func(t *testing.T) {
 		handlerCalled := false
 
 		app, err := bolt.New(bolt.AppOptions{
@@ -285,13 +285,13 @@ func TestBuiltinMiddleware(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		// Register message handler with lowercase pattern
-		app.Message("hello", func(args bolt.SlackEventMiddlewareArgs) error {
+		// Register message handler with exact case pattern
+		app.Message("Hello", func(args bolt.SlackEventMiddlewareArgs) error {
 			handlerCalled = true
 			return nil
 		})
 
-		// Create message event with mixed case
+		// Create message event with matching case
 		event := types.ReceiverEvent{
 			Body: createMessageEventBodyWithText("Hello World"),
 			Headers: map[string]string{
@@ -307,8 +307,8 @@ func TestBuiltinMiddleware(t *testing.T) {
 		err = app.ProcessEvent(ctx, event)
 		require.NoError(t, err)
 
-		// This test assumes case-insensitive matching - adjust based on implementation
-		assert.True(t, handlerCalled, "Handler should match case-insensitively")
+		// Message matching should be case-sensitive (like JavaScript version)
+		assert.True(t, handlerCalled, "Handler should match with correct case")
 	})
 
 	t.Run("should handle empty message text", func(t *testing.T) {

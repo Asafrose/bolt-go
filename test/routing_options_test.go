@@ -48,6 +48,7 @@ func createSelectOptionsRequestBody(actionID string) []byte {
 		"action_id":   actionID,
 		"value":       "te",
 		"callback_id": "legacy_callback",
+		"name":        "legacy_select", // Required field for options request identification
 	}
 
 	body, _ := json.Marshal(optionsRequest)

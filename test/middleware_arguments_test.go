@@ -11,6 +11,7 @@ import (
 	"github.com/Asafrose/bolt-go"
 	"github.com/Asafrose/bolt-go/pkg/app"
 	"github.com/Asafrose/bolt-go/pkg/types"
+	"github.com/slack-go/slack"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -1185,9 +1186,31 @@ func TestMiddlewareArgumentsClient(t *testing.T) {
 
 func TestMiddlewareArgumentsSay(t *testing.T) {
 	t.Run("should send a simple message to a channel where the incoming event originates", func(t *testing.T) {
+		// Create mock Slack API server
+		mockAPIServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			// Mock the chat.postMessage API endpoint
+			if r.URL.Path == "/api/chat.postMessage" {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusOK)
+				response := map[string]interface{}{
+					"ok":      true,
+					"channel": "C123456",
+					"ts":      "1234567890.123456",
+					"message": map[string]interface{}{
+						"text": "Hello back!",
+					},
+				}
+				json.NewEncoder(w).Encode(response)
+				return
+			}
+			w.WriteHeader(http.StatusNotFound)
+		}))
+		defer mockAPIServer.Close()
+
 		app, err := bolt.New(bolt.AppOptions{
 			Token:         &fakeToken,
 			SigningSecret: &fakeSigningSecret,
+			ClientOptions: []slack.Option{slack.OptionAPIURL(mockAPIServer.URL + "/api/")},
 		})
 		require.NoError(t, err)
 
@@ -1236,9 +1259,31 @@ func TestMiddlewareArgumentsSay(t *testing.T) {
 
 	t.Run("for events that should include say() utility", func(t *testing.T) {
 		t.Run("should send a simple message to a channel where the incoming event originates", func(t *testing.T) {
+			// Create mock Slack API server
+			mockAPIServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				// Mock the chat.postMessage API endpoint
+				if r.URL.Path == "/api/chat.postMessage" {
+					w.Header().Set("Content-Type", "application/json")
+					w.WriteHeader(http.StatusOK)
+					response := map[string]interface{}{
+						"ok":      true,
+						"channel": "C123456",
+						"ts":      "1234567890.123456",
+						"message": map[string]interface{}{
+							"text": "Hello from the bot!",
+						},
+					}
+					json.NewEncoder(w).Encode(response)
+					return
+				}
+				w.WriteHeader(http.StatusNotFound)
+			}))
+			defer mockAPIServer.Close()
+
 			app, err := bolt.New(bolt.AppOptions{
 				Token:         &fakeToken,
 				SigningSecret: &fakeSigningSecret,
+				ClientOptions: []slack.Option{slack.OptionAPIURL(mockAPIServer.URL + "/api/")},
 			})
 			require.NoError(t, err)
 
@@ -1292,9 +1337,31 @@ func TestMiddlewareArgumentsSay(t *testing.T) {
 		})
 
 		t.Run("should send a complex message to a channel where the incoming event originates", func(t *testing.T) {
+			// Create mock Slack API server
+			mockAPIServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				// Mock the chat.postMessage API endpoint
+				if r.URL.Path == "/api/chat.postMessage" {
+					w.Header().Set("Content-Type", "application/json")
+					w.WriteHeader(http.StatusOK)
+					response := map[string]interface{}{
+						"ok":      true,
+						"channel": "C123456",
+						"ts":      "1234567890.123456",
+						"message": map[string]interface{}{
+							"text": "Complex message",
+						},
+					}
+					json.NewEncoder(w).Encode(response)
+					return
+				}
+				w.WriteHeader(http.StatusNotFound)
+			}))
+			defer mockAPIServer.Close()
+
 			app, err := bolt.New(bolt.AppOptions{
 				Token:         &fakeToken,
 				SigningSecret: &fakeSigningSecret,
+				ClientOptions: []slack.Option{slack.OptionAPIURL(mockAPIServer.URL + "/api/")},
 			})
 			require.NoError(t, err)
 

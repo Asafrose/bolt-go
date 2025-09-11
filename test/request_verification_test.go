@@ -1,7 +1,9 @@
 package test
 
 import (
+	"fmt"
 	"testing"
+	"time"
 
 	"github.com/Asafrose/bolt-go/pkg/helpers"
 	"github.com/stretchr/testify/assert"
@@ -12,18 +14,14 @@ func TestRequestVerification(t *testing.T) {
 		t.Run("should judge a valid request", func(t *testing.T) {
 			// Test signature verification with valid signature
 			signingSecret := "test_signing_secret"
-			timestamp := "1234567890"
+			timestamp := fmt.Sprintf("%d", time.Now().Unix())
 			body := []byte(`{"type":"event_callback","event":{"type":"app_mention"}}`)
 
-			// Create a valid signature (simplified for testing)
-			signature := "v0=valid_signature"
+			// Create a valid signature using the actual signing algorithm
+			baseString := fmt.Sprintf("v0:%s:%s", timestamp, string(body))
+			signature := helpers.GenerateSlackSignature(signingSecret, baseString)
 
-			// For now, we'll test that the function exists and handles the parameters
-			// TODO: Implement actual signature verification
 			err := helpers.VerifySlackSignature(signingSecret, signature, timestamp, body)
-
-			// Since we haven't implemented proper signature verification yet,
-			// we just test that the function can be called without panicking
 			assert.NoError(t, err, "Should handle signature verification call")
 		})
 
@@ -164,9 +162,12 @@ func TestRequestVerification(t *testing.T) {
 	t.Run("body validation", func(t *testing.T) {
 		t.Run("should handle nil body", func(t *testing.T) {
 			signingSecret := "test_signing_secret"
-			timestamp := "1234567890"
+			timestamp := fmt.Sprintf("%d", time.Now().Unix())
 			var body []byte = nil
-			signature := "v0=some_signature"
+
+			// Generate valid signature for nil body
+			baseString := fmt.Sprintf("v0:%s:%s", timestamp, "")
+			signature := helpers.GenerateSlackSignature(signingSecret, baseString)
 
 			err := helpers.VerifySlackSignature(signingSecret, signature, timestamp, body)
 
@@ -176,9 +177,12 @@ func TestRequestVerification(t *testing.T) {
 
 		t.Run("should handle empty body", func(t *testing.T) {
 			signingSecret := "test_signing_secret"
-			timestamp := "1234567890"
+			timestamp := fmt.Sprintf("%d", time.Now().Unix())
 			body := []byte("")
-			signature := "v0=some_signature"
+
+			// Generate valid signature for empty body
+			baseString := fmt.Sprintf("v0:%s:%s", timestamp, string(body))
+			signature := helpers.GenerateSlackSignature(signingSecret, baseString)
 
 			err := helpers.VerifySlackSignature(signingSecret, signature, timestamp, body)
 
@@ -188,13 +192,16 @@ func TestRequestVerification(t *testing.T) {
 
 		t.Run("should handle large body", func(t *testing.T) {
 			signingSecret := "test_signing_secret"
-			timestamp := "1234567890"
+			timestamp := fmt.Sprintf("%d", time.Now().Unix())
 			// Create a large body (1MB)
 			largeBody := make([]byte, 1024*1024)
 			for i := range largeBody {
 				largeBody[i] = 'a'
 			}
-			signature := "v0=some_signature"
+
+			// Generate valid signature for large body
+			baseString := fmt.Sprintf("v0:%s:%s", timestamp, string(largeBody))
+			signature := helpers.GenerateSlackSignature(signingSecret, baseString)
 
 			err := helpers.VerifySlackSignature(signingSecret, signature, timestamp, largeBody)
 

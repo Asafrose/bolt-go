@@ -2,6 +2,7 @@ package assistant
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/Asafrose/bolt-go/pkg/errors"
 	"github.com/Asafrose/bolt-go/pkg/types"
@@ -266,15 +267,35 @@ func (a *Assistant) GetMiddleware() types.Middleware[types.AllMiddlewareArgs] {
 
 // processEvent processes assistant-related events
 func (a *Assistant) processEvent(args types.AllMiddlewareArgs) error {
+	// Debug: Log that processEvent is being called
+	if args.Logger != nil {
+		args.Logger.Debug("Assistant processEvent called")
+	}
+
 	// Extract event type and data from middleware args stored in context
 	if middlewareArgs, exists := args.Context.Custom["middlewareArgs"]; exists {
+		if args.Logger != nil {
+			args.Logger.Debug("Found middlewareArgs in context")
+		}
 		if eventArgs, ok := middlewareArgs.(types.SlackEventMiddlewareArgs); ok {
+			if args.Logger != nil {
+				args.Logger.Debug("Successfully cast to SlackEventMiddlewareArgs")
+			}
 			// Extract event type from event data
 			if eventMap, ok := eventArgs.Event.(map[string]interface{}); ok {
+				if args.Logger != nil {
+					args.Logger.Debug("Event data is map[string]interface{}", "event", eventMap)
+				}
 				if IsAssistantEvent(eventMap) {
+					if args.Logger != nil {
+						args.Logger.Debug("Event identified as assistant event")
+					}
 					// This is an assistant event, don't call next
 					if eventType, exists := eventMap["type"]; exists {
 						if typeStr, ok := eventType.(string); ok {
+							if args.Logger != nil {
+								args.Logger.Debug("Processing assistant event", "type", typeStr)
+							}
 							switch typeStr {
 							case "assistant_thread_started":
 								return a.processThreadStarted(args, eventArgs)
@@ -290,12 +311,31 @@ func (a *Assistant) processEvent(args types.AllMiddlewareArgs) error {
 					}
 					// Assistant event but no specific handler, just don't call next
 					return nil
+				} else {
+					if args.Logger != nil {
+						args.Logger.Debug("Event NOT identified as assistant event")
+					}
+				}
+			} else {
+				if args.Logger != nil {
+					args.Logger.Debug("Event data is not map[string]interface{}", "event", eventArgs.Event)
 				}
 			}
+		} else {
+			if args.Logger != nil {
+				args.Logger.Debug("middlewareArgs is not SlackEventMiddlewareArgs", "type", fmt.Sprintf("%T", middlewareArgs))
+			}
+		}
+	} else {
+		if args.Logger != nil {
+			args.Logger.Debug("No middlewareArgs found in context")
 		}
 	}
 
 	// Not an assistant event, continue
+	if args.Logger != nil {
+		args.Logger.Debug("Calling args.Next()")
+	}
 	return args.Next()
 }
 

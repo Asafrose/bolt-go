@@ -51,11 +51,12 @@ type AppOptions struct {
 	InstallerOptions  interface{} `json:"installer_options,omitempty"`
 
 	// Client configuration
-	HTTPClient *http.Client `json:"-"`
-	Token      *string      `json:"token,omitempty"`
-	AppToken   *string      `json:"app_token,omitempty"`
-	BotID      *string      `json:"bot_id,omitempty"`
-	BotUserID  *string      `json:"bot_user_id,omitempty"`
+	HTTPClient    *http.Client   `json:"-"`
+	ClientOptions []slack.Option `json:"-"`
+	Token         *string        `json:"token,omitempty"`
+	AppToken      *string        `json:"app_token,omitempty"`
+	BotID         *string        `json:"bot_id,omitempty"`
+	BotUserID     *string        `json:"bot_user_id,omitempty"`
 
 	// Authorization
 	Authorize AuthorizeFunc `json:"-"`
@@ -245,6 +246,9 @@ func New(options AppOptions) (*App, error) {
 
 	// Set up client options
 	app.clientOptions = []slack.Option{}
+	if options.ClientOptions != nil {
+		app.clientOptions = append(app.clientOptions, options.ClientOptions...)
+	}
 
 	// Create the main client
 	if options.Token != nil {
@@ -1465,7 +1469,17 @@ func (a *App) processMatchingListeners(middlewareArgs interface{}, eventType hel
 		}
 	}
 
-	// Execute all matching listeners
+	// If there are no matching listeners, still execute global middleware
+	if len(matchingListeners) == 0 {
+		// Create an empty listener to ensure global middleware runs
+		emptyListener := &listenerEntry{
+			eventType:  eventType,
+			middleware: []types.Middleware[types.AllMiddlewareArgs]{}, // Empty listener middleware
+		}
+		matchingListeners = append(matchingListeners, emptyListener)
+	}
+
+	// Execute all matching listeners (including the empty one if no real listeners match)
 	var listenerErrors []error
 	for _, listener := range matchingListeners {
 		func() {

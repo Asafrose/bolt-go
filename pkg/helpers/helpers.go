@@ -475,3 +475,10 @@ func VerifySlackSignature(signingSecret, signature, timestamp string, body []byt
 func IsValidSlackRequest(signingSecret, signature, timestamp string, body []byte) bool {
 	return VerifySlackSignature(signingSecret, signature, timestamp, body) == nil
 }
+
+// GenerateSlackSignature generates a valid Slack signature for testing purposes
+func GenerateSlackSignature(signingSecret, baseString string) string {
+	mac := hmac.New(sha256.New, []byte(signingSecret))
+	mac.Write([]byte(baseString))
+	return "v0=" + hex.EncodeToString(mac.Sum(nil))
+}

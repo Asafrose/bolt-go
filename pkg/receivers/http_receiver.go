@@ -135,6 +135,11 @@ func (r *HTTPReceiver) Init(app types.App) error {
 
 // Start starts the HTTP server
 func (r *HTTPReceiver) Start(ctx context.Context) error {
+	// Check if context is already cancelled
+	if ctx.Err() != nil {
+		return ctx.Err()
+	}
+
 	mux := http.NewServeMux()
 
 	// Add default endpoints (avoid duplicates)
@@ -169,7 +174,12 @@ func (r *HTTPReceiver) Start(ctx context.Context) error {
 		r.Stop(context.Background())
 	}()
 
-	return r.server.ListenAndServe()
+	err := r.server.ListenAndServe()
+	// If the server was shut down due to context cancellation, return context error
+	if err == http.ErrServerClosed && ctx.Err() != nil {
+		return ctx.Err()
+	}
+	return err
 }
 
 // Stop stops the HTTP server

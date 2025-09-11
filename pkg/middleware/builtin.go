@@ -504,6 +504,92 @@ type SlackEventMiddlewareArgsOptions struct {
 	AutoAcknowledge bool `json:"auto_acknowledge"`
 }
 
+// AutoAcknowledge is middleware that auto acknowledges the request received
+func AutoAcknowledge(args types.AllMiddlewareArgs) error {
+	// Try to extract middleware args stored in context to find ack function
+	if args.Context != nil && args.Context.Custom != nil {
+		if middlewareArgs, exists := args.Context.Custom["middlewareArgs"]; exists {
+			// Check for different types of middleware args that have ack functions
+			switch typedArgs := middlewareArgs.(type) {
+			case types.SlackActionMiddlewareArgs:
+				if typedArgs.Ack != nil {
+					if err := typedArgs.Ack(nil); err != nil {
+						return err
+					}
+				}
+			case types.SlackCommandMiddlewareArgs:
+				if typedArgs.Ack != nil {
+					if err := typedArgs.Ack(nil); err != nil {
+						return err
+					}
+				}
+			case types.SlackEventMiddlewareArgs:
+				if typedArgs.Ack != nil {
+					if err := typedArgs.Ack(nil); err != nil {
+						return err
+					}
+				}
+			case types.SlackShortcutMiddlewareArgs:
+				if typedArgs.Ack != nil {
+					if err := typedArgs.Ack(nil); err != nil {
+						return err
+					}
+				}
+			case types.SlackOptionsMiddlewareArgs:
+				if typedArgs.Ack != nil {
+					if err := typedArgs.Ack(nil); err != nil {
+						return err
+					}
+				}
+			case types.SlackViewMiddlewareArgs:
+				if typedArgs.Ack != nil {
+					if err := typedArgs.Ack(nil); err != nil {
+						return err
+					}
+				}
+			case types.SlackCustomFunctionMiddlewareArgs:
+				if typedArgs.Ack != nil {
+					if err := typedArgs.Ack(nil); err != nil {
+						return err
+					}
+				}
+			}
+		}
+	}
+
+	return args.Next()
+}
+
+// MatchCallbackId creates middleware that matches function callback IDs
+func MatchCallbackId(callbackId string) types.Middleware[types.AllMiddlewareArgs] {
+	return func(args types.AllMiddlewareArgs) error {
+		// Only process custom function middleware args
+		if args.Context != nil && args.Context.Custom != nil {
+			if middlewareArgs, exists := args.Context.Custom["middlewareArgs"]; exists {
+				if customFunctionArgs, ok := middlewareArgs.(types.SlackCustomFunctionMiddlewareArgs); ok {
+					// Extract callback_id from payload
+					if payloadMap, ok := customFunctionArgs.Payload.(map[string]interface{}); ok {
+						if functionMap, exists := payloadMap["function"]; exists {
+							if functionData, ok := functionMap.(map[string]interface{}); ok {
+								if actualCallbackId, exists := functionData["callback_id"]; exists {
+									if callbackIdStr, ok := actualCallbackId.(string); ok {
+										if callbackIdStr == callbackId {
+											return args.Next()
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		// Callback ID doesn't match, skip processing
+		return nil
+	}
+}
+
 // IsSlackEventMiddlewareArgsOptions checks if the given interface is SlackEventMiddlewareArgsOptions
 func IsSlackEventMiddlewareArgsOptions(optionOrListener interface{}) bool {
 	if optionOrListener == nil {
