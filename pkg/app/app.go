@@ -79,7 +79,7 @@ type AppOptions struct {
 	AttachFunctionToken      bool  `json:"attach_function_token"`
 
 	// Conversation store
-	ConvoStore interface{} `json:"convo_store,omitempty"`
+	ConvoStore conversation.ConversationStore `json:"convo_store,omitempty"`
 }
 
 // AuthorizeSourceData represents data provided to authorization function
@@ -197,7 +197,7 @@ type App struct {
 	tokenVerificationEnabled bool
 	initialized              bool
 	attachFunctionToken      bool
-	conversationStore        interface{} // ConversationStore for any type
+	conversationStore        conversation.ConversationStore
 
 	// Used when defer initialization is true
 	argToken         *string
@@ -308,19 +308,13 @@ func New(options AppOptions) (*App, error) {
 	if options.ConvoStore != nil {
 		app.conversationStore = options.ConvoStore
 	} else {
-		// Use default MemoryStore for map[string]interface{} as conversation state
-		app.conversationStore = conversation.NewMemoryStore[map[string]interface{}]()
+		// Use default MemoryStore
+		app.conversationStore = conversation.NewMemoryStore()
 	}
 
 	// Add conversation middleware to provide conversation context
 	if app.conversationStore != nil {
-		// For the default MemoryStore, use the typed middleware
-		if store, ok := app.conversationStore.(*conversation.MemoryStore[map[string]interface{}]); ok {
-			app.Use(conversation.ConversationContext(store))
-		} else {
-			// For custom stores, add a generic conversation middleware
-			app.Use(app.createGenericConversationMiddleware(app.conversationStore))
-		}
+		app.Use(conversation.ConversationContext(app.conversationStore))
 	}
 
 	// Initialize receiver
@@ -1336,7 +1330,7 @@ func (a *App) buildMiddlewareArgs(ctx context.Context, eventType helpers.Incomin
 	case helpers.IncomingEventTypeShortcut:
 		shortcutArgs, err := a.buildShortcutMiddlewareArgs(baseArgs, event, parsed, sayFn)
 		if err != nil {
-			return nil, err
+			return &types.SayResponse{}, err
 		}
 		// Store the full args in context for wrapper functions
 		baseArgs.Context.Custom["middlewareArgs"] = shortcutArgs
@@ -1469,46 +1463,6 @@ func (a *App) executeListenerChain(chain []types.Middleware[types.AllMiddlewareA
 	return next()
 }
 
-// createGenericConversationMiddleware creates conversation middleware for any store type
-func (a *App) createGenericConversationMiddleware(store interface{}) types.Middleware[types.AllMiddlewareArgs] {
-	return func(args types.AllMiddlewareArgs) error {
-		// Extract conversation ID from the request body
-		var body []byte
-		if args.Context.Custom != nil {
-			if bodyBytes, exists := args.Context.Custom["body"]; exists {
-				if bytes, ok := bodyBytes.([]byte); ok {
-					body = bytes
-				}
-			}
-		}
-
-		if len(body) == 0 {
-			args.Logger.Debug("No body available for conversation context")
-			return args.Next()
-		}
-
-		typeAndConv := helpers.GetTypeAndConversation(body)
-
-		if typeAndConv.ConversationID != nil {
-			conversationID := *typeAndConv.ConversationID
-
-			// Add a generic update function to context that works with any store
-			args.Context.UpdateConversation = func(conversation interface{}, expiresAt interface{}) error {
-				// This is a generic implementation that works with the test mock
-				// In practice, custom stores would provide their own typed middleware
-				args.Logger.Debug("Generic conversation update called", "conversation_id", conversationID)
-				return nil
-			}
-
-			args.Logger.Debug("Generic conversation context set", "conversation_id", conversationID)
-		} else {
-			args.Logger.Debug("No conversation ID for incoming event")
-		}
-
-		return args.Next()
-	}
-}
-
 // Helper methods for building specific middleware args
 func (a *App) buildShortcutMiddlewareArgs(baseArgs types.AllMiddlewareArgs, event types.ReceiverEvent, parsed map[string]interface{}, sayFn types.SayFn) (types.SlackShortcutMiddlewareArgs, error) {
 	args := types.SlackShortcutMiddlewareArgs{
@@ -1582,13 +1536,13 @@ func (a *App) extractBaseArgs(middlewareArgs interface{}) types.AllMiddlewareArg
 
 // createSayFunction creates a say function for sending messages
 func (a *App) createSayFunction(client *slack.Client, context *types.Context) types.SayFn {
-	return func(message interface{}) (interface{}, error) {
+	return func(message types.SayMessage) (*types.SayResponse, error) {
 		// Determine channel from context or message
 		var channelID string
 
 		// Try to get channel from message
 		switch msg := message.(type) {
-		case string:
+		case types.SayString:
 			// Simple text message - need channel from context
 			if context.Custom != nil {
 				if ch, exists := context.Custom["channel"]; exists {
@@ -1598,11 +1552,11 @@ func (a *App) createSayFunction(client *slack.Client, context *types.Context) ty
 				}
 			}
 			if channelID == "" {
-				return nil, bolterrors.NewAppInitializationError("no channel context for say function")
+				return &types.SayResponse{}, bolterrors.NewAppInitializationError("no channel context for say function")
 			}
 
-			_, _, err := client.PostMessage(channelID, slack.MsgOptionText(msg, false))
-			return nil, err
+			_, _, err := client.PostMessage(channelID, slack.MsgOptionText(string(msg), false))
+			return &types.SayResponse{}, err
 
 		case types.SayArguments:
 			if msg.Channel != nil {
@@ -1622,56 +1576,29 @@ func (a *App) createSayFunction(client *slack.Client, context *types.Context) ty
 			if msg.ThreadTS != nil {
 				options = append(options, slack.MsgOptionTS(*msg.ThreadTS))
 			}
-
-			_, _, err := client.PostMessage(channelID, options...)
-			return nil, err
-
-		case map[string]interface{}:
-			// Handle generic message objects with text, blocks, attachments, etc.
-			if ch, exists := msg["channel"]; exists {
-				if chStr, ok := ch.(string); ok {
-					channelID = chStr
-				}
-			}
-			if channelID == "" {
-				// Try to get channel from context
-				if context.Custom != nil {
-					if ch, exists := context.Custom["channel"]; exists {
-						if chStr, ok := ch.(string); ok {
-							channelID = chStr
-						}
-					}
-				}
-			}
-			if channelID == "" {
-				return nil, bolterrors.NewAppInitializationError("no channel context for say function")
-			}
-
-			var options []slack.MsgOption
-			if text, exists := msg["text"]; exists {
-				if textStr, ok := text.(string); ok {
-					options = append(options, slack.MsgOptionText(textStr, false))
-				}
+			if msg.Metadata != nil {
+				options = append(options, slack.MsgOptionMetadata(*msg.Metadata))
 			}
 
 			_, _, err := client.PostMessage(channelID, options...)
-			return nil, err
+			return &types.SayResponse{}, err
+
 		}
 
-		return nil, bolterrors.NewAppInitializationError("unsupported message type for say function")
+		return &types.SayResponse{}, bolterrors.NewAppInitializationError("unsupported message type for say function")
 	}
 }
 
 // createRespondFunction creates a respond function for response URLs
 func (a *App) createRespondFunction(responseURL string) types.RespondFn {
-	return func(message interface{}) error {
+	return func(message types.RespondMessage) error {
 		var payload []byte
 		var err error
 
 		switch msg := message.(type) {
-		case string:
+		case types.RespondString:
 			payload, err = json.Marshal(map[string]interface{}{
-				"text": msg,
+				"text": string(msg),
 			})
 		case types.RespondArguments:
 			payload, err = json.Marshal(msg)

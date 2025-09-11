@@ -8,14 +8,14 @@ import (
 )
 
 // UpdateConversationFunc represents a function to update conversation state
-type UpdateConversationFunc[ConversationState any] func(conversation ConversationState, expiresAt *time.Time) error
+type UpdateConversationFunc func(conversation any, expiresAt *time.Time) error
 
 // ConversationContext creates a conversation context middleware
 // This middleware allows listeners (and other middleware) to store state related
 // to the conversationId of an incoming event using the context.UpdateConversation()
 // function. That state will be made available in future events that take place
 // in the same conversation by reading from context.Conversation.
-func ConversationContext[ConversationState any](store ConversationStore[ConversationState]) types.Middleware[types.AllMiddlewareArgs] {
+func ConversationContext(store ConversationStore) types.Middleware[types.AllMiddlewareArgs] {
 	return func(args types.AllMiddlewareArgs) error {
 		// Extract conversation ID from the request body
 		var body []byte
@@ -38,7 +38,7 @@ func ConversationContext[ConversationState any](store ConversationStore[Conversa
 			conversationID := *typeAndConv.ConversationID
 
 			// Add update function to context
-			args.Context.UpdateConversation = func(conversation ConversationState, expiresAt *time.Time) error {
+			args.Context.UpdateConversation = func(conversation types.ConversationState, expiresAt *time.Time) error {
 				return store.Set(conversationID, conversation, expiresAt)
 			}
 

@@ -533,7 +533,7 @@ func TestAssistantComprehensive(t *testing.T) {
 
 			// Test that Say function exists and is callable
 			assert.NotNil(t, enrichedArgs.Say)
-			_, err := enrichedArgs.Say("Hello world")
+			_, err := enrichedArgs.Say(types.SayString("Hello world"))
 			require.NoError(t, err)
 		})
 
@@ -551,11 +551,11 @@ func TestAssistantComprehensive(t *testing.T) {
 			enrichedArgs := assistant.EnrichAssistantArgs(store, args)
 
 			// Test that Say function handles complex message objects
-			_, err := enrichedArgs.Say(map[string]interface{}{
-				"text": "Hello",
-				"metadata": map[string]interface{}{
-					"event_type": "assistant_thread_context",
-					"event_payload": map[string]interface{}{
+			_, err := enrichedArgs.Say(&types.SayArguments{
+				Text: stringPtr("Hello"),
+				Metadata: &slack.SlackMetadata{
+					EventType: "assistant_thread_context",
+					EventPayload: map[string]interface{}{
 						"key": "value",
 					},
 				},
@@ -586,10 +586,11 @@ func TestAssistantComprehensive(t *testing.T) {
 
 			enrichedArgs := assistant.EnrichAssistantArgs(store, args)
 
-			_, err = enrichedArgs.Say(map[string]interface{}{
-				"text": "Hello",
-				"metadata": map[string]interface{}{
-					"event_payload": map[string]interface{}{
+			_, err = enrichedArgs.Say(&types.SayArguments{
+				Text: stringPtr("Hello"),
+				Metadata: &slack.SlackMetadata{
+					EventType: "assistant_thread_context",
+					EventPayload: map[string]interface{}{
 						"new": "data",
 					},
 				},

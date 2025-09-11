@@ -113,8 +113,8 @@ var NewAssistant = assistant.NewAssistant
 var NewDefaultThreadContextStore = assistant.NewDefaultThreadContextStore
 
 // Conversation types
-type ConversationStore[T any] = conversation.ConversationStore[T]
-type MemoryStore[T any] = conversation.MemoryStore[T]
+type ConversationStore = conversation.ConversationStore
+type MemoryStore = conversation.MemoryStore
 
 // Conversation constructors (note: these are generic functions requiring type parameters)
 // Use conversation.NewMemoryStore[YourType]() and conversation.ConversationContext[YourType](store)

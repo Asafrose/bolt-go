@@ -288,16 +288,16 @@ func ExtractEventType(body []byte) string {
 
 // CreateSayFunction creates a say function for a given channel
 func CreateSayFunction(client interface{}, channelID string) types.SayFn {
-	return func(message interface{}) (interface{}, error) {
+	return func(message types.SayMessage) (*types.SayResponse, error) {
 		// Implementation will depend on the actual Slack client
 		// For now, return a placeholder
-		return nil, nil
+		return &types.SayResponse{}, nil
 	}
 }
 
 // CreateRespondFunction creates a respond function for a response URL
 func CreateRespondFunction(responseURL string) types.RespondFn {
-	return func(message interface{}) error {
+	return func(message types.RespondMessage) error {
 		// Implementation will depend on HTTP client for response URL
 		// For now, return nil
 		return nil

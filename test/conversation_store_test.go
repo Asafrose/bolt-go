@@ -23,7 +23,7 @@ type TestConversationState struct {
 func TestMemoryStore(t *testing.T) {
 	t.Parallel()
 	t.Run("should store and retrieve conversation state", func(t *testing.T) {
-		store := conversation.NewMemoryStore[TestConversationState]()
+		store := conversation.NewMemoryStore()
 		conversationID := "C123456"
 
 		state := TestConversationState{
@@ -40,13 +40,15 @@ func TestMemoryStore(t *testing.T) {
 		retrieved, err := store.Get(conversationID)
 		require.NoError(t, err)
 
-		assert.Equal(t, state.UserName, retrieved.UserName)
-		assert.Equal(t, state.Count, retrieved.Count)
-		assert.Equal(t, state.Data, retrieved.Data)
+		retrievedState, ok := retrieved.(TestConversationState)
+		require.True(t, ok, "Retrieved state should be of type TestConversationState")
+		assert.Equal(t, state.UserName, retrievedState.UserName)
+		assert.Equal(t, state.Count, retrievedState.Count)
+		assert.Equal(t, state.Data, retrievedState.Data)
 	})
 
 	t.Run("should return error for non-existent conversation", func(t *testing.T) {
-		store := conversation.NewMemoryStore[TestConversationState]()
+		store := conversation.NewMemoryStore()
 
 		_, err := store.Get("nonexistent")
 		require.Error(t, err)
@@ -54,7 +56,7 @@ func TestMemoryStore(t *testing.T) {
 	})
 
 	t.Run("should handle expiration", func(t *testing.T) {
-		store := conversation.NewMemoryStore[TestConversationState]()
+		store := conversation.NewMemoryStore()
 		conversationID := "C123456"
 
 		state := TestConversationState{
@@ -74,7 +76,7 @@ func TestMemoryStore(t *testing.T) {
 	})
 
 	t.Run("should handle future expiration", func(t *testing.T) {
-		store := conversation.NewMemoryStore[TestConversationState]()
+		store := conversation.NewMemoryStore()
 		conversationID := "C123456"
 
 		state := TestConversationState{
@@ -90,11 +92,13 @@ func TestMemoryStore(t *testing.T) {
 		// Should be able to retrieve non-expired state
 		retrieved, err := store.Get(conversationID)
 		require.NoError(t, err)
-		assert.Equal(t, state.UserName, retrieved.UserName)
+		retrievedState, ok := retrieved.(TestConversationState)
+		require.True(t, ok, "Retrieved state should be of type TestConversationState")
+		assert.Equal(t, state.UserName, retrievedState.UserName)
 	})
 
 	t.Run("should overwrite existing conversation state", func(t *testing.T) {
-		store := conversation.NewMemoryStore[TestConversationState]()
+		store := conversation.NewMemoryStore()
 		conversationID := "C123456"
 
 		// Store initial state
@@ -116,12 +120,14 @@ func TestMemoryStore(t *testing.T) {
 		// Should retrieve the new state
 		retrieved, err := store.Get(conversationID)
 		require.NoError(t, err)
-		assert.Equal(t, newState.UserName, retrieved.UserName)
-		assert.Equal(t, newState.Count, retrieved.Count)
+		retrievedState, ok := retrieved.(TestConversationState)
+		require.True(t, ok, "Retrieved state should be of type TestConversationState")
+		assert.Equal(t, newState.UserName, retrievedState.UserName)
+		assert.Equal(t, newState.Count, retrievedState.Count)
 	})
 
 	t.Run("should handle concurrent access", func(t *testing.T) {
-		store := conversation.NewMemoryStore[TestConversationState]()
+		store := conversation.NewMemoryStore()
 		conversationID := "C123456"
 
 		// Simulate concurrent writes
@@ -148,15 +154,17 @@ func TestMemoryStore(t *testing.T) {
 		// Should be able to retrieve some state (last one written)
 		retrieved, err := store.Get(conversationID)
 		require.NoError(t, err)
-		assert.Equal(t, "user", retrieved.UserName)
-		assert.True(t, retrieved.Count >= 0 && retrieved.Count < 10)
+		retrievedState, ok := retrieved.(TestConversationState)
+		require.True(t, ok, "Retrieved state should be of type TestConversationState")
+		assert.Equal(t, "user", retrievedState.UserName)
+		assert.True(t, retrievedState.Count >= 0 && retrievedState.Count < 10)
 	})
 }
 
 func TestConversationMiddleware(t *testing.T) {
 	t.Parallel()
 	t.Run("should load and save conversation state", func(t *testing.T) {
-		store := conversation.NewMemoryStore[TestConversationState]()
+		store := conversation.NewMemoryStore()
 		conversationID := "C123456"
 
 		// Pre-populate store
@@ -233,7 +241,7 @@ func TestConversationMiddleware(t *testing.T) {
 	})
 
 	t.Run("should handle conversation without existing state", func(t *testing.T) {
-		store := conversation.NewMemoryStore[TestConversationState]()
+		store := conversation.NewMemoryStore()
 
 		app, err := bolt.New(bolt.AppOptions{
 			Token:         &fakeToken,
@@ -297,7 +305,7 @@ func TestConversationMiddleware(t *testing.T) {
 	})
 
 	t.Run("should handle events without conversation ID", func(t *testing.T) {
-		store := conversation.NewMemoryStore[TestConversationState]()
+		store := conversation.NewMemoryStore()
 
 		app, err := bolt.New(bolt.AppOptions{
 			Token:         &fakeToken,
@@ -356,7 +364,7 @@ func TestConversationMiddleware(t *testing.T) {
 func TestConversationStoreIntegration(t *testing.T) {
 	t.Parallel()
 	t.Run("should persist conversation state across events", func(t *testing.T) {
-		store := conversation.NewMemoryStore[TestConversationState]()
+		store := conversation.NewMemoryStore()
 		conversationID := "C123456"
 
 		app, err := bolt.New(bolt.AppOptions{
@@ -386,11 +394,7 @@ func TestConversationStoreIntegration(t *testing.T) {
 			currentState.Data = "updated"
 
 			// Save updated state
-			if updateFn, ok := args.Context.UpdateConversation.(func(TestConversationState, *time.Time) error); ok {
-				return updateFn(currentState, nil)
-			}
-
-			return nil
+			return args.Context.UpdateConversation(currentState, nil)
 		})
 
 		// Create first message event
@@ -423,9 +427,11 @@ func TestConversationStoreIntegration(t *testing.T) {
 		require.NoError(t, err)
 
 		// Verify state was persisted
-		finalState, err := store.Get(conversationID)
+		finalStateRaw, err := store.Get(conversationID)
 		require.NoError(t, err)
 
+		finalState, ok := finalStateRaw.(TestConversationState)
+		require.True(t, ok, "Final state should be of type TestConversationState")
 		assert.Equal(t, 2, finalState.Count, "Count should be incremented across messages")
 		assert.Equal(t, "testuser", finalState.UserName, "User name should be set")
 		assert.Equal(t, "updated", finalState.Data, "Data should be updated")
@@ -433,7 +439,7 @@ func TestConversationStoreIntegration(t *testing.T) {
 	})
 
 	t.Run("should handle different conversation IDs separately", func(t *testing.T) {
-		store := conversation.NewMemoryStore[TestConversationState]()
+		store := conversation.NewMemoryStore()
 
 		app, err := bolt.New(bolt.AppOptions{
 			Token:         &fakeToken,
@@ -453,11 +459,7 @@ func TestConversationStoreIntegration(t *testing.T) {
 
 			currentState.Count++
 
-			if updateFn, ok := args.Context.UpdateConversation.(func(TestConversationState, *time.Time) error); ok {
-				return updateFn(currentState, nil)
-			}
-
-			return nil
+			return args.Context.UpdateConversation(currentState, nil)
 		})
 
 		// Process events in different conversations
@@ -486,12 +488,16 @@ func TestConversationStoreIntegration(t *testing.T) {
 		require.NoError(t, err)
 
 		// Verify separate states
-		state1, err := store.Get(conversationID1)
+		state1Raw, err := store.Get(conversationID1)
 		require.NoError(t, err)
+		state1, ok := state1Raw.(TestConversationState)
+		require.True(t, ok, "State1 should be of type TestConversationState")
 		assert.Equal(t, 1, state1.Count, "First conversation should have count 1")
 
-		state2, err := store.Get(conversationID2)
+		state2Raw, err := store.Get(conversationID2)
 		require.NoError(t, err)
+		state2, ok := state2Raw.(TestConversationState)
+		require.True(t, ok, "State2 should be of type TestConversationState")
 		assert.Equal(t, 1, state2.Count, "Second conversation should have count 1")
 	})
 }
@@ -525,9 +531,9 @@ func TestConversationStoreComprehensive(t *testing.T) {
 
 	t.Run("conversationContext middleware", func(t *testing.T) {
 		t.Run("should add to the context for events within a conversation that was not previously stored and pass expiresAt", func(t *testing.T) {
-			store := conversation.NewMemoryStore[TestConversationState]()
+			store := conversation.NewMemoryStore()
 			conversationID := "CONVERSATION_ID"
-			expiresAt := time.Now().Add(time.Hour).Unix()
+			expiresAt := time.Now().Add(time.Hour)
 
 			// Create app with conversation store middleware
 			app, err := bolt.New(bolt.AppOptions{
@@ -543,11 +549,8 @@ func TestConversationStoreComprehensive(t *testing.T) {
 			app.Message("test", func(args types.SlackEventMiddlewareArgs) error {
 				// Verify updateConversation function exists and works with expiresAt
 				if args.Context.UpdateConversation != nil {
-					if updateFunc, ok := args.Context.UpdateConversation.(func(TestConversationState, *time.Time) error); ok {
-						state := TestConversationState{UserName: "testuser", Count: 1, Data: "test"}
-						expTime := time.Unix(expiresAt, 0)
-						return updateFunc(state, &expTime)
-					}
+					state := TestConversationState{UserName: "testuser", Count: 1, Data: "test"}
+					return args.Context.UpdateConversation(state, &expiresAt)
 				}
 				return nil
 			})
@@ -567,8 +570,10 @@ func TestConversationStoreComprehensive(t *testing.T) {
 			require.NoError(t, err)
 
 			// Verify state was stored with correct expiration
-			state, err := store.Get(conversationID)
+			stateRaw, err := store.Get(conversationID)
 			require.NoError(t, err)
+			state, ok := stateRaw.(TestConversationState)
+			require.True(t, ok, "State should be of type TestConversationState")
 			assert.Equal(t, "testuser", state.UserName)
 			assert.Equal(t, 1, state.Count)
 		})
@@ -576,12 +581,12 @@ func TestConversationStoreComprehensive(t *testing.T) {
 
 	t.Run("MemoryStore", func(t *testing.T) {
 		t.Run("constructor should initialize successfully", func(t *testing.T) {
-			store := conversation.NewMemoryStore[TestConversationState]()
+			store := conversation.NewMemoryStore()
 			assert.NotNil(t, store)
 		})
 
 		t.Run("#set and #get should store conversation state", func(t *testing.T) {
-			store := conversation.NewMemoryStore[TestConversationState]()
+			store := conversation.NewMemoryStore()
 			conversationID := "CONVERSATION_ID"
 			state := TestConversationState{UserName: "testuser", Count: 42, Data: "test"}
 
@@ -596,7 +601,7 @@ func TestConversationStoreComprehensive(t *testing.T) {
 		})
 
 		t.Run("#set and #get should reject lookup of conversation state when the conversation is not stored", func(t *testing.T) {
-			store := conversation.NewMemoryStore[TestConversationState]()
+			store := conversation.NewMemoryStore()
 			conversationID := "NON_EXISTENT_CONVERSATION"
 
 			// Try to get non-existent conversation
@@ -605,7 +610,7 @@ func TestConversationStoreComprehensive(t *testing.T) {
 		})
 
 		t.Run("#set and #get should reject lookup of conversation state when the conversation is expired", func(t *testing.T) {
-			store := conversation.NewMemoryStore[TestConversationState]()
+			store := conversation.NewMemoryStore()
 			conversationID := "CONVERSATION_ID"
 			state := TestConversationState{UserName: "testuser", Count: 42, Data: "test"}
 			expiresInMs := int64(5) // 5 milliseconds

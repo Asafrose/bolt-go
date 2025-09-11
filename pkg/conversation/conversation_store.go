@@ -7,11 +7,11 @@ import (
 )
 
 // ConversationStore defines the interface for conversation storage backends
-type ConversationStore[ConversationState any] interface {
+type ConversationStore interface {
 	// Set stores conversation state with optional expiration
-	Set(conversationID string, value ConversationState, expiresAt *time.Time) error
+	Set(conversationID string, value any, expiresAt *time.Time) error
 	// Get retrieves conversation state
-	Get(conversationID string) (ConversationState, error)
+	Get(conversationID string) (any, error)
 	// Delete removes conversation state
 	Delete(conversationID string) error
 }
@@ -19,29 +19,29 @@ type ConversationStore[ConversationState any] interface {
 // MemoryStore is the default in-memory implementation of ConversationStore
 // This should not be used in situations where there is more than one instance
 // of the app running because state will not be shared amongst the processes.
-type MemoryStore[ConversationState any] struct {
+type MemoryStore struct {
 	mu    sync.RWMutex
-	state map[string]*conversationEntry[ConversationState]
+	state map[string]*conversationEntry
 }
 
-type conversationEntry[ConversationState any] struct {
-	Value     ConversationState
+type conversationEntry struct {
+	Value     any
 	ExpiresAt *time.Time
 }
 
 // NewMemoryStore creates a new in-memory conversation store
-func NewMemoryStore[ConversationState any]() *MemoryStore[ConversationState] {
-	return &MemoryStore[ConversationState]{
-		state: make(map[string]*conversationEntry[ConversationState]),
+func NewMemoryStore() *MemoryStore {
+	return &MemoryStore{
+		state: make(map[string]*conversationEntry),
 	}
 }
 
 // Set stores conversation state with optional expiration
-func (s *MemoryStore[ConversationState]) Set(conversationID string, value ConversationState, expiresAt *time.Time) error {
+func (s *MemoryStore) Set(conversationID string, value any, expiresAt *time.Time) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	s.state[conversationID] = &conversationEntry[ConversationState]{
+	s.state[conversationID] = &conversationEntry{
 		Value:     value,
 		ExpiresAt: expiresAt,
 	}
@@ -50,29 +50,27 @@ func (s *MemoryStore[ConversationState]) Set(conversationID string, value Conver
 }
 
 // Get retrieves conversation state
-func (s *MemoryStore[ConversationState]) Get(conversationID string) (ConversationState, error) {
+func (s *MemoryStore) Get(conversationID string) (any, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
-	var zero ConversationState
-
 	entry, exists := s.state[conversationID]
 	if !exists {
-		return zero, errors.New("conversation not found")
+		return nil, errors.New("conversation not found")
 	}
 
 	// Check if expired
 	if entry.ExpiresAt != nil && time.Now().After(*entry.ExpiresAt) {
 		// Clean up expired entry
 		delete(s.state, conversationID)
-		return zero, errors.New("conversation expired")
+		return nil, errors.New("conversation expired")
 	}
 
 	return entry.Value, nil
 }
 
 // Delete removes conversation state
-func (s *MemoryStore[ConversationState]) Delete(conversationID string) error {
+func (s *MemoryStore) Delete(conversationID string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -81,7 +79,7 @@ func (s *MemoryStore[ConversationState]) Delete(conversationID string) error {
 }
 
 // CleanupExpired removes all expired entries
-func (s *MemoryStore[ConversationState]) CleanupExpired() {
+func (s *MemoryStore) CleanupExpired() {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 

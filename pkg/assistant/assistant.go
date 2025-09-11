@@ -428,9 +428,9 @@ func (a *Assistant) createUtilityArgs(args types.AllMiddlewareArgs, channelID, t
 			}
 			return nil
 		},
-		Say: func(message interface{}) (interface{}, error) {
+		Say: func(message types.SayMessage) (*types.SayResponse, error) {
 			// This would use the actual say function from the context
-			return nil, nil
+			return &types.SayResponse{}, nil
 		},
 		SetStatus: func(status string) error {
 			// This would call the Slack API to set thread status
@@ -650,10 +650,10 @@ func EnrichAssistantArgs(store AssistantThreadContextStore, args AllAssistantMid
 		return nil
 	}
 
-	enrichedArgs.Say = func(message interface{}) (interface{}, error) {
+	enrichedArgs.Say = func(message types.SayMessage) (*types.SayResponse, error) {
 		// This would use the client to post a message
 		// In a real implementation, this would use the actual client and channel/thread from context
-		return nil, nil
+		return &types.SayResponse{}, nil
 	}
 
 	enrichedArgs.SetStatus = func(status string) error {

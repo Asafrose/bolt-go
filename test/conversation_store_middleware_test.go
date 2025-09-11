@@ -14,30 +14,30 @@ import (
 )
 
 // MockConversationStore for testing conversation middleware
-type MockConversationStore[T any] struct {
-	state    map[string]T
+type MockConversationStore struct {
+	state    map[string]any
 	getError error
 	setError error
 	getCalls []string
-	setCalls []SetCall[T]
+	setCalls []SetCall
 }
 
-type SetCall[T any] struct {
+type SetCall struct {
 	ConversationID string
-	Value          T
+	Value          any
 	ExpiresAt      *time.Time
 }
 
-func NewMockConversationStore[T any]() *MockConversationStore[T] {
-	return &MockConversationStore[T]{
-		state:    make(map[string]T),
+func NewMockConversationStore() *MockConversationStore {
+	return &MockConversationStore{
+		state:    make(map[string]any),
 		getCalls: make([]string, 0),
-		setCalls: make([]SetCall[T], 0),
+		setCalls: make([]SetCall, 0),
 	}
 }
 
-func (m *MockConversationStore[T]) Set(conversationID string, value T, expiresAt *time.Time) error {
-	m.setCalls = append(m.setCalls, SetCall[T]{
+func (m *MockConversationStore) Set(conversationID string, value any, expiresAt *time.Time) error {
+	m.setCalls = append(m.setCalls, SetCall{
 		ConversationID: conversationID,
 		Value:          value,
 		ExpiresAt:      expiresAt,
@@ -49,28 +49,27 @@ func (m *MockConversationStore[T]) Set(conversationID string, value T, expiresAt
 	return nil
 }
 
-func (m *MockConversationStore[T]) Get(conversationID string) (T, error) {
-	var zero T
+func (m *MockConversationStore) Get(conversationID string) (any, error) {
 	m.getCalls = append(m.getCalls, conversationID)
 	if m.getError != nil {
-		return zero, m.getError
+		return nil, m.getError
 	}
 	if value, exists := m.state[conversationID]; exists {
 		return value, nil
 	}
-	return zero, errors.New("conversation not found")
+	return nil, errors.New("conversation not found")
 }
 
-func (m *MockConversationStore[T]) Delete(conversationID string) error {
+func (m *MockConversationStore) Delete(conversationID string) error {
 	delete(m.state, conversationID)
 	return nil
 }
 
-func (m *MockConversationStore[T]) SetGetError(err error) {
+func (m *MockConversationStore) SetGetError(err error) {
 	m.getError = err
 }
 
-func (m *MockConversationStore[T]) SetSetError(err error) {
+func (m *MockConversationStore) SetSetError(err error) {
 	m.setError = err
 }
 
@@ -84,7 +83,7 @@ func TestConversationStoreMiddleware(t *testing.T) {
 
 	t.Run("should forward events that have no conversation ID", func(t *testing.T) {
 		// Arrange
-		store := NewMockConversationStore[ConversationState]()
+		store := NewMockConversationStore()
 
 		app, err := bolt.New(bolt.AppOptions{
 			Token:         &fakeToken,
@@ -126,7 +125,7 @@ func TestConversationStoreMiddleware(t *testing.T) {
 
 	t.Run("should add to the context for events within a conversation that was not previously stored", func(t *testing.T) {
 		// Arrange
-		store := NewMockConversationStore[ConversationState]()
+		store := NewMockConversationStore()
 		store.SetGetError(errors.New("conversation not found"))
 
 		app, err := bolt.New(bolt.AppOptions{
@@ -139,7 +138,7 @@ func TestConversationStoreMiddleware(t *testing.T) {
 		app.Use(conversation.ConversationContext(store))
 
 		middlewareCalled := false
-		var updateFunc func(ConversationState, *time.Time) error
+		var updateFunc types.UpdateConversationFn
 
 		app.Use(func(args bolt.AllMiddlewareArgs) error {
 			middlewareCalled = true
@@ -150,7 +149,7 @@ func TestConversationStoreMiddleware(t *testing.T) {
 
 			// Store the update function for testing
 			if args.Context.UpdateConversation != nil {
-				updateFunc = args.Context.UpdateConversation.(func(ConversationState, *time.Time) error)
+				updateFunc = args.Context.UpdateConversation
 			}
 
 			return args.Next()
@@ -189,7 +188,7 @@ func TestConversationStoreMiddleware(t *testing.T) {
 	t.Run("should add to the context for events within a conversation that was previously stored", func(t *testing.T) {
 		// Arrange
 		existingState := ConversationState{UserName: "existing_user", Count: 42}
-		store := NewMockConversationStore[ConversationState]()
+		store := NewMockConversationStore()
 		store.state["C123456"] = existingState
 
 		app, err := bolt.New(bolt.AppOptions{
@@ -202,7 +201,7 @@ func TestConversationStoreMiddleware(t *testing.T) {
 		app.Use(conversation.ConversationContext(store))
 
 		middlewareCalled := false
-		var updateFunc func(ConversationState, *time.Time) error
+		var updateFunc types.UpdateConversationFn
 		var loadedConversation interface{}
 
 		app.Use(func(args bolt.AllMiddlewareArgs) error {
@@ -214,7 +213,7 @@ func TestConversationStoreMiddleware(t *testing.T) {
 
 			// Store the update function for testing
 			if args.Context.UpdateConversation != nil {
-				updateFunc = args.Context.UpdateConversation.(func(ConversationState, *time.Time) error)
+				updateFunc = args.Context.UpdateConversation
 			}
 
 			return args.Next()
@@ -255,7 +254,7 @@ func TestConversationStoreMiddleware(t *testing.T) {
 
 	t.Run("should handle conversation store errors gracefully", func(t *testing.T) {
 		// Arrange
-		store := NewMockConversationStore[ConversationState]()
+		store := NewMockConversationStore()
 		store.SetGetError(errors.New("database connection failed"))
 
 		app, err := bolt.New(bolt.AppOptions{
@@ -297,7 +296,7 @@ func TestConversationStoreMiddleware(t *testing.T) {
 
 	t.Run("should handle expired conversation gracefully", func(t *testing.T) {
 		// Arrange
-		store := NewMockConversationStore[ConversationState]()
+		store := NewMockConversationStore()
 		store.SetGetError(errors.New("conversation expired"))
 
 		app, err := bolt.New(bolt.AppOptions{
@@ -339,7 +338,7 @@ func TestConversationStoreMiddleware(t *testing.T) {
 
 	t.Run("should work with updateConversation with expiration", func(t *testing.T) {
 		// Arrange
-		store := NewMockConversationStore[ConversationState]()
+		store := NewMockConversationStore()
 		store.SetGetError(errors.New("conversation not found"))
 
 		app, err := bolt.New(bolt.AppOptions{
@@ -351,11 +350,11 @@ func TestConversationStoreMiddleware(t *testing.T) {
 		// Add conversation middleware
 		app.Use(conversation.ConversationContext(store))
 
-		var updateFunc func(ConversationState, *time.Time) error
+		var updateFunc types.UpdateConversationFn
 
 		app.Use(func(args bolt.AllMiddlewareArgs) error {
 			if args.Context.UpdateConversation != nil {
-				updateFunc = args.Context.UpdateConversation.(func(ConversationState, *time.Time) error)
+				updateFunc = args.Context.UpdateConversation
 			}
 			return args.Next()
 		})
@@ -392,7 +391,7 @@ func TestConversationStoreMiddleware(t *testing.T) {
 
 	t.Run("should handle different event types with conversation IDs", func(t *testing.T) {
 		// Arrange
-		store := NewMockConversationStore[ConversationState]()
+		store := NewMockConversationStore()
 
 		app, err := bolt.New(bolt.AppOptions{
 			Token:         &fakeToken,
@@ -475,7 +474,7 @@ func TestConversationStoreMiddleware(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
 			Token:         &fakeToken,
 			SigningSecret: &fakeSigningSecret,
-			ConvoStore:    false, // Disable conversation store
+			// ConvoStore: nil, // Default will create a MemoryStore
 		})
 		require.NoError(t, err)
 		assert.NotNil(t, app, "App should be created successfully")
@@ -486,7 +485,7 @@ func TestConversationStoreMiddleware(t *testing.T) {
 
 	t.Run("should add to the context for events within a conversation that was not previously stored and pass expiresAt", func(t *testing.T) {
 		// Create a mock store
-		store := NewMockConversationStore[ConversationState]()
+		store := NewMockConversationStore()
 
 		app, err := bolt.New(bolt.AppOptions{
 			Token:         &fakeToken,
@@ -497,7 +496,7 @@ func TestConversationStoreMiddleware(t *testing.T) {
 		// Add the typed conversation middleware manually
 		app.Use(conversation.ConversationContext(store))
 
-		var updateFunc func(ConversationState, *time.Time) error
+		var updateFunc types.UpdateConversationFn
 
 		app.Use(func(args bolt.AllMiddlewareArgs) error {
 			// Should have existing conversation loaded
@@ -507,7 +506,7 @@ func TestConversationStoreMiddleware(t *testing.T) {
 
 			// Store the update function for testing with expiresAt
 			if args.Context.UpdateConversation != nil {
-				updateFunc = args.Context.UpdateConversation.(func(ConversationState, *time.Time) error)
+				updateFunc = args.Context.UpdateConversation
 			}
 
 			return args.Next()

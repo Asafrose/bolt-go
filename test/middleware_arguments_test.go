@@ -848,8 +848,8 @@ func TestMiddlewareArgumentsRespond(t *testing.T) {
 		assert.NotNil(t, receivedArgs.Respond, "Respond function should be available")
 
 		// Test respond function
-		err = receivedArgs.Respond(map[string]interface{}{
-			"text": "Button clicked!",
+		err = receivedArgs.Respond(&types.RespondArguments{
+			Text: stringPtr("Button clicked!"),
 		})
 		require.NoError(t, err, "Respond should work with response_url")
 		assert.True(t, responseReceived, "Response should be sent to mock server")
@@ -911,18 +911,17 @@ func TestMiddlewareArgumentsRespond(t *testing.T) {
 		require.NoError(t, err)
 
 		// Test respond with complex response object
-		response := map[string]interface{}{
-			"text": "Complex response",
-			"blocks": []interface{}{
-				map[string]interface{}{
-					"type": "section",
-					"text": map[string]interface{}{
-						"type": "mrkdwn",
-						"text": "*Bold text* and _italic text_",
+		response := &types.RespondArguments{
+			Text: stringPtr("Complex response"),
+			Blocks: []slack.Block{
+				&slack.SectionBlock{
+					Text: &slack.TextBlockObject{
+						Type: "mrkdwn",
+						Text: "*Bold text* and _italic text_",
 					},
 				},
 			},
-			"response_type": "ephemeral",
+			ResponseType: stringPtr("ephemeral"),
 		}
 
 		err = receivedArgs.Respond(response)
@@ -1266,7 +1265,7 @@ func TestMiddlewareArgumentsSay(t *testing.T) {
 		assert.NotNil(t, receivedArgs.Say, "Say function should be available")
 
 		// Test Say function
-		_, err = receivedArgs.Say("Hello back!")
+		_, err = receivedArgs.Say(types.SayString("Hello back!"))
 		require.NoError(t, err, "Say should work for channel events")
 	})
 
@@ -1312,7 +1311,7 @@ func TestMiddlewareArgumentsSay(t *testing.T) {
 
 				// Test calling say with a simple message
 				if args.Say != nil {
-					_, err := args.Say("Hello from the bot!")
+					_, err := args.Say(types.SayString("Hello from the bot!"))
 					require.NoError(t, err, "Say should work without error")
 				}
 
@@ -1392,30 +1391,30 @@ func TestMiddlewareArgumentsSay(t *testing.T) {
 
 				// Test calling say with a complex message (blocks)
 				if args.Say != nil {
-					complexMessage := map[string]interface{}{
-						"text": "Complex message",
-						"blocks": []interface{}{
-							map[string]interface{}{
-								"type": "section",
-								"text": map[string]interface{}{
-									"type": "mrkdwn",
-									"text": "This is a *complex* message with blocks",
+
+					_, err := args.Say(&types.SayArguments{
+						Text: stringPtr("Complex message"),
+						Blocks: []slack.Block{
+							&slack.SectionBlock{
+								Text: &slack.TextBlockObject{
+									Type: "mrkdwn",
+									Text: "This is a *complex* message with blocks",
 								},
 							},
-							map[string]interface{}{
-								"type": "actions",
-								"elements": []interface{}{
-									map[string]interface{}{
-										"type":      "button",
-										"text":      map[string]interface{}{"type": "plain_text", "text": "Click me"},
-										"action_id": "button_click",
+							&slack.ActionBlock{
+								Elements: &slack.BlockElements{
+									ElementSet: []slack.BlockElement{
+										&slack.ButtonBlockElement{
+											Type: "button",
+											Text: &slack.TextBlockObject{
+												Type: "plain_text",
+												Text: "Click me",
+											},
+										},
 									},
 								},
 							},
-						},
-					}
-
-					_, err := args.Say(complexMessage)
+						}})
 					require.NoError(t, err, "Complex message should be sent successfully")
 				}
 
