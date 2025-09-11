@@ -1,0 +1,161 @@
+---
+description: Bolt Go - Slack Bolt Framework Port project guidelines and context
+globs: ["**/*"]
+alwaysApply: true
+---
+
+# Bolt Go - Slack Bolt Framework Port
+
+## Project Overview
+
+This repository is a **vibe-coded port** of the Slack Bolt JavaScript library to Go. The original Bolt JS library provides a framework for building Slack apps, and we're recreating its functionality in Go while maintaining API compatibility and feature parity.
+
+## Original Source
+
+- **Original Library**: Slack Bolt for JavaScript
+- **Location**: `./bolt-js/` directory contains the complete original JavaScript codebase
+- **Reference**: Use the JS implementation as the source of truth for behavior and API design
+
+## Development Approach
+
+### Test-Driven Development (TDD)
+
+We follow a strict TDD approach to ensure accurate porting:
+
+1. **Analyze JS Tests**: Extract test cases from the original `bolt-js/test/` directory
+2. **Write Go Tests**: Create equivalent Go tests that match JS behavior
+3. **Implement Features**: Write Go code to make tests pass
+4. **Verify Parity**: Ensure Go implementation matches JS functionality
+
+### Parity Tracking
+
+- **Analysis Scripts**: `/scripts/` contains tools for tracking test parity
+  - `compare_tests.go` - Compares JS and Go test coverage
+  - `comprehensive_analysis.go` - Generates detailed parity reports
+  - `audit_analysis.go` - Audits implementation completeness
+  - `update_analysis.go` - Updates parity tracking
+
+- **Parity Documentation**: `TEST_PARITY_ANALYSIS.md` contains:
+  - Detailed mapping of JS tests to Go implementations
+  - Coverage percentages by module
+  - Missing functionality identification
+  - Progress tracking over time
+
+## Code Structure
+
+### Go Package Organization
+
+```
+pkg/
+├── app/           # Main App functionality (equivalent to bolt-js/src/App.ts)
+├── assistant/     # AI Assistant features
+├── conversation/  # Conversation store and middleware
+├── errors/        # Error handling and custom error types
+├── helpers/       # Utility functions
+├── http/          # HTTP utilities and request handling
+├── middleware/    # Built-in middleware functions
+├── oauth/         # OAuth installation and state management
+├── receivers/     # HTTP, Socket Mode, and AWS Lambda receivers
+├── types/         # Type definitions for Slack API objects
+└── workflow/      # Workflow step functionality
+```
+
+### Test Organization
+
+```
+test/
+├── *_test.go           # Unit tests matching JS functionality
+├── *_comprehensive_test.go  # Comprehensive test suites
+├── test_helpers.go     # Test utilities and mocks
+└── mocks/             # Generated mocks for interfaces
+```
+
+## Development Guidelines
+
+### Code Style
+
+- Follow Go conventions and idioms
+- Use `errors.New()` for static error messages
+- Maintain consistency with original JS API where possible
+- Prefer explicit error handling over panics
+
+### Testing Rules
+
+- **Test functions MUST be in PascalCase**
+- **Test cases within functions MUST be in snake_case**
+- Every JS test should have a corresponding Go test
+- Tests should verify the same behavior as JS implementation
+- Use table-driven tests for multiple scenarios
+
+### Commit Guidelines
+
+- When working on branches starting with `day-XXX`, commit messages MUST start with `[DAY-XXX]`
+- Reference JS test files when implementing features
+- Update `TEST_PARITY_ANALYSIS.md` when adding new test coverage
+
+## Current Status
+
+As of the latest analysis:
+- **Total JS Tests**: 378
+- **Implemented in Go**: 310+
+- **Overall Coverage**: 82.0%+
+
+### High Priority Areas
+
+1. **WorkflowStep**: Some functionality still missing
+2. **ExpressReceiver**: Node.js specific features marked as N/A
+3. **Advanced OAuth flows**: Complex installation scenarios
+4. **Error handling edge cases**: Ensure all error paths are covered
+
+## Key Differences from JS
+
+### Language-Specific Adaptations
+
+1. **Error Handling**: Go's explicit error handling vs JS exceptions
+2. **Concurrency**: Go routines instead of JS async/await
+3. **Type Safety**: Strong typing vs JS dynamic typing
+4. **Package Management**: Go modules vs npm packages
+5. **HTTP Handling**: Go's net/http vs Node.js/Express
+
+### API Compatibility
+
+- Method signatures adapted for Go conventions
+- Callback patterns converted to Go interfaces
+- Promise-based APIs converted to channel or direct return patterns
+- Middleware chain implemented using Go's function composition
+
+## Working with the Codebase
+
+### Before Making Changes
+
+1. Check `TEST_PARITY_ANALYSIS.md` for current coverage status
+2. Review corresponding JS implementation in `bolt-js/`
+3. Identify missing tests or functionality gaps
+4. Run parity analysis scripts to understand impact
+
+### Adding New Features
+
+1. Find equivalent JS tests in `bolt-js/test/`
+2. Create Go test file with comprehensive coverage
+3. Implement Go functionality to pass tests
+4. Update parity analysis documentation
+5. Verify behavior matches JS implementation
+
+### Debugging Issues
+
+1. Compare with JS implementation behavior
+2. Check test coverage for the specific feature
+3. Use mocks to isolate components during testing
+4. Verify middleware chain execution order
+
+## Resources
+
+- **JS Documentation**: `bolt-js/docs/` contains original documentation
+- **Examples**: `bolt-js/examples/` shows usage patterns
+- **Type Definitions**: `bolt-js/src/types/` defines expected interfaces
+- **Test Patterns**: `bolt-js/test/` demonstrates expected behavior
+
+Remember: When in doubt, the JavaScript implementation is the source of truth for expected behavior and API design.
+
+@TEST_PARITY_ANALYSIS.md
+@bolt-js/
