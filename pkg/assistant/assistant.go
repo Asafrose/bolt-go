@@ -283,7 +283,7 @@ func (a *Assistant) processEvent(args types.AllMiddlewareArgs) error {
 			} else {
 				// Fallback: try to marshal/unmarshal to get raw data
 				if eventBytes, err := json.Marshal(eventArgs.Event); err == nil {
-					json.Unmarshal(eventBytes, &eventMap)
+					_ = json.Unmarshal(eventBytes, &eventMap)
 				}
 			}
 

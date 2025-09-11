@@ -5,10 +5,10 @@ import (
 	"os"
 
 	"github.com/Asafrose/bolt-go/pkg/app"
-	"github.com/samber/lo"
 	"github.com/Asafrose/bolt-go/pkg/receivers"
 	"github.com/Asafrose/bolt-go/pkg/types"
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/samber/lo"
 	"github.com/slack-go/slack"
 )
 
@@ -91,21 +91,15 @@ func init() {
 			return err
 		}
 
-		// Extract user ID from body
-		if bodyMap, ok := args.Body.(map[string]interface{}); ok {
-			if user, exists := bodyMap["user"]; exists {
-				if userMap, ok := user.(map[string]interface{}); ok {
-					if userID, ok := userMap["id"].(string); ok {
-						// Respond to the button click if say function is available
-						if args.Say != nil {
-							text := fmt.Sprintf("<@%s> clicked the button", userID)
-							_, err := (*args.Say)(&types.SayArguments{
-								Text: lo.ToPtr(text),
-							})
-							return err
-						}
-					}
-				}
+		// Extract user ID from context
+		if args.Context != nil && args.Context.UserID != nil {
+			// Respond to the button click if say function is available
+			if args.Say != nil {
+				text := fmt.Sprintf("<@%s> clicked the button", *args.Context.UserID)
+				_, err := (*args.Say)(&types.SayArguments{
+					Text: lo.ToPtr(text),
+				})
+				return err
 			}
 		}
 		return nil

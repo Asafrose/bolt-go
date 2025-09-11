@@ -37,30 +37,27 @@ func main() {
 
 	// Publish an App Home
 	boltApp.Event("app_home_opened", func(args types.SlackEventMiddlewareArgs) error {
-		// Extract event data
-		if eventMap, ok := args.Event.(map[string]interface{}); ok {
-			if userID, exists := eventMap["user"]; exists {
-				if userIDStr, ok := userID.(string); ok {
-					// Create home view blocks
-					blocks := []slack.Block{
-						&slack.SectionBlock{
-							Type:    slack.MBTSection,
-							BlockID: "section678",
-							Text: &slack.TextBlockObject{
-								Type: slack.MarkdownType,
-								Text: "App Home Published",
-							},
-						},
-					}
-
-					// Use the client to publish view
-					_, err := args.Client.PublishView(userIDStr, slack.HomeTabViewRequest{
-						Type:   slack.VTHomeTab,
-						Blocks: slack.Blocks{BlockSet: blocks},
-					}, "")
-					return err
-				}
+		// Extract event data from context
+		if args.Context != nil && args.Context.UserID != nil {
+			userIDStr := *args.Context.UserID
+			// Create home view blocks
+			blocks := []slack.Block{
+				&slack.SectionBlock{
+					Type:    slack.MBTSection,
+					BlockID: "section678",
+					Text: &slack.TextBlockObject{
+						Type: slack.MarkdownType,
+						Text: "App Home Published",
+					},
+				},
 			}
+
+			// Use the client to publish view
+			_, err := args.Client.PublishView(userIDStr, slack.HomeTabViewRequest{
+				Type:   slack.VTHomeTab,
+				Blocks: slack.Blocks{BlockSet: blocks},
+			}, "")
+			return err
 		}
 		return nil
 	})
@@ -84,51 +81,56 @@ func main() {
 			return err
 		}
 
-		// Extract trigger_id from shortcut
-		if shortcutMap, ok := args.Shortcut.(map[string]interface{}); ok {
-			if triggerID, exists := shortcutMap["trigger_id"]; exists {
-				if triggerIDStr, ok := triggerID.(string); ok {
-					// Create modal blocks
-					blocks := []slack.Block{
-						&slack.SectionBlock{
-							Type: slack.MBTSection,
-							Text: &slack.TextBlockObject{
+		// Extract trigger_id from shortcut based on its type
+		var triggerIDStr string
+		switch shortcut := args.Shortcut.(type) {
+		case types.GlobalShortcut:
+			triggerIDStr = shortcut.TriggerID
+		case types.MessageShortcut:
+			triggerIDStr = shortcut.TriggerID
+		default:
+			return nil
+		}
+		if triggerIDStr != "" {
+			// Create modal blocks
+			blocks := []slack.Block{
+				&slack.SectionBlock{
+					Type: slack.MBTSection,
+					Text: &slack.TextBlockObject{
+						Type: slack.MarkdownType,
+						Text: "About the simplest modal you could conceive of :smile:\n\nMaybe <https://api.slack.com/reference/block-kit/interactive-components|*make the modal interactive*> or <https://api.slack.com/surfaces/modals/using#modifying|*learn more advanced modal use cases*>.",
+					},
+				},
+				&slack.ContextBlock{
+					Type: slack.MBTContext,
+					ContextElements: slack.ContextElements{
+						Elements: []slack.MixedElement{
+							&slack.TextBlockObject{
 								Type: slack.MarkdownType,
-								Text: "About the simplest modal you could conceive of :smile:\n\nMaybe <https://api.slack.com/reference/block-kit/interactive-components|*make the modal interactive*> or <https://api.slack.com/surfaces/modals/using#modifying|*learn more advanced modal use cases*>.",
+								Text: "Psssst this modal was designed using <https://api.slack.com/tools/block-kit-builder|*Block Kit Builder*>",
 							},
 						},
-						&slack.ContextBlock{
-							Type: slack.MBTContext,
-							ContextElements: slack.ContextElements{
-								Elements: []slack.MixedElement{
-									&slack.TextBlockObject{
-										Type: slack.MarkdownType,
-										Text: "Psssst this modal was designed using <https://api.slack.com/tools/block-kit-builder|*Block Kit Builder*>",
-									},
-								},
-							},
-						},
-					}
-
-					// Open modal
-					_, err := args.Client.OpenView(triggerIDStr, slack.ModalViewRequest{
-						Type: slack.VTModal,
-						Title: &slack.TextBlockObject{
-							Type: slack.PlainTextType,
-							Text: "My App",
-						},
-						Close: &slack.TextBlockObject{
-							Type: slack.PlainTextType,
-							Text: "Close",
-						},
-						Blocks: slack.Blocks{BlockSet: blocks},
-					})
-					if err != nil {
-						args.Logger.Error("Failed to open modal", "error", err)
-					}
-					return err
-				}
+					},
+				},
 			}
+
+			// Open modal
+			_, err := args.Client.OpenView(triggerIDStr, slack.ModalViewRequest{
+				Type: slack.VTModal,
+				Title: &slack.TextBlockObject{
+					Type: slack.PlainTextType,
+					Text: "My App",
+				},
+				Close: &slack.TextBlockObject{
+					Type: slack.PlainTextType,
+					Text: "Close",
+				},
+				Blocks: slack.Blocks{BlockSet: blocks},
+			})
+			if err != nil {
+				args.Logger.Error("Failed to open modal", "error", err)
+			}
+			return err
 		}
 		return nil
 	})
@@ -136,42 +138,39 @@ func main() {
 	// Subscribe to 'app_mention' event in your App config
 	// need app_mentions:read and chat:write scopes
 	boltApp.Event("app_mention", func(args types.SlackEventMiddlewareArgs) error {
-		if eventMap, ok := args.Event.(map[string]interface{}); ok {
-			if userID, exists := eventMap["user"]; exists {
-				if userIDStr, ok := userID.(string); ok {
-					blocks := []slack.Block{
-						&slack.SectionBlock{
-							Type: slack.MBTSection,
+		if args.Context != nil && args.Context.UserID != nil {
+			userIDStr := *args.Context.UserID
+			blocks := []slack.Block{
+				&slack.SectionBlock{
+					Type: slack.MBTSection,
+					Text: &slack.TextBlockObject{
+						Type: slack.MarkdownType,
+						Text: fmt.Sprintf("Thanks for the mention <@%s>! Click my fancy button", userIDStr),
+					},
+					Accessory: &slack.Accessory{
+						ButtonElement: &slack.ButtonBlockElement{
+							Type: slack.METButton,
 							Text: &slack.TextBlockObject{
-								Type: slack.MarkdownType,
-								Text: fmt.Sprintf("Thanks for the mention <@%s>! Click my fancy button", userIDStr),
+								Type:  slack.PlainTextType,
+								Text:  "Button",
+								Emoji: lo.ToPtr(true),
 							},
-							Accessory: &slack.Accessory{
-								ButtonElement: &slack.ButtonBlockElement{
-									Type: slack.METButton,
-									Text: &slack.TextBlockObject{
-										Type:  slack.PlainTextType,
-										Text:  "Button",
-										Emoji: lo.ToPtr(true),
-									},
-									Value:    "click_me_123",
-									ActionID: "first_button",
-								},
-							},
+							Value:    "click_me_123",
+							ActionID: "first_button",
 						},
-					}
-
-					text := fmt.Sprintf("Thanks for the mention <@%s>! Click my fancy button", userIDStr)
-					_, err := args.Say(&types.SayArguments{
-						Text:   lo.ToPtr(text),
-						Blocks: blocks,
-					})
-					if err != nil {
-						args.Logger.Error("Failed to respond to app mention", "error", err)
-					}
-					return err
-				}
+					},
+				},
 			}
+
+			text := fmt.Sprintf("Thanks for the mention <@%s>! Click my fancy button", userIDStr)
+			_, err := args.Say(&types.SayArguments{
+				Text:   lo.ToPtr(text),
+				Blocks: blocks,
+			})
+			if err != nil {
+				args.Logger.Error("Failed to respond to app mention", "error", err)
+			}
+			return err
 		}
 		return nil
 	})

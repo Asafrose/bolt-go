@@ -95,7 +95,7 @@ func MatchEventType(pattern interface{}) types.Middleware[types.AllMiddlewareArg
 				} else {
 					// Fallback: try to marshal/unmarshal to get raw data
 					if eventBytes, err := json.Marshal(eventArgs.Event); err == nil {
-						json.Unmarshal(eventBytes, &eventMap)
+						_ = json.Unmarshal(eventBytes, &eventMap)
 					}
 				}
 
@@ -239,7 +239,7 @@ func IgnoreSelf() types.Middleware[types.AllMiddlewareArgs] {
 					} else {
 						// Fallback: try to marshal/unmarshal to get raw data
 						if eventBytes, err := json.Marshal(eventArgs.Event); err == nil {
-							json.Unmarshal(eventBytes, &eventMap)
+							_ = json.Unmarshal(eventBytes, &eventMap)
 						}
 					}
 

@@ -8,8 +8,9 @@ import (
 	"os"
 
 	"github.com/Asafrose/bolt-go/pkg/app"
-	"github.com/samber/lo"
+	"github.com/Asafrose/bolt-go/pkg/helpers"
 	"github.com/Asafrose/bolt-go/pkg/types"
+	"github.com/samber/lo"
 	"github.com/slack-go/slack"
 )
 
@@ -56,10 +57,10 @@ func main() {
 
 	// Listen for message_metadata_posted event
 	boltApp.Event("message_metadata_posted", func(args types.SlackEventMiddlewareArgs) error {
-		// Extract event data
-		if eventMap, ok := args.Event.(map[string]interface{}); ok {
-			if messageTS, exists := eventMap["message_ts"]; exists {
-				if metadata, exists := eventMap["metadata"]; exists {
+		// Extract event data from generic event
+		if genericEvent, ok := args.Event.(*helpers.GenericSlackEvent); ok {
+			if messageTS, exists := genericEvent.RawData["message_ts"]; exists {
+				if metadata, exists := genericEvent.RawData["metadata"]; exists {
 					// Convert metadata to JSON string for display
 					metadataJSON, err := json.Marshal(metadata)
 					if err != nil {

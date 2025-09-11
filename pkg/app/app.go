@@ -1781,7 +1781,7 @@ func (a *App) matchesEventConstraints(listener *listenerEntry, middlewareArgs in
 	} else {
 		// Fallback: try to marshal/unmarshal to get raw data
 		if eventBytes, err := json.Marshal(eventArgs.Event); err == nil {
-			json.Unmarshal(eventBytes, &eventMap)
+			_ = json.Unmarshal(eventBytes, &eventMap)
 		}
 		eventTypeStr = eventArgs.Event.GetType()
 	}

@@ -503,13 +503,14 @@ func TestSocketModeAdvanced(t *testing.T) {
 			require.NoError(t, err)
 
 			// Test that start method exists and can be called
-			// Note: Actual connection would fail without valid app token
+			// Note: With the new socketmode client, Start() doesn't return connection errors immediately
+			// since the connection happens in a background goroutine
 			ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
 			defer cancel()
 
 			err = receiver.Start(ctx)
-			// Should attempt to start (may fail due to invalid token, but method should exist)
-			require.Error(t, err, "Should attempt to start and likely fail with invalid token")
+			// Start() should complete successfully even with invalid token since connection happens in background
+			require.NoError(t, err, "Start should return without error even with invalid token")
 		})
 	})
 

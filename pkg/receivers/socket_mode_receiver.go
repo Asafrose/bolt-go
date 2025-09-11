@@ -12,15 +12,15 @@ import (
 	"github.com/Asafrose/bolt-go/pkg/errors"
 	"github.com/Asafrose/bolt-go/pkg/oauth"
 	"github.com/Asafrose/bolt-go/pkg/types"
-	"github.com/gorilla/websocket"
 	"github.com/slack-go/slack"
+	"github.com/slack-go/slack/socketmode"
 )
 
-// SocketModeReceiver handles Socket Mode connections from Slack
+// SocketModeReceiver handles Socket Mode connections from Slack using the official socketmode client
 type SocketModeReceiver struct {
 	appToken                  string
 	logger                    *slog.Logger
-	pingTimeout               time.Duration
+	client                    *socketmode.Client
 	customProperties          map[string]interface{}
 	customPropertiesExtractor func(map[string]interface{}) map[string]interface{}
 	customRoutes              []types.CustomRoute
@@ -33,32 +33,32 @@ type SocketModeReceiver struct {
 	installRedirectURIPath string
 	stateVerification      bool
 
-	conn   *websocket.Conn
 	app    types.App
 	ctx    context.Context
 	cancel context.CancelFunc
 	wg     sync.WaitGroup
 }
 
-// SocketModeMessage represents a Socket Mode message
-type SocketModeMessage struct {
-	Type                   string                 `json:"type"`
-	EnvelopeID             string                 `json:"envelope_id,omitempty"`
-	Payload                map[string]interface{} `json:"payload,omitempty"`
-	AcceptsResponsePayload bool                   `json:"accepts_response_payload,omitempty"`
-}
-
-// SocketModeAck represents an acknowledgment message
-type SocketModeAck struct {
-	EnvelopeID string      `json:"envelope_id"`
-	Payload    interface{} `json:"payload,omitempty"`
-}
-
 // NewSocketModeReceiver creates a new Socket Mode receiver
 func NewSocketModeReceiver(options types.SocketModeReceiverOptions) *SocketModeReceiver {
+	// Create slack API client
+	slackClient := slack.New(options.AppToken)
+
+	// Create socketmode client options
+	socketmodeOptions := []socketmode.Option{}
+
+	// Add ping interval if specified
+	if options.PingTimeout > 0 {
+		pingInterval := time.Duration(options.PingTimeout) * time.Millisecond
+		socketmodeOptions = append(socketmodeOptions, socketmode.OptionPingInterval(pingInterval))
+	}
+
+	// Create socketmode client
+	client := socketmode.New(slackClient, socketmodeOptions...)
+
 	receiver := &SocketModeReceiver{
 		appToken:                  options.AppToken,
-		pingTimeout:               30 * time.Second,
+		client:                    client,
 		customProperties:          options.CustomProperties,
 		customPropertiesExtractor: options.CustomPropertiesExtractor,
 		customRoutes:              options.CustomRoutes,
@@ -126,10 +126,7 @@ func NewSocketModeReceiver(options types.SocketModeReceiverOptions) *SocketModeR
 		}
 	}
 
-	if options.PingTimeout > 0 {
-		receiver.pingTimeout = time.Duration(options.PingTimeout) * time.Millisecond
-	}
-
+	// Set logger
 	if receiver.logger == nil {
 		receiver.logger = slog.Default()
 	}
@@ -154,21 +151,17 @@ func (r *SocketModeReceiver) Start(ctx context.Context) error {
 		}
 	}
 
-	// Get WebSocket URL from Slack
-	wsURL, err := r.getWebSocketURL()
-	if err != nil {
-		return fmt.Errorf("failed to get WebSocket URL: %w", err)
-	}
+	// Set up event handling
+	r.setupEventHandlers()
 
-	// Connect to WebSocket
-	if err := r.connect(wsURL); err != nil {
-		return fmt.Errorf("failed to connect to WebSocket: %w", err)
-	}
-
-	// Start message handling goroutines
-	r.wg.Add(2)
-	go r.readMessages()
-	go r.pingLoop()
+	// Start the socketmode client
+	r.wg.Add(1)
+	go func() {
+		defer r.wg.Done()
+		if err := r.client.RunContext(r.ctx); err != nil {
+			r.logger.Error("Socket mode client error", "error", err)
+		}
+	}()
 
 	// Wait for context cancellation
 	<-r.ctx.Done()
@@ -188,117 +181,64 @@ func (r *SocketModeReceiver) Stop(ctx context.Context) error {
 	return nil
 }
 
-// getWebSocketURL retrieves the WebSocket URL from Slack using the slack SDK
-func (r *SocketModeReceiver) getWebSocketURL() (string, error) {
-	// Create a slack client with the app token
-	client := slack.New(r.appToken)
-
-	// Use the slack SDK to start socket mode connection
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
-	_, websocketURL, err := client.StartSocketModeContext(ctx)
-	if err != nil {
-		return "", fmt.Errorf("failed to get socket mode URL: %w", err)
-	}
-
-	return websocketURL, nil
-}
-
-// connect establishes the WebSocket connection
-func (r *SocketModeReceiver) connect(wsURL string) error {
-	dialer := websocket.DefaultDialer
-	conn, resp, err := dialer.Dial(wsURL, nil)
-	if err != nil {
-		return err
-	}
-	if resp != nil && resp.Body != nil {
-		defer resp.Body.Close()
-	}
-
-	r.conn = conn
-	return nil
-}
-
-// readMessages reads messages from the WebSocket connection
-func (r *SocketModeReceiver) readMessages() {
-	defer r.wg.Done()
-
-	for {
-		select {
-		case <-r.ctx.Done():
-			return
-		default:
+// setupEventHandlers configures event handlers for the socketmode client
+func (r *SocketModeReceiver) setupEventHandlers() {
+	// Handle all socketmode events
+	go func() {
+		for evt := range r.client.Events {
+			switch evt.Type {
+			case socketmode.EventTypeConnecting:
+				r.logger.Info("Connecting to Slack with Socket Mode")
+			case socketmode.EventTypeConnectionError:
+				r.logger.Error("Connection failed", "error", evt.Data)
+			case socketmode.EventTypeConnected:
+				r.logger.Info("Connected to Slack with Socket Mode")
+			case socketmode.EventTypeEventsAPI:
+				r.handleEventsAPI(evt)
+			case socketmode.EventTypeInteractive:
+				r.handleInteractive(evt)
+			case socketmode.EventTypeSlashCommand:
+				r.handleSlashCommand(evt)
+			case socketmode.EventTypeHello:
+				r.logger.Info("Received hello message from Slack")
+			case socketmode.EventTypeDisconnect:
+				r.logger.Info("Received disconnect message from Slack")
+			default:
+				r.logger.Warn("Received unknown event type", "type", evt.Type)
+			}
 		}
-
-		var msg SocketModeMessage
-		if err := r.conn.ReadJSON(&msg); err != nil {
-			r.logger.Error("Failed to read WebSocket message", "error", err)
-			return
-		}
-
-		if err := r.handleMessage(msg); err != nil {
-			r.logger.Error("Failed to handle message", "error", err)
-		}
-	}
-}
-
-// handleMessage handles incoming Socket Mode messages
-func (r *SocketModeReceiver) handleMessage(msg SocketModeMessage) error {
-	switch msg.Type {
-	case "hello":
-		r.logger.Info("Received hello message from Slack")
-		return nil
-
-	case "disconnect":
-		r.logger.Info("Received disconnect message from Slack")
-		r.cancel()
-		return nil
-
-	case "events_api":
-		return r.handleEventsAPI(msg)
-
-	case "interactive":
-		return r.handleInteractive(msg)
-
-	case "slash_commands":
-		return r.handleSlashCommand(msg)
-
-	case "options_request":
-		return r.handleOptionsRequest(msg)
-
-	default:
-		r.logger.Warn("Received unknown message type", "type", msg.Type)
-		return nil
-	}
+	}()
 }
 
 // handleEventsAPI handles Events API messages
-func (r *SocketModeReceiver) handleEventsAPI(msg SocketModeMessage) error {
-	return r.processEvent(msg)
+func (r *SocketModeReceiver) handleEventsAPI(evt socketmode.Event) {
+	r.processEvent(evt)
 }
 
 // handleInteractive handles interactive messages
-func (r *SocketModeReceiver) handleInteractive(msg SocketModeMessage) error {
-	return r.processEvent(msg)
+func (r *SocketModeReceiver) handleInteractive(evt socketmode.Event) {
+	r.processEvent(evt)
 }
 
 // handleSlashCommand handles slash command messages
-func (r *SocketModeReceiver) handleSlashCommand(msg SocketModeMessage) error {
-	return r.processEvent(msg)
-}
-
-// handleOptionsRequest handles options request messages
-func (r *SocketModeReceiver) handleOptionsRequest(msg SocketModeMessage) error {
-	return r.processEvent(msg)
+func (r *SocketModeReceiver) handleSlashCommand(evt socketmode.Event) {
+	r.processEvent(evt)
 }
 
 // processEvent processes an event through the app
-func (r *SocketModeReceiver) processEvent(msg SocketModeMessage) error {
+func (r *SocketModeReceiver) processEvent(evt socketmode.Event) {
+	// The request is directly available in the event
+	req := evt.Request
+	if req == nil {
+		r.logger.Error("No request in socket mode event")
+		return
+	}
+
 	// Convert payload to JSON bytes
-	payloadBytes, err := json.Marshal(msg.Payload)
+	payloadBytes, err := json.Marshal(req.Payload)
 	if err != nil {
-		return err
+		r.logger.Error("Failed to marshal payload", "error", err)
+		return
 	}
 
 	// Create headers
@@ -316,13 +256,26 @@ func (r *SocketModeReceiver) processEvent(msg SocketModeMessage) error {
 			}
 			ackCalled = true
 
-			// Send acknowledgment back to Slack
-			ack := SocketModeAck{
-				EnvelopeID: msg.EnvelopeID,
-				Payload:    response,
-			}
-			return r.conn.WriteJSON(ack)
+			// Send acknowledgment back to Slack using the official client
+			r.client.Ack(*req, response)
+			return nil
 		},
+	}
+
+	// Add custom properties if extractor is provided
+	if r.customPropertiesExtractor != nil {
+		// Convert request to map for custom properties extraction
+		reqMap := map[string]interface{}{
+			"type":                     req.Type,
+			"envelope_id":              req.EnvelopeID,
+			"payload":                  req.Payload,
+			"accepts_response_payload": req.AcceptsResponsePayload,
+			"retry_attempt":            req.RetryAttempt,
+			"retry_reason":             req.RetryReason,
+		}
+		customProps := r.customPropertiesExtractor(reqMap)
+		// Note: We could extend ReceiverEvent to include custom properties if needed
+		_ = customProps
 	}
 
 	// Process the event
@@ -334,33 +287,13 @@ func (r *SocketModeReceiver) processEvent(msg SocketModeMessage) error {
 				r.logger.Error("Failed to ack event", "error", ackErr)
 			}
 		}
-		return err
+		return
 	}
 
 	// Auto-acknowledge if not already done
 	if !ackCalled {
-		return event.Ack(nil)
-	}
-
-	return nil
-}
-
-// pingLoop sends periodic ping messages to keep the connection alive
-func (r *SocketModeReceiver) pingLoop() {
-	defer r.wg.Done()
-
-	ticker := time.NewTicker(r.pingTimeout)
-	defer ticker.Stop()
-
-	for {
-		select {
-		case <-r.ctx.Done():
-			return
-		case <-ticker.C:
-			if err := r.conn.WriteMessage(websocket.PingMessage, []byte{}); err != nil {
-				r.logger.Error("Failed to send ping", "error", err)
-				return
-			}
+		if err := event.Ack(nil); err != nil {
+			r.logger.Error("Failed to auto-ack event", "error", err)
 		}
 	}
 }
@@ -489,17 +422,17 @@ func (r *SocketModeReceiver) handleInstallRedirect(w http.ResponseWriter, req *h
 	}
 }
 
-// cleanup closes the WebSocket connection and HTTP server
+// cleanup closes the socketmode client and HTTP server
 func (r *SocketModeReceiver) cleanup() {
-	if r.conn != nil {
-		r.conn.Close()
-	}
+	// The socketmode client will be closed when the context is cancelled
+	// No need to explicitly close it here
+
 	if r.httpServer != nil {
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 		if err := r.httpServer.Shutdown(ctx); err != nil {
 			// Log error but don't fail cleanup
-			_ = err
+			r.logger.Error("Failed to shutdown HTTP server", "error", err)
 		}
 	}
 }

@@ -163,8 +163,9 @@ func TestSocketModeReceiverIntegration(t *testing.T) {
 		err = receiver.Init(app)
 		require.NoError(t, err)
 
-		// Test that we can start the receiver (will fail to connect but shouldn't panic)
-		ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+		// Test that we can start the receiver - with the new socketmode client,
+		// Start() doesn't return connection errors immediately since connection happens in background
+		ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
 		defer cancel()
 
 		// Start in a goroutine since it's blocking
@@ -176,9 +177,9 @@ func TestSocketModeReceiverIntegration(t *testing.T) {
 		// Wait for start to complete or timeout
 		select {
 		case err := <-startErr:
-			// We expect an error since we're using a fake token, but it should be a connection error
-			require.Error(t, err, "Should get connection error with fake token")
-		case <-time.After(2 * time.Second):
+			// Start should complete successfully even with fake token since connection is in background
+			require.NoError(t, err, "Start should return without error even with fake token")
+		case <-time.After(200 * time.Millisecond):
 			t.Error("Start did not return within timeout")
 		}
 	})
@@ -272,12 +273,13 @@ func TestReceiverErrorHandling(t *testing.T) {
 			AppToken: fakeAppToken,
 		})
 
-		// Starting without initialization should fail
+		// With the new socketmode client, starting without app initialization doesn't fail immediately
+		// The app field is only used when processing events, not during connection setup
 		ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
 		defer cancel()
 
 		err := receiver.Start(ctx)
-		require.Error(t, err, "Should fail to start without initialization")
+		require.NoError(t, err, "Start should succeed even without app initialization")
 	})
 
 	t.Run("should handle stop before start", func(t *testing.T) {
