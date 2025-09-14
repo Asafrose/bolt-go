@@ -2,6 +2,8 @@ module gin-receiver
 
 go 1.25.0
 
+replace github.com/Asafrose/bolt-go => ../../..
+
 require (
 	github.com/Asafrose/bolt-go v0.0.0-20250911113723-50618c94346b
 	github.com/gin-gonic/gin v1.10.1

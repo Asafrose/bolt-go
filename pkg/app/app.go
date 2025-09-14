@@ -345,15 +345,17 @@ func (a *App) Use(middleware types.Middleware[types.AllMiddlewareArgs]) *App {
 }
 
 // Event registers event listeners
-func (a *App) Event(eventType string, middleware ...types.Middleware[types.SlackEventMiddlewareArgs]) *App {
+func (a *App) Event(eventType types.SlackEventType, middleware ...types.Middleware[types.SlackEventMiddlewareArgs]) *App {
 	a.mu.Lock()
 	defer a.mu.Unlock()
+
+	eventTypeStr := eventType.String()
 
 	// Create a listener entry with routing information
 	listener := &listenerEntry{
 		eventType: helpers.IncomingEventTypeEvent,
 		constraints: listenerConstraints{
-			eventType: eventType,
+			eventType: eventTypeStr,
 		},
 		middleware: make([]types.Middleware[types.AllMiddlewareArgs], 0),
 	}

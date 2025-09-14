@@ -10,11 +10,11 @@ import (
 
 	bolt "github.com/Asafrose/bolt-go"
 	"github.com/Asafrose/bolt-go/pkg/app"
-	"github.com/samber/lo"
 	"github.com/Asafrose/bolt-go/pkg/oauth"
 	"github.com/Asafrose/bolt-go/pkg/types"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/samber/lo"
 )
 
 // EchoReceiver implements a custom receiver using the Echo web framework
@@ -169,19 +169,17 @@ func main() {
 	}
 
 	// Set up Slack event handlers
-	boltApp.Event("app_mention", func(args types.SlackEventMiddlewareArgs) error {
-		if eventMap, ok := args.Event.(map[string]interface{}); ok {
-			if userID, exists := eventMap["user"]; exists {
-				if userIDStr, ok := userID.(string); ok {
-					text := fmt.Sprintf("<@%s> Hi there :wave:", userIDStr)
-					_, err := args.Say(&types.SayArguments{
-						Text: lo.ToPtr(text),
-					})
-					return err
-				}
-			}
-		}
-		return nil
+	// Note: Once you update to the latest version, you can use:
+	// boltApp.Event(types.SlackEventType("app_mention"), ...)
+	boltApp.Event(types.EventTypeAppMention, func(args types.SlackEventMiddlewareArgs) error {
+		userIdStr := args.Context.UserID
+
+		text := fmt.Sprintf("<@%s> Hi there :wave:", userIdStr)
+		_, err := args.Say(&types.SayArguments{
+			Text: text,
+		})
+
+		return err
 	})
 
 	// Start the app

@@ -57,7 +57,7 @@ func main() {
 	})
 
 	// Listen for message_metadata_posted event
-	boltApp.Event("message_metadata_posted", func(args types.SlackEventMiddlewareArgs) error {
+	boltApp.Event(types.EventTypeMessageMetadataPosted, func(args types.SlackEventMiddlewareArgs) error {
 		// Extract event data from generic event
 		if genericEvent, ok := args.Event.(*helpers.GenericSlackEvent); ok {
 			if messageTS, exists := genericEvent.RawData["message_ts"]; exists {

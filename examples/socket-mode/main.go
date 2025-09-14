@@ -37,7 +37,7 @@ func main() {
 	}
 
 	// Publish an App Home
-	boltApp.Event("app_home_opened", func(args types.SlackEventMiddlewareArgs) error {
+	boltApp.Event(types.EventTypeAppHomeOpened, func(args types.SlackEventMiddlewareArgs) error {
 		// Extract event data from context
 		if args.Context != nil && args.Context.UserID != "" {
 			userIDStr := args.Context.UserID
@@ -138,7 +138,7 @@ func main() {
 
 	// Subscribe to 'app_mention' event in your App config
 	// need app_mentions:read and chat:write scopes
-	boltApp.Event("app_mention", func(args types.SlackEventMiddlewareArgs) error {
+	boltApp.Event(types.EventTypeAppMention, func(args types.SlackEventMiddlewareArgs) error {
 		if args.Context != nil && args.Context.UserID != "" {
 			userIDStr := args.Context.UserID
 			blocks := []slack.Block{

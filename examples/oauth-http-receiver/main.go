@@ -51,7 +51,7 @@ func main() {
 	}
 
 	// Slack interactions like listening for events are methods on app
-	boltApp.Event("message", func(args types.SlackEventMiddlewareArgs) error {
+	boltApp.Event(types.EventTypeMessage, func(args types.SlackEventMiddlewareArgs) error {
 		// Do some slack-specific stuff here
 		// You can use the client to make API calls
 		args.Logger.Info("Received message event", "event", args.Event)

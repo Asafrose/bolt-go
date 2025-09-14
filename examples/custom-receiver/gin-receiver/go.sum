@@ -1,5 +1,3 @@
-github.com/Asafrose/bolt-go v0.0.0-20250911113723-50618c94346b h1:/6MO8hXXKz3oYNs9stHy0e0b9yCRUYVL0Rw5+5DPKBc=
-github.com/Asafrose/bolt-go v0.0.0-20250911113723-50618c94346b/go.mod h1:IsphR4kOHdfEsSzitR4Q508UKqOGBiDc3W/BhcQisME=
 github.com/bytedance/sonic v1.11.6 h1:oUp34TzMlL+OY1OUWxHqsdkgC/Zfc85zGqw9siXjrc0=
 github.com/bytedance/sonic v1.11.6/go.mod h1:LysEHSvpvDySVdC2f87zGWf6CIKJcAvqab1ZaiQtds4=
 github.com/bytedance/sonic/loader v0.1.1 h1:c+e5Pt1k/cy5wMveRDyk2X4B9hF4g7an8N3zCYjJFNM=

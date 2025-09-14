@@ -9,10 +9,10 @@ import (
 
 	bolt "github.com/Asafrose/bolt-go"
 	"github.com/Asafrose/bolt-go/pkg/app"
-	"github.com/samber/lo"
 	"github.com/Asafrose/bolt-go/pkg/oauth"
 	"github.com/Asafrose/bolt-go/pkg/types"
 	"github.com/gin-gonic/gin"
+	"github.com/samber/lo"
 )
 
 // GinReceiver implements a custom receiver using the Gin web framework
@@ -134,18 +134,21 @@ func main() {
 	}
 
 	// Set up Slack event handlers
-	boltApp.Event("app_mention", func(args types.SlackEventMiddlewareArgs) error {
-		if eventMap, ok := args.Event.(map[string]interface{}); ok {
-			if userID, exists := eventMap["user"]; exists {
-				if userIDStr, ok := userID.(string); ok {
-					text := fmt.Sprintf("<@%s> Hi there :wave:", userIDStr)
-					_, err := args.Say(&types.SayArguments{
-						Text: lo.ToPtr(text),
-					})
-					return err
-				}
-			}
+	// Note: Once you update to the latest version, you can use:
+	// boltApp.Event(types.SlackEventType("app_mention"), ...)
+	boltApp.Event(types.EventTypeAppMention, func(args types.SlackEventMiddlewareArgs) error {
+
+		userIdStr := args.Context.UserID
+
+		text := fmt.Sprintf("<@%s> Hi there :wave:", userIdStr)
+		_, err := args.Say(&types.SayArguments{
+			Text: text,
+		})
+
+		if err != nil {
+			return err
 		}
+
 		return nil
 	})
 
