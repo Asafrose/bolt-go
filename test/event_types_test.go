@@ -8,6 +8,7 @@ import (
 )
 
 func TestSlackEventType(t *testing.T) {
+	t.Parallel()
 	t.Run("should have correct string representation", func(t *testing.T) {
 		assert.Equal(t, "message", types.EventTypeMessage.String())
 		assert.Equal(t, "app_mention", types.EventTypeAppMention.String())

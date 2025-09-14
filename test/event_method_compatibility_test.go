@@ -11,6 +11,7 @@ import (
 )
 
 func TestEventMethodCompatibility(t *testing.T) {
+	t.Parallel()
 	t.Run("should accept SlackEventType constants", func(t *testing.T) {
 		boltApp, err := app.New(app.AppOptions{
 			Token:         lo.ToPtr(fakeToken),
