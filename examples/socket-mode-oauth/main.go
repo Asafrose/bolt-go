@@ -8,7 +8,6 @@ import (
 
 	bolt "github.com/Asafrose/bolt-go"
 	"github.com/Asafrose/bolt-go/pkg/app"
-	"github.com/samber/lo"
 )
 
 func main() {
@@ -28,13 +27,13 @@ func main() {
 
 	// Initialize the app with Socket Mode and OAuth
 	boltApp, err := app.New(app.AppOptions{
-		LogLevel:      lo.ToPtr(bolt.LogLevelDebug),
+		LogLevel:      bolt.LogLevelDebug,
 		SocketMode:    true,
-		AppToken:      lo.ToPtr(appToken),
-		SigningSecret: lo.ToPtr(signingSecret),
-		ClientID:      lo.ToPtr(clientID),
-		ClientSecret:  lo.ToPtr(clientSecret),
-		StateSecret:   lo.ToPtr(stateSecret),
+		AppToken:      appToken,
+		SigningSecret: signingSecret,
+		ClientID:      clientID,
+		ClientSecret:  clientSecret,
+		StateSecret:   stateSecret,
 		Scopes:        []string{"channels:history", "chat:write", "commands"},
 	})
 	if err != nil {

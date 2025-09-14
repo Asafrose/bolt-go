@@ -7,7 +7,6 @@ replace github.com/Asafrose/bolt-go => ../../..
 require (
 	github.com/Asafrose/bolt-go v0.0.0-20250911113723-50618c94346b
 	github.com/labstack/echo/v4 v4.13.4
-	github.com/samber/lo v1.51.0
 )
 
 require (

@@ -17,8 +17,8 @@ func TestEventRoutingComprehensive(t *testing.T) {
 	t.Parallel()
 	t.Run("should route a Slack event to a handler registered with event(string)", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -60,8 +60,8 @@ func TestEventRoutingComprehensive(t *testing.T) {
 
 	t.Run("should route a Slack event to a handler registered with event(RegExp)", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -103,8 +103,8 @@ func TestEventRoutingComprehensive(t *testing.T) {
 
 	t.Run("should not execute handler if no routing found, but acknowledge event", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -138,8 +138,8 @@ func TestEventRoutingComprehensive(t *testing.T) {
 
 	t.Run("should validate event type constraints", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -200,8 +200,8 @@ func TestEventRoutingInvalidSubtype(t *testing.T) {
 	t.Parallel()
 	t.Run("should throw if provided invalid message subtype event names", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 

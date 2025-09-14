@@ -19,8 +19,8 @@ func TestViewRoutingComprehensive(t *testing.T) {
 		// In Go, this would be caught at compile time due to type safety
 		// But we can test that the constraints work as expected
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -42,8 +42,8 @@ func TestViewRoutingComprehensive(t *testing.T) {
 	})
 	t.Run("should route a view submission event to a handler registered with view(string) that matches the callback ID", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -89,8 +89,8 @@ func TestViewRoutingComprehensive(t *testing.T) {
 
 	t.Run("should route a view submission event to a handler registered with view(RegExp) that matches the callback ID", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -128,8 +128,8 @@ func TestViewRoutingComprehensive(t *testing.T) {
 
 	t.Run("should route a view submission event to a handler registered with view({callback_id}) that matches the callback ID", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -169,8 +169,8 @@ func TestViewRoutingComprehensive(t *testing.T) {
 
 	t.Run("should route a view submission event to the corresponding handler and only acknowledge in the handler", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -216,8 +216,8 @@ func TestViewRoutingComprehensive(t *testing.T) {
 
 	t.Run("should not execute handler if no routing found", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -252,8 +252,8 @@ func TestViewRoutingComprehensive(t *testing.T) {
 	t.Run("for view closed events", func(t *testing.T) {
 		t.Run("should route a view closed event to a handler registered with view({callback_id, type:view_closed}) that matches callback ID", func(t *testing.T) {
 			app, err := bolt.New(bolt.AppOptions{
-				Token:         &fakeToken,
-				SigningSecret: &fakeSigningSecret,
+				Token:         fakeToken,
+				SigningSecret: fakeSigningSecret,
 			})
 			require.NoError(t, err)
 
@@ -302,8 +302,8 @@ func TestViewRoutingComprehensive(t *testing.T) {
 
 		t.Run("should route a view closed event to a handler registered with view({type:view_closed})", func(t *testing.T) {
 			app, err := bolt.New(bolt.AppOptions{
-				Token:         &fakeToken,
-				SigningSecret: &fakeSigningSecret,
+				Token:         fakeToken,
+				SigningSecret: fakeSigningSecret,
 			})
 			require.NoError(t, err)
 
@@ -348,8 +348,8 @@ func TestViewRoutingComprehensive(t *testing.T) {
 
 		t.Run("should route a view closed event to the corresponding handler and only acknowledge in the handler", func(t *testing.T) {
 			app, err := bolt.New(bolt.AppOptions{
-				Token:         &fakeToken,
-				SigningSecret: &fakeSigningSecret,
+				Token:         fakeToken,
+				SigningSecret: fakeSigningSecret,
 			})
 			require.NoError(t, err)
 

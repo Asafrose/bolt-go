@@ -37,8 +37,8 @@ func TestAwsLambdaAdvanced(t *testing.T) {
 
 		// First create app without handlers
 		app1, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 			Receiver:      receiver,
 		})
 		require.NoError(t, err)
@@ -90,8 +90,8 @@ func TestAwsLambdaAdvanced(t *testing.T) {
 
 		// Create app and initialize receiver
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 			Receiver:      receiver,
 		})
 		require.NoError(t, err)
@@ -141,8 +141,8 @@ func TestAwsLambdaAdvanced(t *testing.T) {
 
 		// Create app and initialize receiver
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 			Receiver:      receiver,
 		})
 		require.NoError(t, err)
@@ -211,8 +211,8 @@ func TestAwsLambdaAdvanced(t *testing.T) {
 
 		// Create app and initialize receiver
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 			Receiver:      receiver,
 		})
 		require.NoError(t, err)
@@ -262,8 +262,8 @@ func TestAwsLambdaAdvanced(t *testing.T) {
 
 		// Create app and initialize receiver
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 			Receiver:      receiver,
 		})
 		require.NoError(t, err)
@@ -335,8 +335,8 @@ func TestAwsLambdaAdvanced(t *testing.T) {
 		})
 
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -354,8 +354,8 @@ func TestAwsLambdaAdvanced(t *testing.T) {
 		})
 
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -376,8 +376,8 @@ func TestAwsLambdaAdvanced(t *testing.T) {
 		})
 
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -403,8 +403,8 @@ func TestAwsLambdaAdvanced(t *testing.T) {
 		})
 
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -441,8 +441,8 @@ func TestAwsLambdaAdvanced(t *testing.T) {
 		})
 
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -475,8 +475,8 @@ func TestAwsLambdaAdvanced(t *testing.T) {
 		})
 
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -517,8 +517,8 @@ func TestAwsLambdaAdvanced(t *testing.T) {
 		})
 
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -544,8 +544,8 @@ func TestAwsLambdaAdvanced(t *testing.T) {
 		})
 
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -575,8 +575,8 @@ func TestAwsLambdaAdvanced(t *testing.T) {
 		})
 
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -613,8 +613,8 @@ func TestAwsLambdaAdvanced(t *testing.T) {
 
 		// Create app and initialize receiver
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 			Receiver:      receiver,
 		})
 		require.NoError(t, err)
@@ -693,8 +693,8 @@ func TestAwsLambdaAdvanced(t *testing.T) {
 
 		// Create app without any handlers
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 			Receiver:      receiver,
 		})
 		require.NoError(t, err)

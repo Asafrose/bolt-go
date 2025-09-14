@@ -16,8 +16,8 @@ func TestListenerErrorHandling(t *testing.T) {
 	t.Parallel()
 	t.Run("should handle listener errors gracefully", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -59,8 +59,8 @@ func TestListenerErrorHandling(t *testing.T) {
 
 	t.Run("should handle multiple listener errors", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -113,8 +113,8 @@ func TestMiddlewareErrorHandling(t *testing.T) {
 	t.Parallel()
 	t.Run("should handle middleware errors", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -163,8 +163,8 @@ func TestMiddlewareErrorHandling(t *testing.T) {
 
 	t.Run("should handle middleware that doesn't call next", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -216,7 +216,7 @@ func TestAuthorizationErrorHandling(t *testing.T) {
 	t.Parallel()
 	t.Run("should handle authorization errors", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			SigningSecret: &fakeSigningSecret,
+			SigningSecret: fakeSigningSecret,
 			Authorize: func(ctx context.Context, source bolt.AuthorizeSourceData, body interface{}) (*bolt.AuthorizeResult, error) {
 				return nil, errors.New("authorization failed")
 			},
@@ -263,7 +263,7 @@ func TestAuthorizationErrorHandling(t *testing.T) {
 	t.Run("should handle missing authorization", func(t *testing.T) {
 		// Create app without token or authorization function
 		_, err := bolt.New(bolt.AppOptions{
-			SigningSecret: &fakeSigningSecret,
+			SigningSecret: fakeSigningSecret,
 			// No Token or Authorize function
 		})
 
@@ -275,8 +275,8 @@ func TestEventProcessingErrorHandling(t *testing.T) {
 	t.Parallel()
 	t.Run("should handle malformed event bodies", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -309,8 +309,8 @@ func TestEventProcessingErrorHandling(t *testing.T) {
 
 	t.Run("should handle empty event bodies", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -341,8 +341,8 @@ func TestEventProcessingErrorHandling(t *testing.T) {
 
 	t.Run("should handle unknown event types", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -385,8 +385,8 @@ func TestAckErrorHandling(t *testing.T) {
 	t.Parallel()
 	t.Run("should handle ack function errors", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -429,8 +429,8 @@ func TestAckErrorHandling(t *testing.T) {
 
 	t.Run("should handle multiple ack calls", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -490,8 +490,8 @@ func TestContextErrorHandling(t *testing.T) {
 	t.Parallel()
 	t.Run("should handle context cancellation", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -539,8 +539,8 @@ func TestContextErrorHandling(t *testing.T) {
 
 	t.Run("should handle context timeout", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -589,8 +589,8 @@ func TestPanicRecovery(t *testing.T) {
 	t.Parallel()
 	t.Run("should recover from listener panics", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -638,8 +638,8 @@ func TestPanicRecovery(t *testing.T) {
 
 	t.Run("should recover from middleware panics", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 

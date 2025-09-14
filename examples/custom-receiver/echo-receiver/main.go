@@ -14,7 +14,6 @@ import (
 	"github.com/Asafrose/bolt-go/pkg/types"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"github.com/samber/lo"
 )
 
 // EchoReceiver implements a custom receiver using the Echo web framework
@@ -161,7 +160,7 @@ func main() {
 
 	// Create Bolt app with custom receiver
 	boltApp, err := app.New(app.AppOptions{
-		LogLevel: lo.ToPtr(bolt.LogLevelDebug),
+		LogLevel: bolt.LogLevelDebug,
 		Receiver: receiver,
 	})
 	if err != nil {

@@ -61,8 +61,8 @@ func TestAppOptionsRouting(t *testing.T) {
 		handlerCalled := false
 
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -98,8 +98,8 @@ func TestAppOptionsRouting(t *testing.T) {
 		handlerCalled := false
 
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -135,8 +135,8 @@ func TestAppOptionsRouting(t *testing.T) {
 		handlerCalled := false
 
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -173,8 +173,8 @@ func TestAppOptionsRouting(t *testing.T) {
 		var receivedBody interface{}
 
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -221,8 +221,8 @@ func TestAppOptionsRouting(t *testing.T) {
 		handlerCalled := false
 
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -260,8 +260,8 @@ func TestAppOptionsRouting(t *testing.T) {
 		handlerCalled := false
 
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -299,8 +299,8 @@ func TestAppOptionsRouting(t *testing.T) {
 		handlerCalled := false
 
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -336,8 +336,8 @@ func TestAppOptionsRouting(t *testing.T) {
 		var ackResponse interface{}
 
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 

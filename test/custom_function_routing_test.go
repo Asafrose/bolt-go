@@ -16,8 +16,8 @@ func TestCustomFunctionRouting(t *testing.T) {
 	t.Parallel()
 	t.Run("should route a function executed event to a handler registered with function(string) that matches the callback ID", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -55,8 +55,8 @@ func TestCustomFunctionRouting(t *testing.T) {
 
 	t.Run("should route a function executed event to a handler with the proper arguments", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -112,8 +112,8 @@ func TestCustomFunctionRouting(t *testing.T) {
 
 	t.Run("should route a function executed event to a handler and auto ack by default", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -149,8 +149,8 @@ func TestCustomFunctionRouting(t *testing.T) {
 
 	t.Run("should route a function executed event to a handler and NOT auto ack if autoAcknowledge is false", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -188,8 +188,8 @@ func TestCustomFunctionRouting(t *testing.T) {
 
 	t.Run("should not execute handler if callback ID doesn't match", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 

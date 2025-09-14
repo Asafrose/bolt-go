@@ -16,8 +16,8 @@ func TestAppBasicFeatures(t *testing.T) {
 	t.Run("constructor", func(t *testing.T) {
 		t.Run("with minimal configuration", func(t *testing.T) {
 			app, err := bolt.New(bolt.AppOptions{
-				Token:         &fakeToken,
-				SigningSecret: &fakeSigningSecret,
+				Token:         fakeToken,
+				SigningSecret: fakeSigningSecret,
 			})
 
 			require.NoError(t, err)
@@ -28,8 +28,8 @@ func TestAppBasicFeatures(t *testing.T) {
 
 		t.Run("with socket mode", func(t *testing.T) {
 			app, err := bolt.New(bolt.AppOptions{
-				AppToken:   &fakeAppToken,
-				Token:      &fakeToken,
+				AppToken:   fakeAppToken,
+				Token:      fakeToken,
 				SocketMode: true,
 			})
 
@@ -56,8 +56,8 @@ func TestAppBasicFeatures(t *testing.T) {
 	t.Run("initialization", func(t *testing.T) {
 		t.Run("with defer initialization", func(t *testing.T) {
 			app, err := bolt.New(bolt.AppOptions{
-				Token:               &fakeToken,
-				SigningSecret:       &fakeSigningSecret,
+				Token:               fakeToken,
+				SigningSecret:       fakeSigningSecret,
 				DeferInitialization: true,
 			})
 
@@ -73,8 +73,8 @@ func TestAppBasicFeatures(t *testing.T) {
 
 	t.Run("middleware registration", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -90,8 +90,8 @@ func TestAppBasicFeatures(t *testing.T) {
 
 	t.Run("event listeners", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -114,8 +114,8 @@ func TestAppBasicFeatures(t *testing.T) {
 
 	t.Run("action listeners", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -132,8 +132,8 @@ func TestAppBasicFeatures(t *testing.T) {
 
 	t.Run("command listeners", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -148,8 +148,8 @@ func TestAppBasicFeatures(t *testing.T) {
 
 	t.Run("shortcut listeners", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -166,8 +166,8 @@ func TestAppBasicFeatures(t *testing.T) {
 
 	t.Run("view listeners", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -184,8 +184,8 @@ func TestAppBasicFeatures(t *testing.T) {
 
 	t.Run("options listeners", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -204,11 +204,10 @@ func TestAppBasicFeatures(t *testing.T) {
 func TestAppLogLevels(t *testing.T) {
 	t.Parallel()
 	t.Run("should set log level correctly", func(t *testing.T) {
-		logLevel := bolt.LogLevelDebug
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
-			LogLevel:      &logLevel,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
+			LogLevel:      bolt.LogLevelDebug,
 		})
 
 		require.NoError(t, err)
@@ -217,8 +216,8 @@ func TestAppLogLevels(t *testing.T) {
 
 	t.Run("should enable developer mode", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 			DeveloperMode: true,
 		})
 
@@ -231,8 +230,8 @@ func TestAppIgnoreSelf(t *testing.T) {
 	t.Parallel()
 	t.Run("should enable ignore self by default", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 
 		require.NoError(t, err)
@@ -241,8 +240,8 @@ func TestAppIgnoreSelf(t *testing.T) {
 
 	t.Run("should allow disabling ignore self", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 			IgnoreSelf:    &[]bool{false}[0],
 		})
 

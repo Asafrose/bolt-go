@@ -36,11 +36,10 @@ func TestAppConstructorComprehensive(t *testing.T) {
 	t.Parallel()
 	t.Run("with a custom port value in HTTP Mode", func(t *testing.T) {
 		t.Run("should accept a port value at the top-level", func(t *testing.T) {
-			port := 8080
 			app, err := bolt.New(bolt.AppOptions{
-				Token:         &fakeToken,
-				SigningSecret: &fakeSigningSecret,
-				Port:          &port,
+				Token:         fakeToken,
+				SigningSecret: fakeSigningSecret,
+				Port:          8080,
 			})
 			require.NoError(t, err)
 			assert.NotNil(t, app)
@@ -49,8 +48,8 @@ func TestAppConstructorComprehensive(t *testing.T) {
 		t.Run("should accept a port value under installerOptions", func(t *testing.T) {
 			// TODO: Implement installer options support when OAuth is added
 			app, err := bolt.New(bolt.AppOptions{
-				Token:         &fakeToken,
-				SigningSecret: &fakeSigningSecret,
+				Token:         fakeToken,
+				SigningSecret: fakeSigningSecret,
 				// InstallerOptions: bolt.InstallerOptions{Port: 8080},
 			})
 			require.NoError(t, err)
@@ -60,12 +59,11 @@ func TestAppConstructorComprehensive(t *testing.T) {
 
 	t.Run("with a custom port value in Socket Mode", func(t *testing.T) {
 		t.Run("should accept a port value at the top-level", func(t *testing.T) {
-			port := 8080
 			app, err := bolt.New(bolt.AppOptions{
-				AppToken:   &fakeAppToken,
-				Token:      &fakeToken,
+				AppToken:   fakeAppToken,
+				Token:      fakeToken,
 				SocketMode: true,
-				Port:       &port,
+				Port:       8080,
 			})
 			require.NoError(t, err)
 			assert.NotNil(t, app)
@@ -74,8 +72,8 @@ func TestAppConstructorComprehensive(t *testing.T) {
 		t.Run("should accept a port value under installerOptions", func(t *testing.T) {
 			// TODO: Implement installer options support when OAuth is added
 			app, err := bolt.New(bolt.AppOptions{
-				AppToken:   &fakeAppToken,
-				Token:      &fakeToken,
+				AppToken:   fakeAppToken,
+				Token:      fakeToken,
 				SocketMode: true,
 				// InstallerOptions: bolt.InstallerOptions{Port: 8080},
 			})
@@ -87,8 +85,8 @@ func TestAppConstructorComprehensive(t *testing.T) {
 	t.Run("with successful single team authorization results", func(t *testing.T) {
 		t.Run("should succeed with a token for single team authorization", func(t *testing.T) {
 			app, err := bolt.New(bolt.AppOptions{
-				Token:         &fakeToken,
-				SigningSecret: &fakeSigningSecret,
+				Token:         fakeToken,
+				SigningSecret: fakeSigningSecret,
 			})
 			require.NoError(t, err)
 			assert.NotNil(t, app)
@@ -96,8 +94,8 @@ func TestAppConstructorComprehensive(t *testing.T) {
 
 		t.Run("should pass the given token to app.client", func(t *testing.T) {
 			app, err := bolt.New(bolt.AppOptions{
-				Token:         &fakeToken,
-				SigningSecret: &fakeSigningSecret,
+				Token:         fakeToken,
+				SigningSecret: fakeSigningSecret,
 			})
 			require.NoError(t, err)
 			assert.NotNil(t, app)
@@ -120,7 +118,7 @@ func TestAppConstructorComprehensive(t *testing.T) {
 
 		app, err := bolt.New(bolt.AppOptions{
 			Authorize:     authorizeFn,
-			SigningSecret: &fakeSigningSecret,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 		assert.NotNil(t, app)
@@ -128,7 +126,7 @@ func TestAppConstructorComprehensive(t *testing.T) {
 
 	t.Run("should fail without a token for single team authorization, authorize callback, nor oauth installer", func(t *testing.T) {
 		_, err := bolt.New(bolt.AppOptions{
-			SigningSecret: &fakeSigningSecret,
+			SigningSecret: fakeSigningSecret,
 			// No Token, Authorize, or OAuth installer
 		})
 		require.Error(t, err, "Should fail without authorization method")
@@ -140,9 +138,9 @@ func TestAppConstructorComprehensive(t *testing.T) {
 		}
 
 		_, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
+			Token:         fakeToken,
 			Authorize:     authorizeFn,
-			SigningSecret: &fakeSigningSecret,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.Error(t, err, "Should fail when both token and authorize are specified")
 	})
@@ -150,10 +148,10 @@ func TestAppConstructorComprehensive(t *testing.T) {
 	t.Run("should fail when both a token is specified and OAuthInstaller is initialized", func(t *testing.T) {
 		// TODO: Implement OAuth installer support
 		_, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
-			ClientID:      &[]string{"client_id"}[0],
-			ClientSecret:  &[]string{"client_secret"}[0],
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
+			ClientID:      "client_id",
+			ClientSecret:  "client_secret",
 		})
 		// For now, this should succeed since OAuth installer isn't fully implemented
 		// Once OAuth is implemented, this should return an error
@@ -168,9 +166,9 @@ func TestAppConstructorComprehensive(t *testing.T) {
 		// TODO: Implement OAuth installer support
 		_, err := bolt.New(bolt.AppOptions{
 			Authorize:     authorizeFn,
-			SigningSecret: &fakeSigningSecret,
-			ClientID:      &[]string{"client_id"}[0],
-			ClientSecret:  &[]string{"client_secret"}[0],
+			SigningSecret: fakeSigningSecret,
+			ClientID:      "client_id",
+			ClientSecret:  "client_secret",
 		})
 		// For now, this should succeed since OAuth installer isn't fully implemented
 		// Once OAuth is implemented, this should return an error
@@ -181,7 +179,7 @@ func TestAppConstructorComprehensive(t *testing.T) {
 		t.Run("should succeed with no signing secret", func(t *testing.T) {
 			customReceiver := &FakeReceiver{}
 			app, err := bolt.New(bolt.AppOptions{
-				Token:    &fakeToken,
+				Token:    fakeToken,
 				Receiver: customReceiver,
 				// No SigningSecret since custom receiver handles it
 			})
@@ -192,7 +190,7 @@ func TestAppConstructorComprehensive(t *testing.T) {
 
 	t.Run("should fail when no signing secret for the default receiver is specified", func(t *testing.T) {
 		_, err := bolt.New(bolt.AppOptions{
-			Token: &fakeToken,
+			Token: fakeToken,
 			// No SigningSecret for default receiver
 		})
 		require.Error(t, err, "Should fail without signing secret for default receiver")
@@ -201,8 +199,8 @@ func TestAppConstructorComprehensive(t *testing.T) {
 	t.Run("should fail when both socketMode and a custom receiver are specified", func(t *testing.T) {
 		customReceiver := &FakeReceiver{}
 		_, err := bolt.New(bolt.AppOptions{
-			AppToken:   &fakeAppToken,
-			Token:      &fakeToken,
+			AppToken:   fakeAppToken,
+			Token:      fakeToken,
 			SocketMode: true,
 			Receiver:   customReceiver,
 		})
@@ -214,7 +212,7 @@ func TestAppConstructorValidation(t *testing.T) {
 	t.Parallel()
 	t.Run("should validate required signing secret", func(t *testing.T) {
 		_, err := bolt.New(bolt.AppOptions{
-			Token: &fakeToken,
+			Token: fakeToken,
 			// Missing SigningSecret
 		})
 		require.Error(t, err)
@@ -223,7 +221,7 @@ func TestAppConstructorValidation(t *testing.T) {
 
 	t.Run("should validate required token or authorize", func(t *testing.T) {
 		_, err := bolt.New(bolt.AppOptions{
-			SigningSecret: &fakeSigningSecret,
+			SigningSecret: fakeSigningSecret,
 			// Missing Token and Authorize
 		})
 		require.Error(t, err)
@@ -231,8 +229,8 @@ func TestAppConstructorValidation(t *testing.T) {
 
 	t.Run("should validate app token for socket mode", func(t *testing.T) {
 		_, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 			SocketMode:    true,
 			// Missing AppToken
 		})
@@ -246,9 +244,9 @@ func TestAppConstructorValidation(t *testing.T) {
 		}
 
 		_, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
+			Token:         fakeToken,
 			Authorize:     authorizeFn,
-			SigningSecret: &fakeSigningSecret,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.Error(t, err)
 	})
@@ -256,9 +254,9 @@ func TestAppConstructorValidation(t *testing.T) {
 	t.Run("should validate mutual exclusion of socket mode and custom receiver", func(t *testing.T) {
 		customReceiver := &FakeReceiver{}
 		_, err := bolt.New(bolt.AppOptions{
-			AppToken:      &fakeAppToken,
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			AppToken:      fakeAppToken,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 			SocketMode:    true,
 			Receiver:      customReceiver,
 		})
@@ -271,8 +269,8 @@ func TestAppConstructorOptions(t *testing.T) {
 	t.Run("should accept custom logger", func(t *testing.T) {
 		// TODO: Test with actual logger when logger interface is defined
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 			// Logger:        customLogger,
 		})
 		require.NoError(t, err)
@@ -282,8 +280,8 @@ func TestAppConstructorOptions(t *testing.T) {
 	t.Run("should accept custom log level", func(t *testing.T) {
 		// TODO: Test with actual log level when LogLevel type is defined
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 			// LogLevel:      app.LogLevel("debug"),
 		})
 		require.NoError(t, err)
@@ -292,8 +290,8 @@ func TestAppConstructorOptions(t *testing.T) {
 
 	t.Run("should accept process before response option", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:                 &fakeToken,
-			SigningSecret:         &fakeSigningSecret,
+			Token:                 fakeToken,
+			SigningSecret:         fakeSigningSecret,
 			ProcessBeforeResponse: true,
 		})
 		require.NoError(t, err)
@@ -303,8 +301,8 @@ func TestAppConstructorOptions(t *testing.T) {
 	t.Run("should accept ignore self option", func(t *testing.T) {
 		ignoreSelf := false
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 			IgnoreSelf:    &ignoreSelf,
 		})
 		require.NoError(t, err)
@@ -314,8 +312,8 @@ func TestAppConstructorOptions(t *testing.T) {
 	t.Run("should accept custom endpoints", func(t *testing.T) {
 		// TODO: Test with proper endpoints when ReceiverEndpoints structure is finalized
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 			// Endpoints:     &types.ReceiverEndpoints{Events: "/custom/events"},
 		})
 		require.NoError(t, err)
@@ -329,8 +327,8 @@ func TestBasicAppConstructorMissing(t *testing.T) {
 	t.Run("with developerMode", func(t *testing.T) {
 		t.Run("should accept developerMode: true", func(t *testing.T) {
 			app, err := bolt.New(bolt.AppOptions{
-				Token:         &fakeToken,
-				SigningSecret: &fakeSigningSecret,
+				Token:         fakeToken,
+				SigningSecret: fakeSigningSecret,
 				DeveloperMode: true, // This field may not exist yet, but we can test the concept
 			})
 			// If DeveloperMode field doesn't exist, this will fail at compile time
@@ -345,8 +343,8 @@ func TestBasicAppConstructorMissing(t *testing.T) {
 		t.Run("should pass calls through to receiver", func(t *testing.T) {
 			receiver := &FakeReceiver{}
 			app, err := bolt.New(bolt.AppOptions{
-				Token:         &fakeToken,
-				SigningSecret: &fakeSigningSecret,
+				Token:         fakeToken,
+				SigningSecret: fakeSigningSecret,
 				Receiver:      receiver,
 			})
 			require.NoError(t, err)
@@ -363,8 +361,8 @@ func TestBasicAppConstructorMissing(t *testing.T) {
 		t.Run("should pass calls through to receiver", func(t *testing.T) {
 			receiver := &FakeReceiver{}
 			app, err := bolt.New(bolt.AppOptions{
-				Token:         &fakeToken,
-				SigningSecret: &fakeSigningSecret,
+				Token:         fakeToken,
+				SigningSecret: fakeSigningSecret,
 				Receiver:      receiver,
 			})
 			require.NoError(t, err)
@@ -399,9 +397,9 @@ func TestBasicAppConstructorMissing(t *testing.T) {
 		t.Run("should fail when missing installerOptions", func(t *testing.T) {
 			// Test OAuth installer configuration validation
 			_, err := bolt.New(bolt.AppOptions{
-				Token:         &fakeToken,
-				SigningSecret: &fakeSigningSecret,
-				RedirectURI:   &[]string{"https://example.com/oauth/callback"}[0],
+				Token:         fakeToken,
+				SigningSecret: fakeSigningSecret,
+				RedirectURI:   "https://example.com/oauth/callback",
 				// Missing InstallerOptions should cause validation error
 			})
 			// This validation may not be implemented yet

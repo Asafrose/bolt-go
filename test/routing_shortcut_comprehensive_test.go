@@ -17,8 +17,8 @@ func TestShortcutRoutingComprehensive(t *testing.T) {
 	t.Parallel()
 	t.Run("should route a Slack shortcut event to a handler registered with shortcut(string) that matches the callback ID", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -59,8 +59,8 @@ func TestShortcutRoutingComprehensive(t *testing.T) {
 
 	t.Run("should route a Slack shortcut event to a handler registered with shortcut(RegExp) that matches the callback ID", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -97,8 +97,8 @@ func TestShortcutRoutingComprehensive(t *testing.T) {
 
 	t.Run("should route a Slack shortcut event to a handler registered with shortcut({callback_id}) that matches the callback ID", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -137,8 +137,8 @@ func TestShortcutRoutingComprehensive(t *testing.T) {
 
 	t.Run("should route a Slack shortcut event to a handler registered with shortcut({type}) that matches the type", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -177,8 +177,8 @@ func TestShortcutRoutingComprehensive(t *testing.T) {
 
 	t.Run("should not execute handler if no routing found", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -211,8 +211,8 @@ func TestShortcutRoutingComprehensive(t *testing.T) {
 
 	t.Run("should route a Slack shortcut event to a handler registered with shortcut({type, callback_id}) that matches both the type and the callback_id", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -259,8 +259,8 @@ func TestShortcutRoutingComprehensive(t *testing.T) {
 
 	t.Run("should throw if provided a constraint with unknown shortcut constraint keys", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -305,8 +305,8 @@ func TestShortcutRoutingComprehensive(t *testing.T) {
 
 	t.Run("should route a Slack shortcut event to the corresponding handler and only acknowledge in the handler", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 

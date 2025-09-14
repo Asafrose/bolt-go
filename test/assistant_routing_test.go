@@ -16,8 +16,8 @@ func TestAssistantRouting(t *testing.T) {
 	t.Parallel()
 	t.Run("should route assistant_thread_started event to a registered handler", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -75,8 +75,8 @@ func TestAssistantRouting(t *testing.T) {
 
 	t.Run("should route assistant_thread_context_changed event to a registered handler", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -134,8 +134,8 @@ func TestAssistantRouting(t *testing.T) {
 
 	t.Run("should route a message assistant scoped event to a registered handler", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -194,8 +194,8 @@ func TestAssistantRouting(t *testing.T) {
 
 	t.Run("should not execute handler if no routing found, but acknowledge event", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 

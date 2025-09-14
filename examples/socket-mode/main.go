@@ -27,10 +27,10 @@ func main() {
 
 	// Initialize the app with Socket Mode
 	boltApp, err := app.New(app.AppOptions{
-		Token:      lo.ToPtr(token),
-		AppToken:   lo.ToPtr(appToken),
+		Token:      token,
+		AppToken:   appToken,
 		SocketMode: true,
-		LogLevel:   lo.ToPtr(bolt.LogLevelDebug),
+		LogLevel:   bolt.LogLevelDebug,
 	})
 	if err != nil {
 		log.Fatalf("Failed to create app: %v", err)

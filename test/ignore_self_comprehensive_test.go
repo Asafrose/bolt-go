@@ -18,8 +18,8 @@ func TestIgnoreSelfComprehensive(t *testing.T) {
 		t.Run("should ack & ignore message events identified as a bot message from the same bot ID as this app", func(t *testing.T) {
 			// Test with default ignoreSelf=true behavior
 			app, err := bolt.New(bolt.AppOptions{
-				Token:         &fakeToken,
-				SigningSecret: &fakeSigningSecret,
+				Token:         fakeToken,
+				SigningSecret: fakeSigningSecret,
 				BotID:         &fakeBotID,
 				BotUserID:     &fakeBotUserID,
 				// ignoreSelf defaults to true
@@ -69,8 +69,8 @@ func TestIgnoreSelfComprehensive(t *testing.T) {
 		t.Run("should ack & ignore events that match own app", func(t *testing.T) {
 			// Test with default ignoreSelf=true behavior
 			app, err := bolt.New(bolt.AppOptions{
-				Token:         &fakeToken,
-				SigningSecret: &fakeSigningSecret,
+				Token:         fakeToken,
+				SigningSecret: fakeSigningSecret,
 				BotID:         &fakeBotID,
 				BotUserID:     &fakeBotUserID,
 				// ignoreSelf defaults to true
@@ -118,8 +118,8 @@ func TestIgnoreSelfComprehensive(t *testing.T) {
 		t.Run("should not filter `member_joined_channel` and `member_left_channel` events originating from own app", func(t *testing.T) {
 			// Test with default ignoreSelf=true behavior
 			app, err := bolt.New(bolt.AppOptions{
-				Token:         &fakeToken,
-				SigningSecret: &fakeSigningSecret,
+				Token:         fakeToken,
+				SigningSecret: fakeSigningSecret,
 				// ignoreSelf defaults to true
 			})
 			require.NoError(t, err)
@@ -204,8 +204,8 @@ func TestIgnoreSelfComprehensive(t *testing.T) {
 			// Test with ignoreSelf=false
 			ignoreSelf := false
 			app, err := bolt.New(bolt.AppOptions{
-				Token:         &fakeToken,
-				SigningSecret: &fakeSigningSecret,
+				Token:         fakeToken,
+				SigningSecret: fakeSigningSecret,
 				BotID:         &fakeBotID,
 				BotUserID:     &fakeBotUserID,
 				IgnoreSelf:    &ignoreSelf, // Explicitly set to false
@@ -256,8 +256,8 @@ func TestIgnoreSelfComprehensive(t *testing.T) {
 			// Test with ignoreSelf=false
 			ignoreSelf := false
 			app, err := bolt.New(bolt.AppOptions{
-				Token:         &fakeToken,
-				SigningSecret: &fakeSigningSecret,
+				Token:         fakeToken,
+				SigningSecret: fakeSigningSecret,
 				BotID:         &fakeBotID,
 				BotUserID:     &fakeBotUserID,
 				IgnoreSelf:    &ignoreSelf, // Explicitly set to false

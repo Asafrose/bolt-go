@@ -176,8 +176,8 @@ func TestConversationMiddleware(t *testing.T) {
 		require.NoError(t, err)
 
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -244,8 +244,8 @@ func TestConversationMiddleware(t *testing.T) {
 		store := conversation.NewMemoryStore()
 
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -308,8 +308,8 @@ func TestConversationMiddleware(t *testing.T) {
 		store := conversation.NewMemoryStore()
 
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -368,8 +368,8 @@ func TestConversationStoreIntegration(t *testing.T) {
 		conversationID := "C123456"
 
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -442,8 +442,8 @@ func TestConversationStoreIntegration(t *testing.T) {
 		store := conversation.NewMemoryStore()
 
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -537,8 +537,8 @@ func TestConversationStoreComprehensive(t *testing.T) {
 
 			// Create app with conversation store middleware
 			app, err := bolt.New(bolt.AppOptions{
-				Token:         &fakeToken,
-				SigningSecret: &fakeSigningSecret,
+				Token:         fakeToken,
+				SigningSecret: fakeSigningSecret,
 			})
 			require.NoError(t, err)
 
@@ -636,8 +636,8 @@ func TestConversationStoreInitialization(t *testing.T) {
 	t.Run("should initialize the conversation store", func(t *testing.T) {
 		// Test that app initializes with conversation store by default
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 

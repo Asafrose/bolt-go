@@ -20,8 +20,8 @@ func TestBuiltinMiddlewareCore(t *testing.T) {
 	t.Run("OnlyActions", func(t *testing.T) {
 		t.Run("should only process action events", func(t *testing.T) {
 			app, err := bolt.New(bolt.AppOptions{
-				Token:         &fakeToken,
-				SigningSecret: &fakeSigningSecret,
+				Token:         fakeToken,
+				SigningSecret: fakeSigningSecret,
 			})
 			require.NoError(t, err)
 
@@ -75,8 +75,8 @@ func TestBuiltinMiddlewareCore(t *testing.T) {
 	t.Run("OnlyCommands", func(t *testing.T) {
 		t.Run("should only process command events", func(t *testing.T) {
 			app, err := bolt.New(bolt.AppOptions{
-				Token:         &fakeToken,
-				SigningSecret: &fakeSigningSecret,
+				Token:         fakeToken,
+				SigningSecret: fakeSigningSecret,
 			})
 			require.NoError(t, err)
 
@@ -130,8 +130,8 @@ func TestBuiltinMiddlewareCore(t *testing.T) {
 	t.Run("OnlyEvents", func(t *testing.T) {
 		t.Run("should only process event-api events", func(t *testing.T) {
 			app, err := bolt.New(bolt.AppOptions{
-				Token:         &fakeToken,
-				SigningSecret: &fakeSigningSecret,
+				Token:         fakeToken,
+				SigningSecret: fakeSigningSecret,
 			})
 			require.NoError(t, err)
 
@@ -185,8 +185,8 @@ func TestBuiltinMiddlewareCore(t *testing.T) {
 	t.Run("IgnoreSelf", func(t *testing.T) {
 		t.Run("should ignore events from the bot itself", func(t *testing.T) {
 			app, err := bolt.New(bolt.AppOptions{
-				Token:         &fakeToken,
-				SigningSecret: &fakeSigningSecret,
+				Token:         fakeToken,
+				SigningSecret: fakeSigningSecret,
 			})
 			require.NoError(t, err)
 
@@ -238,8 +238,8 @@ func TestBuiltinMiddlewareCore(t *testing.T) {
 	t.Run("DirectMention", func(t *testing.T) {
 		t.Run("should only process messages that directly mention the bot", func(t *testing.T) {
 			app, err := bolt.New(bolt.AppOptions{
-				Token:         &fakeToken,
-				SigningSecret: &fakeSigningSecret,
+				Token:         fakeToken,
+				SigningSecret: fakeSigningSecret,
 			})
 			require.NoError(t, err)
 
@@ -291,8 +291,8 @@ func TestBuiltinMiddlewareCore(t *testing.T) {
 	t.Run("MatchEventType", func(t *testing.T) {
 		t.Run("should only process events matching specific type", func(t *testing.T) {
 			app, err := bolt.New(bolt.AppOptions{
-				Token:         &fakeToken,
-				SigningSecret: &fakeSigningSecret,
+				Token:         fakeToken,
+				SigningSecret: fakeSigningSecret,
 			})
 			require.NoError(t, err)
 
@@ -338,8 +338,8 @@ func TestBuiltinMiddlewareCore(t *testing.T) {
 	t.Run("MatchCommandName", func(t *testing.T) {
 		t.Run("should only process commands matching specific name", func(t *testing.T) {
 			app, err := bolt.New(bolt.AppOptions{
-				Token:         &fakeToken,
-				SigningSecret: &fakeSigningSecret,
+				Token:         fakeToken,
+				SigningSecret: fakeSigningSecret,
 			})
 			require.NoError(t, err)
 

@@ -59,8 +59,8 @@ func TestHTTPReceiverAdvanced(t *testing.T) {
 			})
 
 			app, err := bolt.New(bolt.AppOptions{
-				Token:         &fakeToken,
-				SigningSecret: &fakeSigningSecret,
+				Token:         fakeToken,
+				SigningSecret: fakeSigningSecret,
 			})
 			require.NoError(t, err)
 
@@ -99,8 +99,8 @@ func TestHTTPReceiverAdvanced(t *testing.T) {
 			})
 
 			app, err := bolt.New(bolt.AppOptions{
-				Token:         &fakeToken,
-				SigningSecret: &fakeSigningSecret,
+				Token:         fakeToken,
+				SigningSecret: fakeSigningSecret,
 			})
 			require.NoError(t, err)
 
@@ -142,8 +142,8 @@ func TestHTTPReceiverAdvanced(t *testing.T) {
 			})
 
 			app, err := bolt.New(bolt.AppOptions{
-				Token:         &fakeToken,
-				SigningSecret: &fakeSigningSecret,
+				Token:         fakeToken,
+				SigningSecret: fakeSigningSecret,
 			})
 			require.NoError(t, err)
 
@@ -182,8 +182,8 @@ func TestHTTPReceiverAdvanced(t *testing.T) {
 			})
 
 			app, err := bolt.New(bolt.AppOptions{
-				Token:         &fakeToken,
-				SigningSecret: &fakeSigningSecret,
+				Token:         fakeToken,
+				SigningSecret: fakeSigningSecret,
 			})
 			require.NoError(t, err)
 
@@ -240,8 +240,8 @@ func TestHTTPReceiverAdvanced(t *testing.T) {
 			})
 
 			app, err := bolt.New(bolt.AppOptions{
-				Token:         &fakeToken,
-				SigningSecret: &fakeSigningSecret,
+				Token:         fakeToken,
+				SigningSecret: fakeSigningSecret,
 			})
 			require.NoError(t, err)
 
@@ -302,8 +302,8 @@ func TestHTTPReceiverAdvanced(t *testing.T) {
 			})
 
 			app, err := bolt.New(bolt.AppOptions{
-				Token:         &fakeToken,
-				SigningSecret: &fakeSigningSecret,
+				Token:         fakeToken,
+				SigningSecret: fakeSigningSecret,
 			})
 			require.NoError(t, err)
 
@@ -340,8 +340,8 @@ func TestHTTPReceiverAdvanced(t *testing.T) {
 
 			// In Go, we might validate during Init rather than construction
 			app, err := bolt.New(bolt.AppOptions{
-				Token:         &fakeToken,
-				SigningSecret: &fakeSigningSecret,
+				Token:         fakeToken,
+				SigningSecret: fakeSigningSecret,
 			})
 			require.NoError(t, err)
 
@@ -371,8 +371,8 @@ func TestHTTPReceiverAdvanced(t *testing.T) {
 			})
 
 			app, err := bolt.New(bolt.AppOptions{
-				Token:         &fakeToken,
-				SigningSecret: &fakeSigningSecret,
+				Token:         fakeToken,
+				SigningSecret: fakeSigningSecret,
 			})
 			require.NoError(t, err)
 
@@ -427,8 +427,8 @@ func TestHTTPReceiverAdvanced(t *testing.T) {
 			})
 
 			app, err := bolt.New(bolt.AppOptions{
-				Token:         &fakeToken,
-				SigningSecret: &fakeSigningSecret,
+				Token:         fakeToken,
+				SigningSecret: fakeSigningSecret,
 			})
 			require.NoError(t, err)
 
@@ -454,8 +454,8 @@ func TestHTTPReceiverAdvanced(t *testing.T) {
 			})
 
 			app, err := bolt.New(bolt.AppOptions{
-				Token:         &fakeToken,
-				SigningSecret: &fakeSigningSecret,
+				Token:         fakeToken,
+				SigningSecret: fakeSigningSecret,
 			})
 			require.NoError(t, err)
 
@@ -481,8 +481,8 @@ func TestHTTPReceiverAdvanced(t *testing.T) {
 			})
 
 			app, err := bolt.New(bolt.AppOptions{
-				Token:         &fakeToken,
-				SigningSecret: &fakeSigningSecret,
+				Token:         fakeToken,
+				SigningSecret: fakeSigningSecret,
 			})
 			require.NoError(t, err)
 
@@ -511,8 +511,8 @@ func TestHTTPReceiverAdvanced(t *testing.T) {
 			})
 
 			app, err := bolt.New(bolt.AppOptions{
-				Token:         &fakeToken,
-				SigningSecret: &fakeSigningSecret,
+				Token:         fakeToken,
+				SigningSecret: fakeSigningSecret,
 			})
 			require.NoError(t, err)
 
@@ -538,8 +538,8 @@ func TestHTTPReceiverAdvanced(t *testing.T) {
 			})
 
 			app, err := bolt.New(bolt.AppOptions{
-				Token:         &fakeToken,
-				SigningSecret: &fakeSigningSecret,
+				Token:         fakeToken,
+				SigningSecret: fakeSigningSecret,
 			})
 			require.NoError(t, err)
 

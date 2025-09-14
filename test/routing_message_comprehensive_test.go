@@ -17,8 +17,8 @@ func TestMessageRoutingComprehensive(t *testing.T) {
 	t.Parallel()
 	t.Run("should route a message event to a handler registered with message(string) if message contents match", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -59,8 +59,8 @@ func TestMessageRoutingComprehensive(t *testing.T) {
 
 	t.Run("should route a message event to a handler registered with message(RegExp) if message contents match", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -102,8 +102,8 @@ func TestMessageRoutingComprehensive(t *testing.T) {
 
 	t.Run("should not execute handler if no routing found, but acknowledge message event", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -137,8 +137,8 @@ func TestMessageRoutingComprehensive(t *testing.T) {
 
 	t.Run("should validate message pattern matching", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 

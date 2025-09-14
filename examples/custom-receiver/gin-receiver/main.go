@@ -12,7 +12,6 @@ import (
 	"github.com/Asafrose/bolt-go/pkg/oauth"
 	"github.com/Asafrose/bolt-go/pkg/types"
 	"github.com/gin-gonic/gin"
-	"github.com/samber/lo"
 )
 
 // GinReceiver implements a custom receiver using the Gin web framework
@@ -126,7 +125,7 @@ func main() {
 
 	// Create Bolt app with custom receiver
 	boltApp, err := app.New(app.AppOptions{
-		LogLevel: lo.ToPtr(bolt.LogLevelDebug),
+		LogLevel: bolt.LogLevelDebug,
 		Receiver: receiver,
 	})
 	if err != nil {

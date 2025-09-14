@@ -28,8 +28,8 @@ func TestHTTPReceiverIntegration(t *testing.T) {
 		})
 
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -43,8 +43,8 @@ func TestHTTPReceiverIntegration(t *testing.T) {
 		})
 
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -96,8 +96,8 @@ func TestHTTPReceiverIntegration(t *testing.T) {
 		assert.NotNil(t, receiver, "HTTP receiver should be created with custom endpoints")
 
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -114,8 +114,8 @@ func TestHTTPReceiverIntegration(t *testing.T) {
 		assert.NotNil(t, receiver, "HTTP receiver should be created with process before response")
 
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -140,8 +140,8 @@ func TestSocketModeReceiverIntegration(t *testing.T) {
 		})
 
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -155,8 +155,8 @@ func TestSocketModeReceiverIntegration(t *testing.T) {
 		})
 
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -198,8 +198,8 @@ func TestSocketModeReceiverIntegration(t *testing.T) {
 		assert.NotNil(t, receiver, "Socket mode receiver should be created with custom properties")
 
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -288,8 +288,8 @@ func TestReceiverErrorHandling(t *testing.T) {
 		})
 
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -312,8 +312,8 @@ func TestReceiverErrorHandling(t *testing.T) {
 		})
 
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 

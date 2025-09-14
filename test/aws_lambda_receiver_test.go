@@ -30,8 +30,8 @@ func TestAwsLambdaReceiver(t *testing.T) {
 		})
 
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -48,8 +48,8 @@ func TestAwsLambdaReceiver(t *testing.T) {
 		assert.NotNil(t, receiver, "AWS Lambda receiver should be created with process before response")
 
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -72,8 +72,8 @@ func TestAwsLambdaReceiver(t *testing.T) {
 		assert.NotNil(t, receiver, "AWS Lambda receiver should be created with custom properties")
 
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -90,8 +90,8 @@ func TestAwsLambdaReceiverEventHandling(t *testing.T) {
 		})
 
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -137,8 +137,8 @@ func TestAwsLambdaReceiverEventHandling(t *testing.T) {
 		})
 
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -172,8 +172,8 @@ func TestAwsLambdaReceiverEventHandling(t *testing.T) {
 		})
 
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -208,8 +208,8 @@ func TestAwsLambdaReceiverResponses(t *testing.T) {
 		})
 
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -241,8 +241,8 @@ func TestAwsLambdaReceiverResponses(t *testing.T) {
 		})
 
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -344,8 +344,8 @@ func TestAwsLambdaReceiverIntegration(t *testing.T) {
 	t.Run("should integrate with bolt app", func(t *testing.T) {
 		// Create app with AWS Lambda receiver
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 			Receiver: receivers.NewAwsLambdaReceiver(types.AwsLambdaReceiverOptions{
 				SigningSecret: fakeSigningSecret,
 			}),
@@ -387,8 +387,8 @@ func TestAwsLambdaReceiverIntegration(t *testing.T) {
 		})
 
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -420,8 +420,8 @@ func TestAwsLambdaReceiverIntegration(t *testing.T) {
 		})
 
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 

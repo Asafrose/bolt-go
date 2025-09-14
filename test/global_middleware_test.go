@@ -17,8 +17,8 @@ func TestGlobalMiddlewareExecution(t *testing.T) {
 	t.Parallel()
 	t.Run("should execute global middleware before listeners", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -68,8 +68,8 @@ func TestGlobalMiddlewareExecution(t *testing.T) {
 
 	t.Run("should execute multiple global middlewares in order", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -130,8 +130,8 @@ func TestGlobalMiddlewareExecution(t *testing.T) {
 
 	t.Run("should stop execution if global middleware doesn't call next", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -187,8 +187,8 @@ func TestGlobalMiddlewareExecution(t *testing.T) {
 
 	t.Run("should handle global middleware errors", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -246,8 +246,8 @@ func TestGlobalMiddlewareContextPassing(t *testing.T) {
 	t.Parallel()
 	t.Run("should pass context through global middleware chain", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -311,8 +311,8 @@ func TestGlobalMiddlewareContextPassing(t *testing.T) {
 
 	t.Run("should allow middleware to modify context", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -368,8 +368,8 @@ func TestGlobalMiddlewareWithDifferentEventTypes(t *testing.T) {
 	t.Parallel()
 	t.Run("should execute global middleware for all event types", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -480,8 +480,8 @@ func TestGlobalMiddlewareWithDifferentEventTypes(t *testing.T) {
 
 	t.Run("should provide correct middleware args for different event types", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -589,8 +589,8 @@ func TestGlobalMiddlewareIgnoreSelf(t *testing.T) {
 	t.Parallel()
 	t.Run("should ignore messages from bot itself", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -641,8 +641,8 @@ func TestAsyncListenerHandling(t *testing.T) {
 	t.Parallel()
 	t.Run("correctly waits for async listeners", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -703,8 +703,8 @@ func TestAsyncListenerHandling(t *testing.T) {
 
 	t.Run("throws errors which can be caught by upstream async listeners", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 

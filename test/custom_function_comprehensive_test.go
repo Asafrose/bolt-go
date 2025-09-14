@@ -293,8 +293,8 @@ func TestCustomFunctionIntegrationWithApp(t *testing.T) {
 	t.Parallel()
 	t.Run("should integrate with app using custom function", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 

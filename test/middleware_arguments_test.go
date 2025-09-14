@@ -20,8 +20,8 @@ func TestEventMiddlewareArguments(t *testing.T) {
 	t.Parallel()
 	t.Run("should provide correct event arguments for app_mention", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -79,8 +79,8 @@ func TestEventMiddlewareArguments(t *testing.T) {
 
 	t.Run("should provide correct event arguments for message", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -132,8 +132,8 @@ func TestActionMiddlewareArguments(t *testing.T) {
 	t.Parallel()
 	t.Run("should provide correct action arguments for button click", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -200,8 +200,8 @@ func TestActionMiddlewareArguments(t *testing.T) {
 
 	t.Run("should provide correct action arguments for select menu", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -262,8 +262,8 @@ func TestCommandMiddlewareArguments(t *testing.T) {
 	t.Parallel()
 	t.Run("should provide correct command arguments", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -320,8 +320,8 @@ func TestCommandMiddlewareArguments(t *testing.T) {
 
 	t.Run("should handle command with empty text", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -367,8 +367,8 @@ func TestShortcutMiddlewareArguments(t *testing.T) {
 	t.Parallel()
 	t.Run("should provide correct shortcut arguments for global shortcut", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -418,8 +418,8 @@ func TestShortcutMiddlewareArguments(t *testing.T) {
 
 	t.Run("should provide correct shortcut arguments for message shortcut", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -472,8 +472,8 @@ func TestViewMiddlewareArguments(t *testing.T) {
 	t.Parallel()
 	t.Run("should provide correct view arguments for view submission", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -536,8 +536,8 @@ func TestViewMiddlewareArguments(t *testing.T) {
 
 	t.Run("should provide correct view arguments for view closed", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -589,8 +589,8 @@ func TestOptionsMiddlewareArguments(t *testing.T) {
 	t.Parallel()
 	t.Run("should provide correct options arguments", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -650,8 +650,8 @@ func TestMiddlewareArgumentsAdvanced(t *testing.T) {
 	t.Parallel()
 	t.Run("should extract valid enterprise_id in a shared channel", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -698,8 +698,8 @@ func TestMiddlewareArgumentsAdvanced(t *testing.T) {
 
 	t.Run("should be skipped for tokens_revoked events", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -745,8 +745,8 @@ func TestMiddlewareArgumentsAdvanced(t *testing.T) {
 
 	t.Run("should be skipped for app_uninstalled events", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -798,8 +798,8 @@ func TestMiddlewareArgumentsRespond(t *testing.T) {
 		defer mockServer.Close()
 
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -857,8 +857,8 @@ func TestMiddlewareArgumentsRespond(t *testing.T) {
 
 	t.Run("should respond with a response object", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -931,8 +931,8 @@ func TestMiddlewareArgumentsRespond(t *testing.T) {
 
 	t.Run("should be able to use respond for view_submission payloads", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -992,8 +992,8 @@ func TestMiddlewareArgumentsLogger(t *testing.T) {
 	t.Parallel()
 	t.Run("should be available in middleware/listener args", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -1039,8 +1039,8 @@ func TestMiddlewareArgumentsLogger(t *testing.T) {
 	t.Run("should work in the case both logger and logLevel are given", func(t *testing.T) {
 		// TODO: Test with custom logger and log level when supported
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 			// Logger:        customLogger,
 			// LogLevel:      "debug",
 		})
@@ -1090,8 +1090,8 @@ func TestMiddlewareArgumentsClient(t *testing.T) {
 	t.Parallel()
 	t.Run("should be available in middleware/listener args", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -1148,7 +1148,7 @@ func TestMiddlewareArgumentsClient(t *testing.T) {
 
 		app, err := bolt.New(bolt.AppOptions{
 			Authorize:     authorizeFn,
-			SigningSecret: &fakeSigningSecret,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -1220,8 +1220,8 @@ func TestMiddlewareArgumentsSay(t *testing.T) {
 		defer mockAPIServer.Close()
 
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 			ClientOptions: []slack.Option{slack.OptionAPIURL(mockAPIServer.URL + "/api/")},
 		})
 		require.NoError(t, err)
@@ -1295,8 +1295,8 @@ func TestMiddlewareArgumentsSay(t *testing.T) {
 			defer mockAPIServer.Close()
 
 			app, err := bolt.New(bolt.AppOptions{
-				Token:         &fakeToken,
-				SigningSecret: &fakeSigningSecret,
+				Token:         fakeToken,
+				SigningSecret: fakeSigningSecret,
 				ClientOptions: []slack.Option{slack.OptionAPIURL(mockAPIServer.URL + "/api/")},
 			})
 			require.NoError(t, err)
@@ -1375,8 +1375,8 @@ func TestMiddlewareArgumentsSay(t *testing.T) {
 			defer mockAPIServer.Close()
 
 			app, err := bolt.New(bolt.AppOptions{
-				Token:         &fakeToken,
-				SigningSecret: &fakeSigningSecret,
+				Token:         fakeToken,
+				SigningSecret: fakeSigningSecret,
 				ClientOptions: []slack.Option{slack.OptionAPIURL(mockAPIServer.URL + "/api/")},
 			})
 			require.NoError(t, err)
@@ -1456,8 +1456,8 @@ func TestMiddlewareArgumentsSay(t *testing.T) {
 	t.Run("for events that should not include say() utility", func(t *testing.T) {
 		t.Run("should not exist in the arguments on incoming events that don't support it", func(t *testing.T) {
 			app, err := bolt.New(bolt.AppOptions{
-				Token:         &fakeToken,
-				SigningSecret: &fakeSigningSecret,
+				Token:         fakeToken,
+				SigningSecret: fakeSigningSecret,
 			})
 			require.NoError(t, err)
 
@@ -1506,8 +1506,8 @@ func TestMiddlewareArgumentsSay(t *testing.T) {
 
 		t.Run("should handle failures through the App", func(t *testing.T) {
 			app, err := bolt.New(bolt.AppOptions{
-				Token:         &fakeToken,
-				SigningSecret: &fakeSigningSecret,
+				Token:         fakeToken,
+				SigningSecret: fakeSigningSecret,
 			})
 			require.NoError(t, err)
 
@@ -1549,8 +1549,8 @@ func TestMiddlewareArgumentsSay(t *testing.T) {
 	t.Run("context", func(t *testing.T) {
 		t.Run("should be able to use the app_installed_team_id when provided by the payload", func(t *testing.T) {
 			app, err := bolt.New(bolt.AppOptions{
-				Token:         &fakeToken,
-				SigningSecret: &fakeSigningSecret,
+				Token:         fakeToken,
+				SigningSecret: fakeSigningSecret,
 			})
 			require.NoError(t, err)
 
@@ -1603,8 +1603,8 @@ func TestMiddlewareArgumentsSay(t *testing.T) {
 
 		t.Run("should have function executed event details from a custom step payload", func(t *testing.T) {
 			app, err := bolt.New(bolt.AppOptions{
-				Token:         &fakeToken,
-				SigningSecret: &fakeSigningSecret,
+				Token:         fakeToken,
+				SigningSecret: fakeSigningSecret,
 			})
 			require.NoError(t, err)
 

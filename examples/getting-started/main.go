@@ -9,7 +9,6 @@ import (
 	bolt "github.com/Asafrose/bolt-go"
 	"github.com/Asafrose/bolt-go/pkg/app"
 	"github.com/Asafrose/bolt-go/pkg/types"
-	"github.com/samber/lo"
 	"github.com/slack-go/slack"
 )
 
@@ -27,9 +26,9 @@ func main() {
 
 	// Initialize the app
 	boltApp, err := app.New(app.AppOptions{
-		Token:         lo.ToPtr(token),
-		SigningSecret: lo.ToPtr(signingSecret),
-		LogLevel:      lo.ToPtr(bolt.LogLevelDebug),
+		Token:         token,
+		SigningSecret: signingSecret,
+		LogLevel:      bolt.LogLevelDebug,
 	})
 	if err != nil {
 		log.Fatalf("Failed to create app: %v", err)

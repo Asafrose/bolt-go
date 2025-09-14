@@ -8,7 +8,6 @@ import (
 	"github.com/Asafrose/bolt-go/pkg/receivers"
 	"github.com/Asafrose/bolt-go/pkg/types"
 	"github.com/aws/aws-lambda-go/lambda"
-	"github.com/samber/lo"
 	"github.com/slack-go/slack"
 )
 
@@ -35,7 +34,7 @@ func init() {
 	// Initializes your app with your bot token and the AWS Lambda ready receiver
 	var err error
 	boltApp, err = app.New(app.AppOptions{
-		Token:    lo.ToPtr(token),
+		Token:    token,
 		Receiver: awsLambdaReceiver,
 
 		// When using the AwsLambdaReceiver, processBeforeResponse can be omitted.

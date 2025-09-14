@@ -26,18 +26,18 @@ import (
 // AppOptions represents configuration options for the App
 type AppOptions struct {
 	// Receiver configuration
-	SigningSecret         *string                  `json:"signing_secret,omitempty"`
+	SigningSecret         string                   `json:"signing_secret,omitempty"`
 	Endpoints             *types.ReceiverEndpoints `json:"endpoints,omitempty"`
-	Port                  *int                     `json:"port,omitempty"`
+	Port                  int                      `json:"port,omitempty"`
 	CustomRoutes          []types.CustomRoute      `json:"custom_routes,omitempty"`
 	ProcessBeforeResponse bool                     `json:"process_before_response"`
 	SignatureVerification bool                     `json:"signature_verification"`
 
 	// OAuth configuration
-	ClientID          *string     `json:"client_id,omitempty"`
-	ClientSecret      *string     `json:"client_secret,omitempty"`
-	StateSecret       *string     `json:"state_secret,omitempty"`
-	RedirectURI       *string     `json:"redirect_uri,omitempty"`
+	ClientID          string      `json:"client_id,omitempty"`
+	ClientSecret      string      `json:"client_secret,omitempty"`
+	StateSecret       string      `json:"state_secret,omitempty"`
+	RedirectURI       string      `json:"redirect_uri,omitempty"`
 	InstallationStore interface{} `json:"installation_store,omitempty"`
 	Scopes            []string    `json:"scopes,omitempty"`
 	InstallerOptions  interface{} `json:"installer_options,omitempty"`
@@ -45,10 +45,10 @@ type AppOptions struct {
 	// Client configuration
 	HTTPClient    *http.Client   `json:"-"`
 	ClientOptions []slack.Option `json:"-"`
-	Token         *string        `json:"token,omitempty"`
-	AppToken      *string        `json:"app_token,omitempty"`
-	BotID         *string        `json:"bot_id,omitempty"`
-	BotUserID     *string        `json:"bot_user_id,omitempty"`
+	Token         string         `json:"token,omitempty"`
+	AppToken      string         `json:"app_token,omitempty"`
+	BotID         string         `json:"bot_id,omitempty"`
+	BotUserID     string         `json:"bot_user_id,omitempty"`
 
 	// Authorization
 	Authorize AuthorizeFunc `json:"-"`
@@ -57,8 +57,8 @@ type AppOptions struct {
 	Receiver types.Receiver `json:"-"`
 
 	// Logging
-	Logger   *slog.Logger    `json:"-"`
-	LogLevel *types.LogLevel `json:"log_level,omitempty"`
+	Logger   *slog.Logger   `json:"-"`
+	LogLevel types.LogLevel `json:"log_level,omitempty"`
 
 	// Behavior
 	IgnoreSelf               *bool `json:"ignore_self,omitempty"`
@@ -201,7 +201,7 @@ type App struct {
 // New creates a new Slack App
 func New(options AppOptions) (*App, error) {
 	// Validate conflicting options
-	if options.Token != nil && options.Authorize != nil {
+	if options.Token != "" && options.Authorize != nil {
 		return nil, errors.New("cannot specify both token and authorize callback")
 	}
 
@@ -227,8 +227,8 @@ func New(options AppOptions) (*App, error) {
 		app.Logger = slog.Default()
 	}
 
-	if options.LogLevel != nil {
-		app.logLevel = *options.LogLevel
+	if options.LogLevel != 0 {
+		app.logLevel = options.LogLevel
 	} else if options.DeveloperMode {
 		app.logLevel = types.LogLevelDebug
 	} else {
@@ -242,8 +242,8 @@ func New(options AppOptions) (*App, error) {
 	}
 
 	// Create the main client
-	if options.Token != nil {
-		app.Client = slack.New(*options.Token, app.clientOptions...)
+	if options.Token != "" {
+		app.Client = slack.New(options.Token, app.clientOptions...)
 	} else {
 		app.Client = slack.New("", app.clientOptions...)
 	}
@@ -266,18 +266,32 @@ func New(options AppOptions) (*App, error) {
 
 	// Set up authorization
 	if options.DeferInitialization {
-		app.argToken = options.Token
+		if options.Token != "" {
+			app.argToken = &options.Token
+		}
 		app.argAuthorize = options.Authorize
-		if options.Token != nil {
+		if options.Token != "" {
 			app.argAuthorization = &AuthorizeResult{
-				BotID:     getStringValue(options.BotID),
-				BotUserID: getStringValue(options.BotUserID),
-				BotToken:  *options.Token,
+				BotID:     options.BotID,
+				BotUserID: options.BotUserID,
+				BotToken:  options.Token,
 			}
 		}
 		app.initialized = false
 	} else {
-		authorize, err := app.initAuthorize(options.Token, options.Authorize, options.BotID, options.BotUserID)
+		var token *string
+		if options.Token != "" {
+			token = &options.Token
+		}
+		var botID *string
+		if options.BotID != "" {
+			botID = &options.BotID
+		}
+		var botUserID *string
+		if options.BotUserID != "" {
+			botUserID = &options.BotUserID
+		}
+		authorize, err := app.initAuthorize(token, options.Authorize, botID, botUserID)
 		if err != nil {
 			return nil, err
 		}
@@ -909,30 +923,30 @@ func (a *App) ProcessEvent(ctx context.Context, event types.ReceiverEvent) error
 func (a *App) initReceiver(options AppOptions) (types.Receiver, error) {
 	if options.SocketMode {
 		// Create Socket Mode receiver
-		if options.AppToken == nil {
+		if options.AppToken == "" {
 			return nil, bolterrors.NewAppInitializationError("app token required for socket mode")
 		}
 
 		receiverOptions := types.SocketModeReceiverOptions{
-			AppToken:         *options.AppToken,
+			AppToken:         options.AppToken,
 			Logger:           options.Logger,
 			LogLevel:         types.LogLevelInfo, // Default value
 			CustomProperties: make(map[string]interface{}),
 		}
-		if options.LogLevel != nil {
-			receiverOptions.LogLevel = *options.LogLevel
+		if options.LogLevel != 0 {
+			receiverOptions.LogLevel = options.LogLevel
 		}
 
 		// Create the actual Socket Mode receiver
 		return receivers.NewSocketModeReceiver(receiverOptions), nil
 	} else {
 		// Create HTTP receiver
-		if options.SigningSecret == nil {
+		if options.SigningSecret == "" {
 			return nil, bolterrors.NewAppInitializationError("signing secret required for HTTP receiver")
 		}
 
 		receiverOptions := types.HTTPReceiverOptions{
-			SigningSecret:                 *options.SigningSecret,
+			SigningSecret:                 options.SigningSecret,
 			Endpoints:                     options.Endpoints,
 			ProcessBeforeResponse:         options.ProcessBeforeResponse,
 			UnhandledRequestHandler:       nil,

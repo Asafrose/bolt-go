@@ -17,8 +17,8 @@ func TestCommandRouting(t *testing.T) {
 	t.Parallel()
 	t.Run("should route a command to a handler registered with command(string) if command name matches", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -70,8 +70,8 @@ func TestCommandRouting(t *testing.T) {
 
 	t.Run("should route a command to a handler registered with command(RegExp) if command name matches", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -124,8 +124,8 @@ func TestCommandRouting(t *testing.T) {
 
 	t.Run("should route a command to the corresponding handler and only acknowledge in the handler", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -185,8 +185,8 @@ func TestCommandRouting(t *testing.T) {
 
 	t.Run("should not execute handler if no routing found", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 

@@ -158,7 +158,7 @@ func TestReceiverIntegration(t *testing.T) {
 		receiver := bolt.NewHTTPReceiver(options)
 
 		app, err := bolt.New(bolt.AppOptions{
-			Token:    &fakeToken,
+			Token:    fakeToken,
 			Receiver: receiver,
 		})
 
@@ -173,7 +173,7 @@ func TestReceiverIntegration(t *testing.T) {
 		receiver := bolt.NewSocketModeReceiver(options)
 
 		app, err := bolt.New(bolt.AppOptions{
-			Token:    &fakeToken,
+			Token:    fakeToken,
 			Receiver: receiver,
 		})
 

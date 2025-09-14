@@ -17,8 +17,8 @@ func TestActionRouting(t *testing.T) {
 	t.Parallel()
 	t.Run("should route a block action event to a handler registered with action(string) that matches the action ID", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -76,8 +76,8 @@ func TestActionRouting(t *testing.T) {
 
 	t.Run("should route a block action event to a handler registered with action(RegExp) that matches the action ID", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -136,8 +136,8 @@ func TestActionRouting(t *testing.T) {
 
 	t.Run("should route a block action event to a handler registered with action({block_id}) that matches the block ID", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -195,8 +195,8 @@ func TestActionRouting(t *testing.T) {
 
 	t.Run("should route a block action event to a handler registered with action({type:block_actions})", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -251,8 +251,8 @@ func TestActionRouting(t *testing.T) {
 
 	t.Run("should route an action event to the corresponding handler and only acknowledge in the handler", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -314,8 +314,8 @@ func TestActionRouting(t *testing.T) {
 
 	t.Run("should route a function scoped action to a handler with the proper arguments", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -379,8 +379,8 @@ func TestActionRouting(t *testing.T) {
 
 	t.Run("should throw if provided a constraint with unknown action constraint keys", func(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 

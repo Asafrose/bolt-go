@@ -86,8 +86,8 @@ func TestConversationStoreMiddleware(t *testing.T) {
 		store := NewMockConversationStore()
 
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -129,8 +129,8 @@ func TestConversationStoreMiddleware(t *testing.T) {
 		store.SetGetError(errors.New("conversation not found"))
 
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -192,8 +192,8 @@ func TestConversationStoreMiddleware(t *testing.T) {
 		store.state["C123456"] = existingState
 
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -258,8 +258,8 @@ func TestConversationStoreMiddleware(t *testing.T) {
 		store.SetGetError(errors.New("database connection failed"))
 
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -300,8 +300,8 @@ func TestConversationStoreMiddleware(t *testing.T) {
 		store.SetGetError(errors.New("conversation expired"))
 
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -342,8 +342,8 @@ func TestConversationStoreMiddleware(t *testing.T) {
 		store.SetGetError(errors.New("conversation not found"))
 
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -394,8 +394,8 @@ func TestConversationStoreMiddleware(t *testing.T) {
 		store := NewMockConversationStore()
 
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -472,8 +472,8 @@ func TestConversationStoreMiddleware(t *testing.T) {
 	t.Run("should initialize without a conversation store when option is false", func(t *testing.T) {
 		// This test verifies the app constructor behavior
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 			// ConvoStore: nil, // Default will create a MemoryStore
 		})
 		require.NoError(t, err)
@@ -488,8 +488,8 @@ func TestConversationStoreMiddleware(t *testing.T) {
 		store := NewMockConversationStore()
 
 		app, err := bolt.New(bolt.AppOptions{
-			Token:         &fakeToken,
-			SigningSecret: &fakeSigningSecret,
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 

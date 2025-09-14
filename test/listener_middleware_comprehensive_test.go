@@ -18,8 +18,8 @@ func TestListenerMiddlewareComprehensive(t *testing.T) {
 	t.Run("App listener middleware processing", func(t *testing.T) {
 		t.Run("should bubble up errors in listeners to the global error handler", func(t *testing.T) {
 			app, err := bolt.New(bolt.AppOptions{
-				Token:         &fakeToken,
-				SigningSecret: &fakeSigningSecret,
+				Token:         fakeToken,
+				SigningSecret: fakeSigningSecret,
 			})
 			require.NoError(t, err)
 
@@ -63,8 +63,8 @@ func TestListenerMiddlewareComprehensive(t *testing.T) {
 
 		t.Run("should aggregate multiple errors in listeners for the same incoming event", func(t *testing.T) {
 			app, err := bolt.New(bolt.AppOptions{
-				Token:         &fakeToken,
-				SigningSecret: &fakeSigningSecret,
+				Token:         fakeToken,
+				SigningSecret: fakeSigningSecret,
 			})
 			require.NoError(t, err)
 
@@ -112,8 +112,8 @@ func TestListenerMiddlewareComprehensive(t *testing.T) {
 
 		t.Run("should not cause a runtime exception if the last listener middleware invokes next()", func(t *testing.T) {
 			app, err := bolt.New(bolt.AppOptions{
-				Token:         &fakeToken,
-				SigningSecret: &fakeSigningSecret,
+				Token:         fakeToken,
+				SigningSecret: fakeSigningSecret,
 			})
 			require.NoError(t, err)
 
