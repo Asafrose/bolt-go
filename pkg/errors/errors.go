@@ -30,7 +30,7 @@ const (
 
 	HTTPReceiverDeferredRequestErrorCode ErrorCode = "slack_bolt_http_receiver_deferred_request_error"
 
-	UnknownError ErrorCode = "slack_bolt_unknown_error"
+	UnknownErrorCode ErrorCode = "slack_bolt_unknown_error"
 
 	EventProcessingError ErrorCode = "slack_bolt_event_processing_error"
 
@@ -102,7 +102,7 @@ func AsCodedError(err error) CodedError {
 	if errors.As(err, &codedErr) {
 		return codedErr
 	}
-	return NewBaseErrorWithOriginal(UnknownError, err.Error(), err)
+	return NewUnknownError(err)
 }
 
 // Specific error types
@@ -285,5 +285,17 @@ type CustomFunctionInitializationError struct {
 func NewCustomFunctionInitializationError(message string) *CustomFunctionInitializationError {
 	return &CustomFunctionInitializationError{
 		BaseError: NewBaseError(CustomFunctionInitializationErrorCode, message),
+	}
+}
+
+// UnknownError represents an unknown error that wraps another error
+type UnknownError struct {
+	*BaseError
+}
+
+// NewUnknownError creates a new UnknownError
+func NewUnknownError(original error) *UnknownError {
+	return &UnknownError{
+		BaseError: NewBaseErrorWithOriginal(UnknownErrorCode, original.Error(), original),
 	}
 }

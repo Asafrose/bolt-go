@@ -228,7 +228,7 @@ const (
 	ReceiverInconsistentStateErrorCode     = errors.ReceiverInconsistentStateError
 	MultipleListenerErrorCode              = errors.MultipleListenerErrorCode
 	HTTPReceiverDeferredRequestErrorCode   = errors.HTTPReceiverDeferredRequestErrorCode
-	UnknownErrorCode                       = errors.UnknownError
+	UnknownErrorCode                       = errors.UnknownErrorCode
 	WorkflowStepInitializationErrorCode    = errors.WorkflowStepInitializationErrorCode
 	CustomFunctionInitializationErrorCode  = errors.CustomFunctionInitializationErrorCode
 	CustomFunctionCompleteSuccessErrorCode = errors.CustomFunctionCompleteSuccessErrorCode
