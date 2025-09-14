@@ -41,13 +41,13 @@ func TestHTTPModuleFunctions(t *testing.T) {
 	t.Run("Request header extraction", func(t *testing.T) {
 		t.Run("extractRetryNumFromHTTPRequest", func(t *testing.T) {
 			t.Run("should work when the header does not exist", func(t *testing.T) {
-				req := httptest.NewRequest("POST", "/test", nil)
+				req := httptest.NewRequest(http.MethodPost, "/test", nil)
 				result := httpfunc.ExtractRetryNumFromHTTPRequest(req)
 				assert.Nil(t, result)
 			})
 
 			t.Run("should parse a single value header", func(t *testing.T) {
-				req := httptest.NewRequest("POST", "/test", nil)
+				req := httptest.NewRequest(http.MethodPost, "/test", nil)
 				req.Header.Set("X-Slack-Retry-Num", "2")
 				result := httpfunc.ExtractRetryNumFromHTTPRequest(req)
 				require.NotNil(t, result)
@@ -55,7 +55,7 @@ func TestHTTPModuleFunctions(t *testing.T) {
 			})
 
 			t.Run("should parse an array of value headers", func(t *testing.T) {
-				req := httptest.NewRequest("POST", "/test", nil)
+				req := httptest.NewRequest(http.MethodPost, "/test", nil)
 				req.Header.Add("X-Slack-Retry-Num", "2")
 				req.Header.Add("X-Slack-Retry-Num", "3") // Second value should be ignored
 				result := httpfunc.ExtractRetryNumFromHTTPRequest(req)
@@ -66,13 +66,13 @@ func TestHTTPModuleFunctions(t *testing.T) {
 
 		t.Run("extractRetryReasonFromHTTPRequest", func(t *testing.T) {
 			t.Run("should work when the header does not exist", func(t *testing.T) {
-				req := httptest.NewRequest("POST", "/test", nil)
+				req := httptest.NewRequest(http.MethodPost, "/test", nil)
 				result := httpfunc.ExtractRetryReasonFromHTTPRequest(req)
 				assert.Nil(t, result)
 			})
 
 			t.Run("should parse a valid header", func(t *testing.T) {
-				req := httptest.NewRequest("POST", "/test", nil)
+				req := httptest.NewRequest(http.MethodPost, "/test", nil)
 				req.Header.Set("X-Slack-Retry-Reason", "timeout")
 				result := httpfunc.ExtractRetryReasonFromHTTPRequest(req)
 				require.NotNil(t, result)
@@ -80,7 +80,7 @@ func TestHTTPModuleFunctions(t *testing.T) {
 			})
 
 			t.Run("should parse an array of value headers", func(t *testing.T) {
-				req := httptest.NewRequest("POST", "/test", nil)
+				req := httptest.NewRequest(http.MethodPost, "/test", nil)
 				req.Header.Add("X-Slack-Retry-Reason", "timeout")
 				req.Header.Add("X-Slack-Retry-Reason", "rate_limited") // Second value should be ignored
 				result := httpfunc.ExtractRetryReasonFromHTTPRequest(req)
@@ -93,7 +93,7 @@ func TestHTTPModuleFunctions(t *testing.T) {
 	t.Run("HTTP request parsing and verification", func(t *testing.T) {
 		t.Run("parseHTTPRequestBody", func(t *testing.T) {
 			t.Run("should parse a JSON request body", func(t *testing.T) {
-				req := httptest.NewRequest("POST", "/test", nil)
+				req := httptest.NewRequest(http.MethodPost, "/test", nil)
 				req.Header.Set("Content-Type", "application/json")
 				rawBody := []byte(`{"foo":"bar"}`)
 
@@ -106,10 +106,10 @@ func TestHTTPModuleFunctions(t *testing.T) {
 			})
 
 			t.Run("should parse a form request body", func(t *testing.T) {
-				req := httptest.NewRequest("POST", "/test", nil)
+				req := httptest.NewRequest(http.MethodPost, "/test", nil)
 				req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 				payload := `{"foo":"bar"}`
-				rawBody := []byte(fmt.Sprintf("payload=%s", payload))
+				rawBody := []byte("payload=" + payload)
 
 				result, err := httpfunc.ParseHTTPRequestBody(req, rawBody)
 				require.NoError(t, err)
@@ -122,14 +122,14 @@ func TestHTTPModuleFunctions(t *testing.T) {
 
 		t.Run("getHeader", func(t *testing.T) {
 			t.Run("should throw an error when parsing a missing header", func(t *testing.T) {
-				req := httptest.NewRequest("POST", "/test", nil)
+				req := httptest.NewRequest(http.MethodPost, "/test", nil)
 				_, err := httpfunc.GetHeader(req, "Cookie")
 				assert.Error(t, err)
 				assert.Contains(t, err.Error(), "did not have the expected type")
 			})
 
 			t.Run("should parse a valid header", func(t *testing.T) {
-				req := httptest.NewRequest("POST", "/test", nil)
+				req := httptest.NewRequest(http.MethodPost, "/test", nil)
 				req.Header.Set("Cookie", "foo=bar")
 				result, err := httpfunc.GetHeader(req, "Cookie")
 				require.NoError(t, err)
@@ -148,7 +148,7 @@ func TestHTTPModuleFunctions(t *testing.T) {
 				mac.Write([]byte(fmt.Sprintf("v0:%d:%s", timestamp, rawBody)))
 				signature := "v0=" + hex.EncodeToString(mac.Sum(nil))
 
-				req := httptest.NewRequest("POST", "/test", bytes.NewBufferString(rawBody))
+				req := httptest.NewRequest(http.MethodPost, "/test", bytes.NewBufferString(rawBody))
 				req.Header.Set("Content-Type", "application/json")
 				req.Header.Set("X-Slack-Signature", signature)
 				req.Header.Set("X-Slack-Request-Timestamp", strconv.FormatInt(timestamp, 10))
@@ -165,7 +165,7 @@ func TestHTTPModuleFunctions(t *testing.T) {
 				currentTime := time.Now().Unix()
 
 				// Check if timestamp is too old (more than 5 minutes = 300 seconds)
-				assert.True(t, currentTime-oldTimestamp > 300)
+				assert.Greater(t, currentTime-oldTimestamp, 300)
 			})
 
 			t.Run("should detect an invalid signature", func(t *testing.T) {
@@ -185,7 +185,7 @@ func TestHTTPModuleFunctions(t *testing.T) {
 			})
 
 			t.Run("should parse a ssl_check request body without signature verification", func(t *testing.T) {
-				req := httptest.NewRequest("POST", "/test", nil)
+				req := httptest.NewRequest(http.MethodPost, "/test", nil)
 				req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 				rawBody := []byte("ssl_check=1&token=legacy-fixed-verification-token")
 
@@ -256,7 +256,7 @@ func TestHTTPModuleFunctions(t *testing.T) {
 
 		t.Run("defaultDispatchErrorHandler", func(t *testing.T) {
 			t.Run("should properly handle ReceiverMultipleAckError", func(t *testing.T) {
-				req := httptest.NewRequest("POST", "/test", nil)
+				req := httptest.NewRequest(http.MethodPost, "/test", nil)
 				w := httptest.NewRecorder()
 
 				args := httpfunc.DispatchErrorHandlerArgs{
@@ -271,7 +271,7 @@ func TestHTTPModuleFunctions(t *testing.T) {
 			})
 
 			t.Run("should properly handle HTTPReceiverDeferredRequestError", func(t *testing.T) {
-				req := httptest.NewRequest("POST", "/test", nil)
+				req := httptest.NewRequest(http.MethodPost, "/test", nil)
 				w := httptest.NewRecorder()
 
 				args := httpfunc.DispatchErrorHandlerArgs{
@@ -288,7 +288,7 @@ func TestHTTPModuleFunctions(t *testing.T) {
 
 		t.Run("defaultProcessEventErrorHandler", func(t *testing.T) {
 			t.Run("should properly handle ReceiverMultipleAckError", func(t *testing.T) {
-				req := httptest.NewRequest("POST", "/test", nil)
+				req := httptest.NewRequest(http.MethodPost, "/test", nil)
 				w := httptest.NewRecorder()
 
 				args := httpfunc.ProcessEventErrorHandlerArgs{
@@ -305,7 +305,7 @@ func TestHTTPModuleFunctions(t *testing.T) {
 			})
 
 			t.Run("should properly handle AuthorizationError", func(t *testing.T) {
-				req := httptest.NewRequest("POST", "/test", nil)
+				req := httptest.NewRequest(http.MethodPost, "/test", nil)
 				w := httptest.NewRecorder()
 
 				args := httpfunc.ProcessEventErrorHandlerArgs{
@@ -324,7 +324,7 @@ func TestHTTPModuleFunctions(t *testing.T) {
 
 		t.Run("defaultUnhandledRequestHandler", func(t *testing.T) {
 			t.Run("should properly execute", func(t *testing.T) {
-				req := httptest.NewRequest("POST", "/test", nil)
+				req := httptest.NewRequest(http.MethodPost, "/test", nil)
 				w := httptest.NewRecorder()
 
 				args := httpfunc.UnhandledRequestHandlerArgs{

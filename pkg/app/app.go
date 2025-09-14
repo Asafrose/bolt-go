@@ -927,6 +927,7 @@ func (a *App) initReceiver(options AppOptions) (types.Receiver, error) {
 
 		receiverOptions := types.SocketModeReceiverOptions{
 			AppToken:         options.AppToken,
+			BotToken:         options.Token,
 			Logger:           options.Logger,
 			LogLevel:         types.LogLevelInfo, // Default value
 			CustomProperties: make(map[string]interface{}),

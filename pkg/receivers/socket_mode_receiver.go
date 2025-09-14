@@ -42,7 +42,7 @@ type SocketModeReceiver struct {
 // NewSocketModeReceiver creates a new Socket Mode receiver
 func NewSocketModeReceiver(options types.SocketModeReceiverOptions) *SocketModeReceiver {
 	// Create slack API client
-	slackClient := slack.New(options.AppToken)
+	slackClient := slack.New(options.BotToken, slack.OptionAppLevelToken(options.AppToken))
 
 	// Create socketmode client options
 	socketmodeOptions := []socketmode.Option{}

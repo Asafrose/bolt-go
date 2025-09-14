@@ -116,6 +116,7 @@ type InstallerOptions struct {
 // SocketModeReceiverOptions represents options for Socket Mode receiver
 type SocketModeReceiverOptions struct {
 	AppToken                  string                                              `json:"app_token"`
+	BotToken                  string                                              `json:"bot_token"`
 	Logger                    *slog.Logger                                        `json:"logger,omitempty"`
 	LogLevel                  LogLevel                                            `json:"log_level,omitempty"`
 	PingTimeout               int                                                 `json:"ping_timeout,omitempty"`
