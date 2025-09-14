@@ -20,8 +20,8 @@ func TestIgnoreSelfComprehensive(t *testing.T) {
 			app, err := bolt.New(bolt.AppOptions{
 				Token:         fakeToken,
 				SigningSecret: fakeSigningSecret,
-				BotID:         &fakeBotID,
-				BotUserID:     &fakeBotUserID,
+				BotID:         fakeBotID,
+				BotUserID:     fakeBotUserID,
 				// ignoreSelf defaults to true
 			})
 			require.NoError(t, err)
@@ -71,8 +71,8 @@ func TestIgnoreSelfComprehensive(t *testing.T) {
 			app, err := bolt.New(bolt.AppOptions{
 				Token:         fakeToken,
 				SigningSecret: fakeSigningSecret,
-				BotID:         &fakeBotID,
-				BotUserID:     &fakeBotUserID,
+				BotID:         fakeBotID,
+				BotUserID:     fakeBotUserID,
 				// ignoreSelf defaults to true
 			})
 			require.NoError(t, err)
@@ -206,8 +206,8 @@ func TestIgnoreSelfComprehensive(t *testing.T) {
 			app, err := bolt.New(bolt.AppOptions{
 				Token:         fakeToken,
 				SigningSecret: fakeSigningSecret,
-				BotID:         &fakeBotID,
-				BotUserID:     &fakeBotUserID,
+				BotID:         fakeBotID,
+				BotUserID:     fakeBotUserID,
 				IgnoreSelf:    &ignoreSelf, // Explicitly set to false
 			})
 			require.NoError(t, err)
@@ -258,8 +258,8 @@ func TestIgnoreSelfComprehensive(t *testing.T) {
 			app, err := bolt.New(bolt.AppOptions{
 				Token:         fakeToken,
 				SigningSecret: fakeSigningSecret,
-				BotID:         &fakeBotID,
-				BotUserID:     &fakeBotUserID,
+				BotID:         fakeBotID,
+				BotUserID:     fakeBotUserID,
 				IgnoreSelf:    &ignoreSelf, // Explicitly set to false
 			})
 			require.NoError(t, err)

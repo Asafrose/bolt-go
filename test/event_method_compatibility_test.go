@@ -5,7 +5,6 @@ import (
 
 	"github.com/Asafrose/bolt-go/pkg/app"
 	"github.com/Asafrose/bolt-go/pkg/types"
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -14,8 +13,8 @@ func TestEventMethodCompatibility(t *testing.T) {
 	t.Parallel()
 	t.Run("should accept SlackEventType constants", func(t *testing.T) {
 		boltApp, err := app.New(app.AppOptions{
-			Token:         lo.ToPtr(fakeToken),
-			SigningSecret: lo.ToPtr(fakeSigningSecret),
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -37,8 +36,8 @@ func TestEventMethodCompatibility(t *testing.T) {
 
 	t.Run("should accept string literals converted to SlackEventType", func(t *testing.T) {
 		boltApp, err := app.New(app.AppOptions{
-			Token:         lo.ToPtr(fakeToken),
-			SigningSecret: lo.ToPtr(fakeSigningSecret),
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -60,8 +59,8 @@ func TestEventMethodCompatibility(t *testing.T) {
 
 	t.Run("should accept custom SlackEventType instances", func(t *testing.T) {
 		boltApp, err := app.New(app.AppOptions{
-			Token:         lo.ToPtr(fakeToken),
-			SigningSecret: lo.ToPtr(fakeSigningSecret),
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 
@@ -82,8 +81,8 @@ func TestEventMethodCompatibility(t *testing.T) {
 
 	t.Run("should demonstrate type safety", func(t *testing.T) {
 		boltApp, err := app.New(app.AppOptions{
-			Token:         lo.ToPtr(fakeToken),
-			SigningSecret: lo.ToPtr(fakeSigningSecret),
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
 		})
 		require.NoError(t, err)
 

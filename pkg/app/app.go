@@ -34,13 +34,11 @@ type AppOptions struct {
 	SignatureVerification bool                     `json:"signature_verification"`
 
 	// OAuth configuration
-	ClientID          string      `json:"client_id,omitempty"`
-	ClientSecret      string      `json:"client_secret,omitempty"`
-	StateSecret       string      `json:"state_secret,omitempty"`
-	RedirectURI       string      `json:"redirect_uri,omitempty"`
-	InstallationStore interface{} `json:"installation_store,omitempty"`
-	Scopes            []string    `json:"scopes,omitempty"`
-	InstallerOptions  interface{} `json:"installer_options,omitempty"`
+	ClientID     string   `json:"client_id,omitempty"`
+	ClientSecret string   `json:"client_secret,omitempty"`
+	StateSecret  string   `json:"state_secret,omitempty"`
+	RedirectURI  string   `json:"redirect_uri,omitempty"`
+	Scopes       []string `json:"scopes,omitempty"`
 
 	// Client configuration
 	HTTPClient    *http.Client   `json:"-"`
