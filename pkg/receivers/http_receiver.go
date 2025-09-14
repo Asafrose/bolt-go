@@ -25,7 +25,7 @@ type HTTPReceiver struct {
 	endpoints                     *types.ReceiverEndpoints
 	port                          int
 	customRoutes                  []types.CustomRoute
-	logger                        interface{}
+	logger                        *slog.Logger
 	processBeforeResponse         bool
 	signatureVerification         bool
 	unhandledRequestTimeoutMillis int
@@ -48,11 +48,17 @@ func NewHTTPReceiver(options types.HTTPReceiverOptions) *HTTPReceiver {
 		endpoints:                     options.Endpoints,
 		port:                          3000, // default port
 		customRoutes:                  options.CustomRoutes,
+		logger:                        options.Logger,
 		processBeforeResponse:         options.ProcessBeforeResponse,
 		unhandledRequestTimeoutMillis: options.UnhandledRequestTimeoutMillis,
 		signatureVerification:         true, // default to true
 		customProperties:              options.CustomProperties,
 		stateVerification:             true, // default to true
+	}
+
+	// Set default logger if none provided
+	if receiver.logger == nil {
+		receiver.logger = slog.Default()
 	}
 
 	// Initialize OAuth if configuration is provided
@@ -64,11 +70,9 @@ func NewHTTPReceiver(options types.HTTPReceiverOptions) *HTTPReceiver {
 			StateSecret:  options.StateSecret,
 		}
 
-		// Set installation store if provided and valid
+		// Set installation store if provided
 		if options.InstallationStore != nil {
-			if store, ok := options.InstallationStore.(oauth.InstallationStore); ok {
-				installProviderOptions.InstallationStore = store
-			}
+			installProviderOptions.InstallationStore = options.InstallationStore
 		}
 
 		// Set installer options if provided
@@ -104,8 +108,8 @@ func NewHTTPReceiver(options types.HTTPReceiverOptions) *HTTPReceiver {
 		receiver.installer, err = oauth.NewInstallProvider(installProviderOptions)
 		if err != nil {
 			// Log error but don't fail - OAuth is optional
-			if logger, ok := options.Logger.(*slog.Logger); ok {
-				logger.Error("Failed to initialize OAuth install provider", "error", err)
+			if options.Logger != nil {
+				options.Logger.Error("Failed to initialize OAuth install provider", "error", err)
 			}
 		}
 	}
@@ -235,7 +239,7 @@ func (r *HTTPReceiver) handleSlackEvent(w http.ResponseWriter, req *http.Request
 	event := types.ReceiverEvent{
 		Body:    body,
 		Headers: headers,
-		Ack: func(response interface{}) error {
+		Ack: func(response types.AckResponse) error {
 			if ackCalled {
 				return errors.NewReceiverMultipleAckError()
 			}
@@ -243,23 +247,28 @@ func (r *HTTPReceiver) handleSlackEvent(w http.ResponseWriter, req *http.Request
 			// Handle response body based on type
 			if response == nil {
 				w.WriteHeader(http.StatusOK)
-			} else if responseStr, ok := response.(string); ok {
-				// String response
-				w.WriteHeader(http.StatusOK)
-				if _, err := w.Write([]byte(responseStr)); err != nil {
-					return fmt.Errorf("failed to write response: %w", err)
-				}
 			} else {
-				// Object response - JSON encode
-				w.Header().Set("Content-Type", "application/json")
-				w.WriteHeader(http.StatusOK)
-				responseBytes, err := json.Marshal(response)
-				if err != nil {
-					// Fallback to empty response if JSON marshaling fails
-					return fmt.Errorf("failed to marshal response body: %w", err)
-				}
-				if _, err := w.Write(responseBytes); err != nil {
-					return fmt.Errorf("failed to write response: %w", err)
+				switch resp := response.(type) {
+				case types.AckVoid:
+					w.WriteHeader(http.StatusOK)
+				case types.AckString:
+					// String response
+					w.WriteHeader(http.StatusOK)
+					if _, err := w.Write([]byte(resp)); err != nil {
+						return fmt.Errorf("failed to write response: %w", err)
+					}
+				default:
+					// Object response - JSON encode
+					w.Header().Set("Content-Type", "application/json")
+					w.WriteHeader(http.StatusOK)
+					responseBytes, err := json.Marshal(response)
+					if err != nil {
+						// Fallback to empty response if JSON marshaling fails
+						return fmt.Errorf("failed to marshal response body: %w", err)
+					}
+					if _, err := w.Write(responseBytes); err != nil {
+						return fmt.Errorf("failed to write response: %w", err)
+					}
 				}
 			}
 			return nil
@@ -368,8 +377,8 @@ func (r *HTTPReceiver) handleInstallPath(w http.ResponseWriter, req *http.Reques
 
 	// Handle the install path request
 	if err := r.installer.HandleInstallPath(req, w, installPathOptions, installURLOptions); err != nil {
-		if logger, ok := r.logger.(*slog.Logger); ok {
-			logger.Error("Failed to handle install path request", "error", err)
+		if r.logger != nil {
+			r.logger.Error("Failed to handle install path request", "error", err)
 		}
 		http.Error(w, "Failed to handle install request", http.StatusInternalServerError)
 	}
@@ -408,8 +417,8 @@ func (r *HTTPReceiver) handleInstallRedirect(w http.ResponseWriter, req *http.Re
 			}
 		},
 		Failure: func(err error, installOptions *oauth.InstallURLOptions, req *http.Request, res http.ResponseWriter) {
-			if logger, ok := r.logger.(*slog.Logger); ok {
-				logger.Error("OAuth installation failed", "error", err)
+			if r.logger != nil {
+				r.logger.Error("OAuth installation failed", "error", err)
 			}
 			res.Header().Set("Content-Type", "text/html")
 			res.WriteHeader(http.StatusBadRequest)
@@ -441,8 +450,8 @@ func (r *HTTPReceiver) handleInstallRedirect(w http.ResponseWriter, req *http.Re
 
 	// Handle the callback request
 	if err := r.installer.HandleCallback(req, w, callbackOptions, installURLOptions); err != nil {
-		if logger, ok := r.logger.(*slog.Logger); ok {
-			logger.Error("Failed to handle OAuth callback", "error", err)
+		if r.logger != nil {
+			r.logger.Error("Failed to handle OAuth callback", "error", err)
 		}
 		// Error handling is done by the callback options
 	}

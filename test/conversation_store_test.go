@@ -219,7 +219,7 @@ func TestConversationMiddleware(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -287,7 +287,7 @@ func TestConversationMiddleware(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -322,7 +322,7 @@ func TestConversationMiddleware(t *testing.T) {
 		// Register shortcut handler (shortcuts don't have conversation IDs)
 		callbackID := "test_shortcut"
 		app.Shortcut(bolt.ShortcutConstraints{
-			CallbackID: &callbackID,
+			CallbackID: callbackID,
 		}, func(args bolt.SlackShortcutMiddlewareArgs) error {
 			receivedConversation = args.Context.Conversation
 			updateFunction = args.Context.UpdateConversation
@@ -345,7 +345,7 @@ func TestConversationMiddleware(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -404,7 +404,7 @@ func TestConversationStoreIntegration(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error { return nil },
+			Ack: func(response types.AckResponse) error { return nil },
 		}
 
 		// Process first event
@@ -419,7 +419,7 @@ func TestConversationStoreIntegration(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error { return nil },
+			Ack: func(response types.AckResponse) error { return nil },
 		}
 
 		// Process second event
@@ -470,7 +470,7 @@ func TestConversationStoreIntegration(t *testing.T) {
 		event1 := types.ReceiverEvent{
 			Body:    createMessageEventForConversation(conversationID1, "message 1"),
 			Headers: map[string]string{"Content-Type": "application/json"},
-			Ack:     func(response interface{}) error { return nil },
+			Ack:     func(response types.AckResponse) error { return nil },
 		}
 
 		ctx := context.Background()
@@ -481,7 +481,7 @@ func TestConversationStoreIntegration(t *testing.T) {
 		event2 := types.ReceiverEvent{
 			Body:    createMessageEventForConversation(conversationID2, "message 2"),
 			Headers: map[string]string{"Content-Type": "application/json"},
-			Ack:     func(response interface{}) error { return nil },
+			Ack:     func(response types.AckResponse) error { return nil },
 		}
 
 		err = app.ProcessEvent(ctx, event2)
@@ -676,7 +676,7 @@ func TestConversationStoreInitialization(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}

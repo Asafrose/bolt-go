@@ -89,12 +89,8 @@ func NewAwsLambdaReceiver(options types.AwsLambdaReceiverOptions) *AwsLambdaRece
 	}
 
 	if options.Logger != nil {
-		if logger, ok := options.Logger.(*slog.Logger); ok {
-			receiver.logger = logger
-		}
-	}
-
-	if receiver.logger == nil {
+		receiver.logger = options.Logger
+	} else {
 		receiver.logger = slog.Default()
 	}
 
@@ -204,7 +200,7 @@ func (r *AwsLambdaReceiver) HandleLambdaEvent(ctx context.Context, event APIGate
 	receiverEvent := types.ReceiverEvent{
 		Body:    bodyBytes,
 		Headers: headers,
-		Ack: func(response interface{}) error {
+		Ack: func(response types.AckResponse) error {
 			// For Lambda, ack is handled by returning the response
 			return nil
 		},
@@ -463,7 +459,7 @@ func (r *AwsLambdaReceiver) ToHandler() AwsHandler {
 		receiverEvent := types.ReceiverEvent{
 			Body:    bodyBytes,
 			Headers: awsEvent.Headers,
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				isAcknowledged = true
 				return nil
 			},

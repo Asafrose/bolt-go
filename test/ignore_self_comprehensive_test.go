@@ -54,7 +54,7 @@ func TestIgnoreSelfComprehensive(t *testing.T) {
 				Headers: map[string]string{
 					"Content-Type": "application/json",
 				},
-				Ack: func(response interface{}) error {
+				Ack: func(response types.AckResponse) error {
 					return nil
 				},
 			}
@@ -103,7 +103,7 @@ func TestIgnoreSelfComprehensive(t *testing.T) {
 				Headers: map[string]string{
 					"Content-Type": "application/json",
 				},
-				Ack: func(response interface{}) error {
+				Ack: func(response types.AckResponse) error {
 					return nil
 				},
 			}
@@ -156,7 +156,7 @@ func TestIgnoreSelfComprehensive(t *testing.T) {
 				Headers: map[string]string{
 					"Content-Type": "application/json",
 				},
-				Ack: func(response interface{}) error {
+				Ack: func(response types.AckResponse) error {
 					return nil
 				},
 			}
@@ -186,7 +186,7 @@ func TestIgnoreSelfComprehensive(t *testing.T) {
 				Headers: map[string]string{
 					"Content-Type": "application/json",
 				},
-				Ack: func(response interface{}) error {
+				Ack: func(response types.AckResponse) error {
 					return nil
 				},
 			}
@@ -240,7 +240,7 @@ func TestIgnoreSelfComprehensive(t *testing.T) {
 				Headers: map[string]string{
 					"Content-Type": "application/json",
 				},
-				Ack: func(response interface{}) error {
+				Ack: func(response types.AckResponse) error {
 					return nil
 				},
 			}
@@ -290,7 +290,7 @@ func TestIgnoreSelfComprehensive(t *testing.T) {
 				Headers: map[string]string{
 					"Content-Type": "application/json",
 				},
-				Ack: func(response interface{}) error {
+				Ack: func(response types.AckResponse) error {
 					return nil
 				},
 			}

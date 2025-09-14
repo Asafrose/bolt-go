@@ -26,7 +26,7 @@ func TestAssistantThreadContextStoreComprehensive(t *testing.T) {
 				// Test with nil client - should return empty context
 				args := assistant.AllAssistantMiddlewareArgs{
 					AllMiddlewareArgs: types.AllMiddlewareArgs{
-						Context: &types.Context{BotUserID: &botUserId},
+						Context: &types.Context{BotUserID: botUserId},
 						Logger:  slog.Default(),
 						Client:  nil, // No client available
 						Next:    func() error { return nil },
@@ -52,7 +52,7 @@ func TestAssistantThreadContextStoreComprehensive(t *testing.T) {
 
 				args := assistant.AllAssistantMiddlewareArgs{
 					AllMiddlewareArgs: types.AllMiddlewareArgs{
-						Context: &types.Context{BotUserID: &botUserId},
+						Context: &types.Context{BotUserID: botUserId},
 						Logger:  slog.Default(),
 						Client:  &slack.Client{}, // Client available but won't be used
 						Next:    func() error { return nil },
@@ -72,7 +72,7 @@ func TestAssistantThreadContextStoreComprehensive(t *testing.T) {
 
 				args := assistant.AllAssistantMiddlewareArgs{
 					AllMiddlewareArgs: types.AllMiddlewareArgs{
-						Context: &types.Context{BotUserID: &botUserId},
+						Context: &types.Context{BotUserID: botUserId},
 						Logger:  slog.Default(),
 						Client:  &slack.Client{}, // Client available
 						Next:    func() error { return nil },
@@ -107,7 +107,7 @@ func TestAssistantThreadContextStoreComprehensive(t *testing.T) {
 
 				args := assistant.AllAssistantMiddlewareArgs{
 					AllMiddlewareArgs: types.AllMiddlewareArgs{
-						Context: &types.Context{BotUserID: &botUserId},
+						Context: &types.Context{BotUserID: botUserId},
 						Logger:  slog.Default(),
 						Client:  nil, // No client available
 						Next:    func() error { return nil },
@@ -158,7 +158,7 @@ func TestAssistantThreadContextStoreComprehensive(t *testing.T) {
 
 				args := assistant.AllAssistantMiddlewareArgs{
 					AllMiddlewareArgs: types.AllMiddlewareArgs{
-						Context: &types.Context{BotUserID: &botUserId},
+						Context: &types.Context{BotUserID: botUserId},
 						Logger:  slog.Default(),
 						Client:  &slack.Client{}, // Client available but won't be used
 						Next:    func() error { return nil },
@@ -187,7 +187,7 @@ func TestAssistantThreadContextStoreComprehensive(t *testing.T) {
 
 				args := assistant.AllAssistantMiddlewareArgs{
 					AllMiddlewareArgs: types.AllMiddlewareArgs{
-						Context: &types.Context{BotUserID: &botUserId},
+						Context: &types.Context{BotUserID: botUserId},
 						Logger:  slog.Default(),
 						Client:  &slack.Client{}, // Client available but won't be used
 						Next:    func() error { return nil },
@@ -205,7 +205,7 @@ func TestAssistantThreadContextStoreComprehensive(t *testing.T) {
 
 				args := assistant.AllAssistantMiddlewareArgs{
 					AllMiddlewareArgs: types.AllMiddlewareArgs{
-						Context: &types.Context{BotUserID: &botUserId},
+						Context: &types.Context{BotUserID: botUserId},
 						Logger:  slog.Default(),
 						Client:  nil, // No client available
 						Next:    func() error { return nil },
@@ -224,7 +224,7 @@ func TestAssistantThreadContextStoreComprehensive(t *testing.T) {
 
 			args := assistant.AllAssistantMiddlewareArgs{
 				AllMiddlewareArgs: types.AllMiddlewareArgs{
-					Context: &types.Context{BotUserID: &botUserId},
+					Context: &types.Context{BotUserID: botUserId},
 					Logger:  slog.Default(),
 					Client:  &slack.Client{}, // Empty client that would return no messages
 					Next:    func() error { return nil },
@@ -243,7 +243,7 @@ func TestAssistantThreadContextStoreComprehensive(t *testing.T) {
 
 			args := assistant.AllAssistantMiddlewareArgs{
 				AllMiddlewareArgs: types.AllMiddlewareArgs{
-					Context: &types.Context{BotUserID: &botUserId},
+					Context: &types.Context{BotUserID: botUserId},
 					Logger:  slog.Default(),
 					Client:  &slack.Client{}, // Client that would return messages without metadata
 					Next:    func() error { return nil },
@@ -270,7 +270,7 @@ func TestAssistantThreadContextStoreComprehensive(t *testing.T) {
 
 			args := assistant.AllAssistantMiddlewareArgs{
 				AllMiddlewareArgs: types.AllMiddlewareArgs{
-					Context: &types.Context{BotUserID: &botUserId},
+					Context: &types.Context{BotUserID: botUserId},
 					Logger:  slog.Default(),
 					Client:  &slack.Client{},
 					Next:    func() error { return nil },
@@ -296,7 +296,7 @@ func TestAssistantThreadContextStoreComprehensive(t *testing.T) {
 
 			args := assistant.AllAssistantMiddlewareArgs{
 				AllMiddlewareArgs: types.AllMiddlewareArgs{
-					Context: &types.Context{BotUserID: &botUserId},
+					Context: &types.Context{BotUserID: botUserId},
 					Logger:  slog.Default(),
 					Client:  &slack.Client{},
 					Next:    func() error { return nil },
@@ -323,7 +323,7 @@ func TestAssistantThreadContextStoreComprehensive(t *testing.T) {
 
 			args := assistant.AllAssistantMiddlewareArgs{
 				AllMiddlewareArgs: types.AllMiddlewareArgs{
-					Context: &types.Context{BotUserID: &botUserId},
+					Context: &types.Context{BotUserID: botUserId},
 					Logger:  slog.Default(),
 					Client:  &slack.Client{}, // Would call conversations.replies
 					Next:    func() error { return nil },
@@ -350,7 +350,7 @@ func TestAssistantThreadContextStoreComprehensive(t *testing.T) {
 
 			args := assistant.AllAssistantMiddlewareArgs{
 				AllMiddlewareArgs: types.AllMiddlewareArgs{
-					Context: &types.Context{BotUserID: &botUserId},
+					Context: &types.Context{BotUserID: botUserId},
 					Logger:  slog.Default(),
 					Client:  nil, // No client - should return early
 					Next:    func() error { return nil },
@@ -378,7 +378,7 @@ func TestAssistantThreadContextStoreComprehensive(t *testing.T) {
 
 			args := assistant.AllAssistantMiddlewareArgs{
 				AllMiddlewareArgs: types.AllMiddlewareArgs{
-					Context: &types.Context{BotUserID: &botUserId},
+					Context: &types.Context{BotUserID: botUserId},
 					Logger:  slog.Default(),
 					Client:  &slack.Client{}, // Would call chat.update
 					Next:    func() error { return nil },

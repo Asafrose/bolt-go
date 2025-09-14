@@ -12,7 +12,7 @@ type SlashCommand = slack.SlashCommand
 
 // CommandConstraints represents constraints for matching commands
 type CommandConstraints struct {
-	Command *string `json:"command,omitempty"`
+	Command string `json:"command,omitempty"`
 	// RegExp support
 	CommandPattern *regexp.Regexp `json:"-"`
 }

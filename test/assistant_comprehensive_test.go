@@ -148,8 +148,8 @@ func TestAssistantComprehensive(t *testing.T) {
 			botID := "B123"
 			args := types.AllMiddlewareArgs{
 				Context: &types.Context{
-					BotToken: &botToken,
-					BotID:    &botID,
+					BotToken: botToken,
+					BotID:    botID,
 				},
 				Client: &slack.Client{},
 				Logger: slog.Default(),
@@ -214,8 +214,8 @@ func TestAssistantComprehensive(t *testing.T) {
 			botID := "B123"
 			args := types.AllMiddlewareArgs{
 				Context: &types.Context{
-					BotToken: &botToken,
-					BotID:    &botID,
+					BotToken: botToken,
+					BotID:    botID,
 				},
 				Client: &slack.Client{},
 				Logger: slog.Default(),
@@ -384,7 +384,7 @@ func TestAssistantComprehensive(t *testing.T) {
 			botToken := "test"
 			originalArgs := assistant.AllAssistantMiddlewareArgs{
 				AllMiddlewareArgs: types.AllMiddlewareArgs{
-					Context: &types.Context{BotToken: &botToken},
+					Context: &types.Context{BotToken: botToken},
 					Next: func() error {
 						nextCalled = true
 						return nil
@@ -405,7 +405,7 @@ func TestAssistantComprehensive(t *testing.T) {
 			botToken := "test"
 			originalArgs := assistant.AllAssistantMiddlewareArgs{
 				AllMiddlewareArgs: types.AllMiddlewareArgs{
-					Context: &types.Context{BotToken: &botToken},
+					Context: &types.Context{BotToken: botToken},
 					Client:  &slack.Client{},
 					Logger:  slog.Default(),
 				},
@@ -425,7 +425,7 @@ func TestAssistantComprehensive(t *testing.T) {
 			botToken := "test"
 			originalArgs := assistant.AllAssistantMiddlewareArgs{
 				AllMiddlewareArgs: types.AllMiddlewareArgs{
-					Context: &types.Context{BotToken: &botToken},
+					Context: &types.Context{BotToken: botToken},
 					Client:  &slack.Client{},
 					Logger:  slog.Default(),
 				},
@@ -445,7 +445,7 @@ func TestAssistantComprehensive(t *testing.T) {
 			botToken := "test"
 			originalArgs := assistant.AllAssistantMiddlewareArgs{
 				AllMiddlewareArgs: types.AllMiddlewareArgs{
-					Context: &types.Context{BotToken: &botToken},
+					Context: &types.Context{BotToken: botToken},
 					Client:  &slack.Client{},
 					Logger:  slog.Default(),
 				},
@@ -540,7 +540,7 @@ func TestAssistantComprehensive(t *testing.T) {
 			botToken := "test"
 			args := assistant.AllAssistantMiddlewareArgs{
 				AllMiddlewareArgs: types.AllMiddlewareArgs{
-					Context: &types.Context{BotToken: &botToken},
+					Context: &types.Context{BotToken: botToken},
 					Client:  &slack.Client{},
 					Logger:  slog.Default(),
 				},
@@ -559,7 +559,7 @@ func TestAssistantComprehensive(t *testing.T) {
 			botToken := "test"
 			args := assistant.AllAssistantMiddlewareArgs{
 				AllMiddlewareArgs: types.AllMiddlewareArgs{
-					Context: &types.Context{BotToken: &botToken},
+					Context: &types.Context{BotToken: botToken},
 					Client:  &slack.Client{},
 					Logger:  slog.Default(),
 				},
@@ -570,7 +570,7 @@ func TestAssistantComprehensive(t *testing.T) {
 
 			// Test that Say function handles complex message objects
 			_, err := enrichedArgs.Say(&types.SayArguments{
-				Text: stringPtr("Hello"),
+				Text: "Hello",
 				Metadata: &slack.SlackMetadata{
 					EventType: "assistant_thread_context",
 					EventPayload: map[string]interface{}{
@@ -585,7 +585,7 @@ func TestAssistantComprehensive(t *testing.T) {
 			botToken := "test"
 			args := assistant.AllAssistantMiddlewareArgs{
 				AllMiddlewareArgs: types.AllMiddlewareArgs{
-					Context: &types.Context{BotToken: &botToken},
+					Context: &types.Context{BotToken: botToken},
 					Client:  &slack.Client{},
 					Logger:  slog.Default(),
 				},
@@ -605,7 +605,7 @@ func TestAssistantComprehensive(t *testing.T) {
 			enrichedArgs := assistant.EnrichAssistantArgs(store, args)
 
 			_, err = enrichedArgs.Say(&types.SayArguments{
-				Text: stringPtr("Hello"),
+				Text: "Hello",
 				Metadata: &slack.SlackMetadata{
 					EventType: "assistant_thread_context",
 					EventPayload: map[string]interface{}{
@@ -621,7 +621,7 @@ func TestAssistantComprehensive(t *testing.T) {
 			store := assistant.NewDefaultThreadContextStore()
 			args := assistant.AllAssistantMiddlewareArgs{
 				AllMiddlewareArgs: types.AllMiddlewareArgs{
-					Context: &types.Context{BotToken: &botToken},
+					Context: &types.Context{BotToken: botToken},
 					Client:  &slack.Client{},
 					Logger:  slog.Default(),
 				},
@@ -638,7 +638,7 @@ func TestAssistantComprehensive(t *testing.T) {
 			botToken := "test"
 			args := assistant.AllAssistantMiddlewareArgs{
 				AllMiddlewareArgs: types.AllMiddlewareArgs{
-					Context: &types.Context{BotToken: &botToken},
+					Context: &types.Context{BotToken: botToken},
 					Client:  &slack.Client{},
 					Logger:  slog.Default(),
 				},
@@ -655,7 +655,7 @@ func TestAssistantComprehensive(t *testing.T) {
 			botToken := "test"
 			args := assistant.AllAssistantMiddlewareArgs{
 				AllMiddlewareArgs: types.AllMiddlewareArgs{
-					Context: &types.Context{BotToken: &botToken},
+					Context: &types.Context{BotToken: botToken},
 					Client:  &slack.Client{},
 					Logger:  slog.Default(),
 				},
@@ -675,7 +675,7 @@ func TestAssistantComprehensive(t *testing.T) {
 			botToken := "test"
 			args := assistant.AllAssistantMiddlewareArgs{
 				AllMiddlewareArgs: types.AllMiddlewareArgs{
-					Context: &types.Context{BotToken: &botToken},
+					Context: &types.Context{BotToken: botToken},
 					Client:  &slack.Client{},
 					Logger:  slog.Default(),
 				},

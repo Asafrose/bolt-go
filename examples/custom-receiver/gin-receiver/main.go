@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 
+	bolt "github.com/Asafrose/bolt-go"
 	"github.com/Asafrose/bolt-go/pkg/app"
 	"github.com/samber/lo"
 	"github.com/Asafrose/bolt-go/pkg/oauth"
@@ -125,7 +126,7 @@ func main() {
 
 	// Create Bolt app with custom receiver
 	boltApp, err := app.New(app.AppOptions{
-		LogLevel: lo.ToPtr(app.LogLevelDebug),
+		LogLevel: lo.ToPtr(bolt.LogLevelDebug),
 		Receiver: receiver,
 	})
 	if err != nil {

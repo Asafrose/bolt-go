@@ -21,8 +21,8 @@ type OptionsRequest struct {
 
 // OptionsConstraints represents constraints for matching options requests
 type OptionsConstraints struct {
-	BlockID  *string `json:"block_id,omitempty"`
-	ActionID *string `json:"action_id,omitempty"`
+	BlockID  string `json:"block_id,omitempty"`
+	ActionID string `json:"action_id,omitempty"`
 	// RegExp support
 	BlockIDPattern  *regexp.Regexp `json:"-"`
 	ActionIDPattern *regexp.Regexp `json:"-"`

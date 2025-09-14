@@ -121,7 +121,7 @@ func TestAppBasicFeatures(t *testing.T) {
 
 		t.Run("should register action listeners", func(t *testing.T) {
 			app.Action(bolt.ActionConstraints{
-				ActionID: stringPtr("button_click"),
+				ActionID: "button_click",
 			}, func(args bolt.SlackActionMiddlewareArgs) error {
 				return args.Next()
 			})
@@ -155,7 +155,7 @@ func TestAppBasicFeatures(t *testing.T) {
 
 		t.Run("should register shortcut listeners", func(t *testing.T) {
 			app.Shortcut(bolt.ShortcutConstraints{
-				CallbackID: stringPtr("test_shortcut"),
+				CallbackID: "test_shortcut",
 			}, func(args bolt.SlackShortcutMiddlewareArgs) error {
 				return args.Next()
 			})
@@ -173,7 +173,7 @@ func TestAppBasicFeatures(t *testing.T) {
 
 		t.Run("should register view listeners", func(t *testing.T) {
 			app.View(bolt.ViewConstraints{
-				CallbackID: stringPtr("test_view"),
+				CallbackID: "test_view",
 			}, func(args bolt.SlackViewMiddlewareArgs) error {
 				return args.Next()
 			})
@@ -191,7 +191,7 @@ func TestAppBasicFeatures(t *testing.T) {
 
 		t.Run("should register options listeners", func(t *testing.T) {
 			app.Options(bolt.OptionsConstraints{
-				ActionID: stringPtr("test_options"),
+				ActionID: "test_options",
 			}, func(args bolt.SlackOptionsMiddlewareArgs) error {
 				return args.Next()
 			})

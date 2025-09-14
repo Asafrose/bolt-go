@@ -54,7 +54,7 @@ func TestCommandRouting(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/x-www-form-urlencoded",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -108,7 +108,7 @@ func TestCommandRouting(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/x-www-form-urlencoded",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -168,7 +168,7 @@ func TestCommandRouting(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/x-www-form-urlencoded",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -217,7 +217,7 @@ func TestCommandRouting(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/x-www-form-urlencoded",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}

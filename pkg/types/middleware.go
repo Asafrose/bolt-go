@@ -16,31 +16,31 @@ type UpdateConversationFn func(conversation any, expiresAt *time.Time) error
 // Context provides contextual information associated with an incoming request
 type Context struct {
 	// A bot token, which starts with `xoxb-`
-	BotToken *string `json:"bot_token,omitempty"`
+	BotToken string `json:"bot_token,omitempty"`
 	// A user token, which starts with `xoxp-`
-	UserToken *string `json:"user_token,omitempty"`
+	UserToken string `json:"user_token,omitempty"`
 	// This app's bot ID in the installed workspace
-	BotID *string `json:"bot_id,omitempty"`
+	BotID string `json:"bot_id,omitempty"`
 	// This app's bot user ID in the installed workspace
-	BotUserID *string `json:"bot_user_id,omitempty"`
+	BotUserID string `json:"bot_user_id,omitempty"`
 	// User ID
-	UserID *string `json:"user_id,omitempty"`
+	UserID string `json:"user_id,omitempty"`
 	// Workspace ID
-	TeamID *string `json:"team_id,omitempty"`
+	TeamID string `json:"team_id,omitempty"`
 	// Enterprise Grid Organization ID
-	EnterpriseID *string `json:"enterprise_id,omitempty"`
+	EnterpriseID string `json:"enterprise_id,omitempty"`
 	// Is the app installed at an Enterprise level?
 	IsEnterpriseInstall bool `json:"is_enterprise_install"`
 	// A JIT and function-specific token
-	FunctionBotAccessToken *string `json:"function_bot_access_token,omitempty"`
+	FunctionBotAccessToken string `json:"function_bot_access_token,omitempty"`
 	// Function execution ID associated with the event
-	FunctionExecutionID *string `json:"function_execution_id,omitempty"`
+	FunctionExecutionID string `json:"function_execution_id,omitempty"`
 	// Inputs that were provided to a function when it was executed
 	FunctionInputs FunctionInputs `json:"function_inputs,omitempty"`
 	// Retry count of an Events API request
-	RetryNum *int `json:"retry_num,omitempty"`
+	RetryNum int `json:"retry_num,omitempty"`
 	// Retry reason of an Events API request
-	RetryReason *string `json:"retry_reason,omitempty"`
+	RetryReason string `json:"retry_reason,omitempty"`
 
 	// Conversation context fields
 	Conversation       any                  `json:"conversation,omitempty"`
@@ -66,11 +66,11 @@ type Middleware[Args any] func(args Args) error
 
 // SayArguments represents arguments for the say function
 type SayArguments struct {
-	Channel     *string              `json:"channel,omitempty"`
-	Text        *string              `json:"text,omitempty"`
+	Channel     string               `json:"channel,omitempty"`
+	Text        string               `json:"text,omitempty"`
 	Blocks      []slack.Block        `json:"blocks,omitempty"`
 	Attachments []slack.Attachment   `json:"attachments,omitempty"`
-	ThreadTS    *string              `json:"thread_ts,omitempty"`
+	ThreadTS    string               `json:"thread_ts,omitempty"`
 	Metadata    *slack.SlackMetadata `json:"metadata,omitempty"`
 	// Add other ChatPostMessageArguments fields as needed
 }
@@ -100,10 +100,10 @@ type SayFn func(message SayMessage) (*SayResponse, error)
 
 // RespondArguments represents arguments for the respond function
 type RespondArguments struct {
-	ResponseType    *string            `json:"response_type,omitempty"` // "in_channel" or "ephemeral"
+	ResponseType    string             `json:"response_type,omitempty"` // "in_channel" or "ephemeral"
 	ReplaceOriginal *bool              `json:"replace_original,omitempty"`
 	DeleteOriginal  *bool              `json:"delete_original,omitempty"`
-	Text            *string            `json:"text,omitempty"`
+	Text            string             `json:"text,omitempty"`
 	Blocks          []slack.Block      `json:"blocks,omitempty"`
 	Attachments     []slack.Attachment `json:"attachments,omitempty"`
 }
@@ -124,17 +124,7 @@ func (r RespondArguments) isRespondMessage() {}
 // RespondFn represents a function to respond to an interaction
 type RespondFn func(message RespondMessage) error
 
-// AckResponse represents union types for AckFn responses
-type AckResponse interface {
-	isAckResponse()
-}
-
-// Common AckFn response types
-type AckVoid struct{}
-type AckString string
-
-func (a AckVoid) isAckResponse()          {}
-func (a AckString) isAckResponse()        {}
+// Additional AckResponse implementations for middleware-specific types
 func (s SayArguments) isAckResponse()     {} // For commands: string | SayArguments
 func (r RespondArguments) isAckResponse() {} // For commands: string | RespondArguments
 

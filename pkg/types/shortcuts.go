@@ -53,8 +53,8 @@ func (ms MessageShortcut) GetCallbackID() string {
 
 // ShortcutConstraints represents constraints for matching shortcuts
 type ShortcutConstraints struct {
-	Type       *string `json:"type,omitempty"`
-	CallbackID *string `json:"callback_id,omitempty"`
+	Type       string `json:"type,omitempty"`
+	CallbackID string `json:"callback_id,omitempty"`
 	// RegExp support
 	CallbackIDPattern *regexp.Regexp `json:"-"`
 }

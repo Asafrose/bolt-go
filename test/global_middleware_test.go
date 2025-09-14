@@ -54,7 +54,7 @@ func TestGlobalMiddlewareExecution(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -115,7 +115,7 @@ func TestGlobalMiddlewareExecution(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -173,7 +173,7 @@ func TestGlobalMiddlewareExecution(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -229,7 +229,7 @@ func TestGlobalMiddlewareExecution(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -291,7 +291,7 @@ func TestGlobalMiddlewareContextPassing(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -305,8 +305,8 @@ func TestGlobalMiddlewareContextPassing(t *testing.T) {
 		assert.Equal(t, middleware2Context, listenerContext, "Context should be passed to listener")
 
 		// Context should contain team information
-		assert.NotNil(t, listenerContext.TeamID, "Context should contain team ID")
-		assert.Equal(t, "T123456", *listenerContext.TeamID, "Team ID should match")
+		assert.NotEmpty(t, listenerContext.TeamID, "Context should contain team ID")
+		assert.Equal(t, "T123456", listenerContext.TeamID, "Team ID should match")
 	})
 
 	t.Run("should allow middleware to modify context", func(t *testing.T) {
@@ -349,7 +349,7 @@ func TestGlobalMiddlewareContextPassing(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -387,7 +387,7 @@ func TestGlobalMiddlewareWithDifferentEventTypes(t *testing.T) {
 		})
 
 		actionID := "button_1"
-		app.Action(bolt.ActionConstraints{ActionID: &actionID}, func(args bolt.SlackActionMiddlewareArgs) error {
+		app.Action(bolt.ActionConstraints{ActionID: actionID}, func(args bolt.SlackActionMiddlewareArgs) error {
 			return nil
 		})
 
@@ -413,7 +413,7 @@ func TestGlobalMiddlewareWithDifferentEventTypes(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -442,7 +442,7 @@ func TestGlobalMiddlewareWithDifferentEventTypes(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -466,7 +466,7 @@ func TestGlobalMiddlewareWithDifferentEventTypes(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -504,7 +504,7 @@ func TestGlobalMiddlewareWithDifferentEventTypes(t *testing.T) {
 		})
 
 		actionID := "button_1"
-		app.Action(bolt.ActionConstraints{ActionID: &actionID}, func(args bolt.SlackActionMiddlewareArgs) error {
+		app.Action(bolt.ActionConstraints{ActionID: actionID}, func(args bolt.SlackActionMiddlewareArgs) error {
 			return nil
 		})
 
@@ -530,7 +530,7 @@ func TestGlobalMiddlewareWithDifferentEventTypes(t *testing.T) {
 		event := types.ReceiverEvent{
 			Body:    bodyBytes,
 			Headers: map[string]string{"Content-Type": "application/json"},
-			Ack:     func(response interface{}) error { return nil },
+			Ack:     func(response types.AckResponse) error { return nil },
 		}
 
 		err = app.ProcessEvent(ctx, event)
@@ -553,7 +553,7 @@ func TestGlobalMiddlewareWithDifferentEventTypes(t *testing.T) {
 		event = types.ReceiverEvent{
 			Body:    bodyBytes,
 			Headers: map[string]string{"Content-Type": "application/json"},
-			Ack:     func(response interface{}) error { return nil },
+			Ack:     func(response types.AckResponse) error { return nil },
 		}
 
 		err = app.ProcessEvent(ctx, event)
@@ -572,7 +572,7 @@ func TestGlobalMiddlewareWithDifferentEventTypes(t *testing.T) {
 		event = types.ReceiverEvent{
 			Body:    bodyBytes,
 			Headers: map[string]string{"Content-Type": "application/json"},
-			Ack:     func(response interface{}) error { return nil },
+			Ack:     func(response types.AckResponse) error { return nil },
 		}
 
 		err = app.ProcessEvent(ctx, event)
@@ -621,7 +621,7 @@ func TestGlobalMiddlewareIgnoreSelf(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -684,7 +684,7 @@ func TestAsyncListenerHandling(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -763,7 +763,7 @@ func TestAsyncListenerHandling(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}

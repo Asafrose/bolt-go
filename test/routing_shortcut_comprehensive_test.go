@@ -39,7 +39,7 @@ func TestShortcutRoutingComprehensive(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -82,7 +82,7 @@ func TestShortcutRoutingComprehensive(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -108,7 +108,7 @@ func TestShortcutRoutingComprehensive(t *testing.T) {
 		// Register handler with constraint object
 		callbackID := "my_callback_id"
 		app.Shortcut(bolt.ShortcutConstraints{
-			CallbackID: &callbackID,
+			CallbackID: callbackID,
 		}, func(args bolt.SlackShortcutMiddlewareArgs) error {
 			receivedArgs = args
 			handlerCalled = true
@@ -122,7 +122,7 @@ func TestShortcutRoutingComprehensive(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -148,7 +148,7 @@ func TestShortcutRoutingComprehensive(t *testing.T) {
 		// Register handler with type constraint
 		shortcutType := "message_action"
 		app.Shortcut(bolt.ShortcutConstraints{
-			Type: &shortcutType,
+			Type: shortcutType,
 		}, func(args bolt.SlackShortcutMiddlewareArgs) error {
 			receivedArgs = args
 			handlerCalled = true
@@ -162,7 +162,7 @@ func TestShortcutRoutingComprehensive(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -197,7 +197,7 @@ func TestShortcutRoutingComprehensive(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -223,8 +223,8 @@ func TestShortcutRoutingComprehensive(t *testing.T) {
 		shortcutType := "message_action"
 		callbackID := "my_callback_id"
 		app.Shortcut(types.ShortcutConstraints{
-			Type:       &shortcutType,
-			CallbackID: &callbackID,
+			Type:       shortcutType,
+			CallbackID: callbackID,
 		}, func(args types.SlackShortcutMiddlewareArgs) error {
 			receivedArgs = args
 			handlerCalled = true
@@ -238,7 +238,7 @@ func TestShortcutRoutingComprehensive(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -274,8 +274,8 @@ func TestShortcutRoutingComprehensive(t *testing.T) {
 		validType := "message_action"
 		validCallbackID := "valid_callback"
 		app.Shortcut(types.ShortcutConstraints{
-			Type:       &validType,
-			CallbackID: &validCallbackID,
+			Type:       validType,
+			CallbackID: validCallbackID,
 		}, func(args types.SlackShortcutMiddlewareArgs) error {
 			handlerCalled = true
 			return args.Ack(nil)
@@ -288,7 +288,7 @@ func TestShortcutRoutingComprehensive(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -334,7 +334,7 @@ func TestShortcutRoutingComprehensive(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}

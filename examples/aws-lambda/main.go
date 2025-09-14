@@ -77,7 +77,7 @@ func init() {
 			// Use say function to respond
 			text := fmt.Sprintf("Hey there <@%s>!", args.Message.User)
 			_, err := args.Say(&types.SayArguments{
-				Text:   lo.ToPtr(text),
+				Text:   text,
 				Blocks: blocks,
 			})
 			return err
@@ -86,18 +86,18 @@ func init() {
 	})
 
 	// Listens for an action from a button click
-	boltApp.Action(types.ActionConstraints{ActionID: lo.ToPtr("button_click")}, func(args types.SlackActionMiddlewareArgs) error {
+	boltApp.Action(types.ActionConstraints{ActionID: "button_click"}, func(args types.SlackActionMiddlewareArgs) error {
 		if err := args.Ack(nil); err != nil {
 			return err
 		}
 
 		// Extract user ID from context
-		if args.Context != nil && args.Context.UserID != nil {
+		if args.Context != nil && args.Context.UserID != "" {
 			// Respond to the button click if say function is available
 			if args.Say != nil {
-				text := fmt.Sprintf("<@%s> clicked the button", *args.Context.UserID)
-				_, err := (*args.Say)(&types.SayArguments{
-					Text: lo.ToPtr(text),
+				text := fmt.Sprintf("<@%s> clicked the button", args.Context.UserID)
+				_, err := args.Say(&types.SayArguments{
+					Text: text,
 				})
 				return err
 			}
@@ -110,7 +110,7 @@ func init() {
 		if args.Message != nil {
 			text := fmt.Sprintf("See ya later, <@%s> :wave:", args.Message.User)
 			_, err := args.Say(&types.SayArguments{
-				Text: lo.ToPtr(text),
+				Text: text,
 			})
 			return err
 		}

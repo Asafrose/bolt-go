@@ -7,6 +7,7 @@ import (
 	"os"
 	"strconv"
 
+	bolt "github.com/Asafrose/bolt-go"
 	"github.com/Asafrose/bolt-go/pkg/app"
 	"github.com/samber/lo"
 	"github.com/Asafrose/bolt-go/pkg/oauth"
@@ -35,7 +36,7 @@ func main() {
 
 	// Initialize the app with OAuth configuration
 	boltApp, err := app.New(app.AppOptions{
-		LogLevel:          lo.ToPtr(app.LogLevelDebug),
+		LogLevel:          lo.ToPtr(bolt.LogLevelDebug),
 		SigningSecret:     lo.ToPtr(signingSecret),
 		ClientID:          lo.ToPtr(clientID),
 		ClientSecret:      lo.ToPtr(clientSecret),

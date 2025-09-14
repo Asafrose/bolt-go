@@ -45,7 +45,7 @@ func TestMiddlewareChain(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -92,7 +92,7 @@ func TestMiddlewareChain(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -129,7 +129,7 @@ func TestMiddlewareChain(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -170,7 +170,7 @@ func TestMiddlewareChain(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -219,7 +219,7 @@ func TestMiddlewareChain(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -264,7 +264,7 @@ func TestBuiltinMiddleware(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -299,7 +299,7 @@ func TestBuiltinMiddleware(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -334,7 +334,7 @@ func TestBuiltinMiddleware(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -395,7 +395,7 @@ func TestBuiltinMiddleware(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -432,7 +432,7 @@ func TestMiddlewareTypes(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -463,7 +463,7 @@ func TestMiddlewareTypes(t *testing.T) {
 		// Register action handler
 		actionID := "button_1"
 		app.Action(bolt.ActionConstraints{
-			ActionID: &actionID,
+			ActionID: actionID,
 		}, func(args bolt.SlackActionMiddlewareArgs) error {
 			receivedArgs = args
 			return nil
@@ -475,7 +475,7 @@ func TestMiddlewareTypes(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -516,7 +516,7 @@ func TestMiddlewareTypes(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -595,7 +595,7 @@ func TestMiddlewareExecution(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -640,7 +640,7 @@ func TestMiddlewareExecution(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}

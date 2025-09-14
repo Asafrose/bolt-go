@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 
+	bolt "github.com/Asafrose/bolt-go"
 	"github.com/Asafrose/bolt-go/pkg/app"
 	"github.com/Asafrose/bolt-go/pkg/types"
 	"github.com/samber/lo"
@@ -29,7 +30,7 @@ func main() {
 		Token:      lo.ToPtr(token),
 		AppToken:   lo.ToPtr(appToken),
 		SocketMode: true,
-		LogLevel:   lo.ToPtr(app.LogLevelDebug),
+		LogLevel:   lo.ToPtr(bolt.LogLevelDebug),
 	})
 	if err != nil {
 		log.Fatalf("Failed to create app: %v", err)
@@ -38,8 +39,8 @@ func main() {
 	// Publish an App Home
 	boltApp.Event("app_home_opened", func(args types.SlackEventMiddlewareArgs) error {
 		// Extract event data from context
-		if args.Context != nil && args.Context.UserID != nil {
-			userIDStr := *args.Context.UserID
+		if args.Context != nil && args.Context.UserID != "" {
+			userIDStr := args.Context.UserID
 			// Create home view blocks
 			blocks := []slack.Block{
 				&slack.SectionBlock{
@@ -63,7 +64,7 @@ func main() {
 	})
 
 	// Message Shortcut example
-	boltApp.Shortcut(types.ShortcutConstraints{CallbackID: lo.ToPtr("launch_msg_shortcut")}, func(args types.SlackShortcutMiddlewareArgs) error {
+	boltApp.Shortcut(types.ShortcutConstraints{CallbackID: "launch_msg_shortcut"}, func(args types.SlackShortcutMiddlewareArgs) error {
 		if err := args.Ack(nil); err != nil {
 			return err
 		}
@@ -75,7 +76,7 @@ func main() {
 	// Global Shortcut example
 	// setup global shortcut in App config with `launch_shortcut` as callback id
 	// add `commands` scope
-	boltApp.Shortcut(types.ShortcutConstraints{CallbackID: lo.ToPtr("launch_shortcut")}, func(args types.SlackShortcutMiddlewareArgs) error {
+	boltApp.Shortcut(types.ShortcutConstraints{CallbackID: "launch_shortcut"}, func(args types.SlackShortcutMiddlewareArgs) error {
 		// Acknowledge shortcut request
 		if err := args.Ack(nil); err != nil {
 			return err
@@ -138,8 +139,8 @@ func main() {
 	// Subscribe to 'app_mention' event in your App config
 	// need app_mentions:read and chat:write scopes
 	boltApp.Event("app_mention", func(args types.SlackEventMiddlewareArgs) error {
-		if args.Context != nil && args.Context.UserID != nil {
-			userIDStr := *args.Context.UserID
+		if args.Context != nil && args.Context.UserID != "" {
+			userIDStr := args.Context.UserID
 			blocks := []slack.Block{
 				&slack.SectionBlock{
 					Type: slack.MBTSection,
@@ -164,7 +165,7 @@ func main() {
 
 			text := fmt.Sprintf("Thanks for the mention <@%s>! Click my fancy button", userIDStr)
 			_, err := args.Say(&types.SayArguments{
-				Text:   lo.ToPtr(text),
+				Text:   text,
 				Blocks: blocks,
 			})
 			if err != nil {
@@ -203,7 +204,7 @@ func main() {
 
 			text := fmt.Sprintf("Thanks for the mention <@%s>! Click my fancy button", args.Message.User)
 			_, err := args.Say(&types.SayArguments{
-				Text:   lo.ToPtr(text),
+				Text:   text,
 				Blocks: blocks,
 			})
 			return err
@@ -212,7 +213,7 @@ func main() {
 	})
 
 	// Listen and respond to button click
-	boltApp.Action(types.ActionConstraints{ActionID: lo.ToPtr("first_button")}, func(args types.SlackActionMiddlewareArgs) error {
+	boltApp.Action(types.ActionConstraints{ActionID: "first_button"}, func(args types.SlackActionMiddlewareArgs) error {
 		args.Logger.Info("button clicked", "action", args.Action)
 
 		// acknowledge the request right away
@@ -223,8 +224,8 @@ func main() {
 		// Respond to the button click if say function is available
 		if args.Say != nil {
 			text := "Thanks for clicking the fancy button"
-			_, err := (*args.Say)(&types.SayArguments{
-				Text: lo.ToPtr(text),
+			_, err := args.Say(&types.SayArguments{
+				Text: text,
 			})
 			return err
 		}
@@ -242,7 +243,7 @@ func main() {
 
 		text := args.Command.Text
 		_, err := args.Say(&types.SayArguments{
-			Text: lo.ToPtr(text),
+			Text: text,
 		})
 		return err
 	})

@@ -110,11 +110,11 @@ func TestAppConstructorComprehensive(t *testing.T) {
 	t.Run("should succeed with an authorize callback", func(t *testing.T) {
 		authorizeFn := func(ctx context.Context, source app.AuthorizeSourceData, body interface{}) (*app.AuthorizeResult, error) {
 			return &app.AuthorizeResult{
-				BotToken:  &fakeToken,
-				BotID:     stringPtr("B123456"),
-				BotUserID: stringPtr("U123456"),
-				TeamID:    stringPtr("T123456"),
-				UserToken: &fakeToken,
+				BotToken:  fakeToken,
+				BotID:     "B123456",
+				BotUserID: "U123456",
+				TeamID:    "T123456",
+				UserToken: fakeToken,
 			}, nil
 		}
 
@@ -136,7 +136,7 @@ func TestAppConstructorComprehensive(t *testing.T) {
 
 	t.Run("should fail when both a token and authorize callback are specified", func(t *testing.T) {
 		authorizeFn := func(ctx context.Context, source app.AuthorizeSourceData, body interface{}) (*app.AuthorizeResult, error) {
-			return &app.AuthorizeResult{BotToken: &fakeToken}, nil
+			return &app.AuthorizeResult{BotToken: fakeToken}, nil
 		}
 
 		_, err := bolt.New(bolt.AppOptions{
@@ -152,8 +152,8 @@ func TestAppConstructorComprehensive(t *testing.T) {
 		_, err := bolt.New(bolt.AppOptions{
 			Token:         &fakeToken,
 			SigningSecret: &fakeSigningSecret,
-			ClientID:      stringPtr("client_id"),
-			ClientSecret:  stringPtr("client_secret"),
+			ClientID:      &[]string{"client_id"}[0],
+			ClientSecret:  &[]string{"client_secret"}[0],
 		})
 		// For now, this should succeed since OAuth installer isn't fully implemented
 		// Once OAuth is implemented, this should return an error
@@ -162,15 +162,15 @@ func TestAppConstructorComprehensive(t *testing.T) {
 
 	t.Run("should fail when both a authorize callback is specified and OAuthInstaller is initialized", func(t *testing.T) {
 		authorizeFn := func(ctx context.Context, source app.AuthorizeSourceData, body interface{}) (*app.AuthorizeResult, error) {
-			return &app.AuthorizeResult{BotToken: &fakeToken}, nil
+			return &app.AuthorizeResult{BotToken: fakeToken}, nil
 		}
 
 		// TODO: Implement OAuth installer support
 		_, err := bolt.New(bolt.AppOptions{
 			Authorize:     authorizeFn,
 			SigningSecret: &fakeSigningSecret,
-			ClientID:      stringPtr("client_id"),
-			ClientSecret:  stringPtr("client_secret"),
+			ClientID:      &[]string{"client_id"}[0],
+			ClientSecret:  &[]string{"client_secret"}[0],
 		})
 		// For now, this should succeed since OAuth installer isn't fully implemented
 		// Once OAuth is implemented, this should return an error
@@ -242,7 +242,7 @@ func TestAppConstructorValidation(t *testing.T) {
 
 	t.Run("should validate mutual exclusion of token and authorize", func(t *testing.T) {
 		authorizeFn := func(ctx context.Context, source app.AuthorizeSourceData, body interface{}) (*app.AuthorizeResult, error) {
-			return &app.AuthorizeResult{BotToken: &fakeToken}, nil
+			return &app.AuthorizeResult{BotToken: fakeToken}, nil
 		}
 
 		_, err := bolt.New(bolt.AppOptions{
@@ -401,7 +401,7 @@ func TestBasicAppConstructorMissing(t *testing.T) {
 			_, err := bolt.New(bolt.AppOptions{
 				Token:         &fakeToken,
 				SigningSecret: &fakeSigningSecret,
-				RedirectURI:   stringPtr("https://example.com/oauth/callback"),
+				RedirectURI:   &[]string{"https://example.com/oauth/callback"}[0],
 				// Missing InstallerOptions should cause validation error
 			})
 			// This validation may not be implemented yet

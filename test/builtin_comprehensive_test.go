@@ -194,7 +194,7 @@ func TestBuiltinComprehensive(t *testing.T) {
 			messageText := "<@" + fakeBotUserId + "> hi"
 			ctx := &types.Context{
 				IsEnterpriseInstall: false,
-				BotUserID:           &fakeBotUserId,
+				BotUserID:           fakeBotUserId,
 			}
 			args := createDummyMessageArgs(messageText, ctx)
 
@@ -210,7 +210,7 @@ func TestBuiltinComprehensive(t *testing.T) {
 			messageText := "hi"
 			ctx := &types.Context{
 				IsEnterpriseInstall: false,
-				BotUserID:           &fakeBotUserId,
+				BotUserID:           fakeBotUserId,
 			}
 			args := createDummyMessageArgs(messageText, ctx)
 
@@ -228,7 +228,7 @@ func TestBuiltinComprehensive(t *testing.T) {
 			messageText := "hi <@" + fakeBotUserId + "> "
 			ctx := &types.Context{
 				IsEnterpriseInstall: false,
-				BotUserID:           &fakeBotUserId,
+				BotUserID:           fakeBotUserId,
 			}
 			args := createDummyMessageArgs(messageText, ctx)
 
@@ -245,7 +245,7 @@ func TestBuiltinComprehensive(t *testing.T) {
 		t.Run("should not match message events which do not have text (block kit)", func(t *testing.T) {
 			ctx := &types.Context{
 				IsEnterpriseInstall: false,
-				BotUserID:           &fakeBotUserId,
+				BotUserID:           fakeBotUserId,
 			}
 			args := createDummyMessageArgsWithBlocks(ctx)
 
@@ -263,7 +263,7 @@ func TestBuiltinComprehensive(t *testing.T) {
 			messageText := "<#C1234> hi"
 			ctx := &types.Context{
 				IsEnterpriseInstall: false,
-				BotUserID:           &fakeBotUserId,
+				BotUserID:           fakeBotUserId,
 			}
 			args := createDummyMessageArgs(messageText, ctx)
 
@@ -282,8 +282,8 @@ func TestBuiltinComprehensive(t *testing.T) {
 		t.Run("should continue middleware processing for non-event payloads", func(t *testing.T) {
 			ctx := &types.Context{
 				IsEnterpriseInstall: false,
-				BotUserID:           &fakeBotUserId,
-				BotID:               &fakeBotUserId,
+				BotUserID:           fakeBotUserId,
+				BotID:               fakeBotUserId,
 			}
 			args := createDummyCommandArgs(ctx)
 
@@ -298,8 +298,8 @@ func TestBuiltinComprehensive(t *testing.T) {
 		t.Run("should ignore message events identified as a bot message from the same bot ID as this app", func(t *testing.T) {
 			ctx := &types.Context{
 				IsEnterpriseInstall: false,
-				BotUserID:           &fakeBotUserId,
-				BotID:               &fakeBotUserId,
+				BotUserID:           fakeBotUserId,
+				BotID:               fakeBotUserId,
 			}
 			args := createDummyBotMessageArgs(fakeBotUserId, ctx)
 
@@ -316,7 +316,7 @@ func TestBuiltinComprehensive(t *testing.T) {
 		t.Run("should ignore events with only a botUserId", func(t *testing.T) {
 			ctx := &types.Context{
 				IsEnterpriseInstall: false,
-				BotUserID:           &fakeBotUserId,
+				BotUserID:           fakeBotUserId,
 			}
 			args := createDummyReactionAddedArgs(fakeBotUserId, ctx)
 
@@ -333,8 +333,8 @@ func TestBuiltinComprehensive(t *testing.T) {
 		t.Run("should ignore events that match own app", func(t *testing.T) {
 			ctx := &types.Context{
 				IsEnterpriseInstall: false,
-				BotUserID:           &fakeBotUserId,
-				BotID:               &fakeBotUserId,
+				BotUserID:           fakeBotUserId,
+				BotID:               fakeBotUserId,
 			}
 			args := createDummyReactionAddedArgs(fakeBotUserId, ctx)
 
@@ -351,8 +351,8 @@ func TestBuiltinComprehensive(t *testing.T) {
 		t.Run("should not filter member_joined_channel and member_left_channel events originating from own app", func(t *testing.T) {
 			ctx := &types.Context{
 				IsEnterpriseInstall: false,
-				BotUserID:           &fakeBotUserId,
-				BotID:               &fakeBotUserId,
+				BotUserID:           fakeBotUserId,
+				BotID:               fakeBotUserId,
 			}
 
 			// Test member_joined_channel

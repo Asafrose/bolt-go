@@ -63,7 +63,7 @@ func TestAppShortcutRouting(t *testing.T) {
 		// Register shortcut handler
 		callbackID := "test_shortcut"
 		app.Shortcut(bolt.ShortcutConstraints{
-			CallbackID: &callbackID,
+			CallbackID: callbackID,
 		}, func(args bolt.SlackShortcutMiddlewareArgs) error {
 			handlerCalled = true
 			return nil
@@ -75,7 +75,7 @@ func TestAppShortcutRouting(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -100,7 +100,7 @@ func TestAppShortcutRouting(t *testing.T) {
 		// Register shortcut handler
 		callbackID := "message_shortcut"
 		app.Shortcut(bolt.ShortcutConstraints{
-			CallbackID: &callbackID,
+			CallbackID: callbackID,
 		}, func(args bolt.SlackShortcutMiddlewareArgs) error {
 			handlerCalled = true
 			return nil
@@ -112,7 +112,7 @@ func TestAppShortcutRouting(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -137,7 +137,7 @@ func TestAppShortcutRouting(t *testing.T) {
 		// Register shortcut handler by type
 		shortcutType := "shortcut"
 		app.Shortcut(bolt.ShortcutConstraints{
-			Type: &shortcutType,
+			Type: shortcutType,
 		}, func(args bolt.SlackShortcutMiddlewareArgs) error {
 			handlerCalled = true
 			return nil
@@ -149,7 +149,7 @@ func TestAppShortcutRouting(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -174,7 +174,7 @@ func TestAppShortcutRouting(t *testing.T) {
 		// Register shortcut handler with different callback_id
 		callbackID := "different_shortcut"
 		app.Shortcut(bolt.ShortcutConstraints{
-			CallbackID: &callbackID,
+			CallbackID: callbackID,
 		}, func(args bolt.SlackShortcutMiddlewareArgs) error {
 			handlerCalled = true
 			return nil
@@ -186,7 +186,7 @@ func TestAppShortcutRouting(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -212,7 +212,7 @@ func TestAppShortcutRouting(t *testing.T) {
 		// Register shortcut handler that captures shortcut data
 		callbackID := "test_shortcut"
 		app.Shortcut(bolt.ShortcutConstraints{
-			CallbackID: &callbackID,
+			CallbackID: callbackID,
 		}, func(args bolt.SlackShortcutMiddlewareArgs) error {
 			receivedShortcut = args.Shortcut
 			receivedBody = args.Body
@@ -230,7 +230,7 @@ func TestAppShortcutRouting(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -259,7 +259,7 @@ func TestAppShortcutRouting(t *testing.T) {
 		// Register message shortcut handler
 		callbackID := "message_shortcut"
 		app.Shortcut(bolt.ShortcutConstraints{
-			CallbackID: &callbackID,
+			CallbackID: callbackID,
 		}, func(args bolt.SlackShortcutMiddlewareArgs) error {
 			hasSayFunction = args.Say != nil
 			return nil
@@ -271,7 +271,7 @@ func TestAppShortcutRouting(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -297,8 +297,8 @@ func TestAppShortcutRouting(t *testing.T) {
 		callbackID := "test_shortcut"
 		shortcutType := "shortcut"
 		app.Shortcut(bolt.ShortcutConstraints{
-			CallbackID: &callbackID,
-			Type:       &shortcutType,
+			CallbackID: callbackID,
+			Type:       shortcutType,
 		}, func(args bolt.SlackShortcutMiddlewareArgs) error {
 			handlerCalled = true
 			return nil
@@ -310,7 +310,7 @@ func TestAppShortcutRouting(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -336,8 +336,8 @@ func TestAppShortcutRouting(t *testing.T) {
 		callbackID := "test_shortcut"
 		shortcutType := "message_action"
 		app.Shortcut(bolt.ShortcutConstraints{
-			CallbackID: &callbackID,
-			Type:       &shortcutType,
+			CallbackID: callbackID,
+			Type:       shortcutType,
 		}, func(args bolt.SlackShortcutMiddlewareArgs) error {
 			handlerCalled = true
 			return nil
@@ -349,7 +349,7 @@ func TestAppShortcutRouting(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}

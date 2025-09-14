@@ -85,7 +85,7 @@ func TestAppViewRouting(t *testing.T) {
 		// Register view handler
 		callbackID := "test_modal"
 		app.View(bolt.ViewConstraints{
-			CallbackID: &callbackID,
+			CallbackID: callbackID,
 		}, func(args bolt.SlackViewMiddlewareArgs) error {
 			handlerCalled = true
 			return nil
@@ -97,7 +97,7 @@ func TestAppViewRouting(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -122,7 +122,7 @@ func TestAppViewRouting(t *testing.T) {
 		// Register view handler
 		callbackID := "test_modal"
 		app.View(bolt.ViewConstraints{
-			CallbackID: &callbackID,
+			CallbackID: callbackID,
 		}, func(args bolt.SlackViewMiddlewareArgs) error {
 			handlerCalled = true
 			return nil
@@ -134,7 +134,7 @@ func TestAppViewRouting(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -159,7 +159,7 @@ func TestAppViewRouting(t *testing.T) {
 		// Register view handler by type
 		viewType := "view_submission"
 		app.View(bolt.ViewConstraints{
-			Type: &viewType,
+			Type: viewType,
 		}, func(args bolt.SlackViewMiddlewareArgs) error {
 			handlerCalled = true
 			return nil
@@ -171,7 +171,7 @@ func TestAppViewRouting(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -196,7 +196,7 @@ func TestAppViewRouting(t *testing.T) {
 		// Register view handler with different callback_id
 		callbackID := "different_modal"
 		app.View(bolt.ViewConstraints{
-			CallbackID: &callbackID,
+			CallbackID: callbackID,
 		}, func(args bolt.SlackViewMiddlewareArgs) error {
 			handlerCalled = true
 			return nil
@@ -208,7 +208,7 @@ func TestAppViewRouting(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -234,7 +234,7 @@ func TestAppViewRouting(t *testing.T) {
 		// Register view handler that captures view data
 		callbackID := "test_modal"
 		app.View(bolt.ViewConstraints{
-			CallbackID: &callbackID,
+			CallbackID: callbackID,
 		}, func(args bolt.SlackViewMiddlewareArgs) error {
 			receivedView = args.View
 			receivedBody = args.Body
@@ -251,7 +251,7 @@ func TestAppViewRouting(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -281,8 +281,8 @@ func TestAppViewRouting(t *testing.T) {
 		callbackID := "test_modal"
 		viewType := "view_submission"
 		app.View(bolt.ViewConstraints{
-			CallbackID: &callbackID,
-			Type:       &viewType,
+			CallbackID: callbackID,
+			Type:       viewType,
 		}, func(args bolt.SlackViewMiddlewareArgs) error {
 			handlerCalled = true
 			return nil
@@ -294,7 +294,7 @@ func TestAppViewRouting(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -320,8 +320,8 @@ func TestAppViewRouting(t *testing.T) {
 		callbackID := "test_modal"
 		viewType := "view_closed"
 		app.View(bolt.ViewConstraints{
-			CallbackID: &callbackID,
-			Type:       &viewType,
+			CallbackID: callbackID,
+			Type:       viewType,
 		}, func(args bolt.SlackViewMiddlewareArgs) error {
 			handlerCalled = true
 			return nil
@@ -333,7 +333,7 @@ func TestAppViewRouting(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -358,7 +358,7 @@ func TestAppViewRouting(t *testing.T) {
 		// Register view handler that extracts form data
 		callbackID := "test_modal"
 		app.View(bolt.ViewConstraints{
-			CallbackID: &callbackID,
+			CallbackID: callbackID,
 		}, func(args bolt.SlackViewMiddlewareArgs) error {
 			// Extract form values from the strongly typed view
 			formValues = args.View.Values
@@ -371,7 +371,7 @@ func TestAppViewRouting(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}

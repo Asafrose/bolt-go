@@ -30,8 +30,8 @@ func TestViewRoutingComprehensive(t *testing.T) {
 
 		// This should compile and work fine
 		app.View(types.ViewConstraints{
-			CallbackID: &callbackID,
-			Type:       &viewType,
+			CallbackID: callbackID,
+			Type:       viewType,
 		}, func(args types.SlackViewMiddlewareArgs) error {
 			return args.Ack(nil)
 		})
@@ -64,7 +64,7 @@ func TestViewRoutingComprehensive(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -112,7 +112,7 @@ func TestViewRoutingComprehensive(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -139,7 +139,7 @@ func TestViewRoutingComprehensive(t *testing.T) {
 		// Register handler with constraint object
 		callbackID := "my_id"
 		app.View(bolt.ViewConstraints{
-			CallbackID: &callbackID,
+			CallbackID: callbackID,
 		}, func(args bolt.SlackViewMiddlewareArgs) error {
 			receivedArgs = args
 			handlerCalled = true
@@ -153,7 +153,7 @@ func TestViewRoutingComprehensive(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -200,7 +200,7 @@ func TestViewRoutingComprehensive(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -236,7 +236,7 @@ func TestViewRoutingComprehensive(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -264,8 +264,8 @@ func TestViewRoutingComprehensive(t *testing.T) {
 			callbackID := "my_callback_id"
 			viewType := "view_closed"
 			app.View(types.ViewConstraints{
-				CallbackID: &callbackID,
-				Type:       &viewType,
+				CallbackID: callbackID,
+				Type:       viewType,
 			}, func(args types.SlackViewMiddlewareArgs) error {
 				receivedArgs = args
 				handlerCalled = true
@@ -279,7 +279,7 @@ func TestViewRoutingComprehensive(t *testing.T) {
 				Headers: map[string]string{
 					"Content-Type": "application/json",
 				},
-				Ack: func(response interface{}) error {
+				Ack: func(response types.AckResponse) error {
 					return nil
 				},
 			}
@@ -313,7 +313,7 @@ func TestViewRoutingComprehensive(t *testing.T) {
 			// Register handler with only type constraint
 			viewType := "view_closed"
 			app.View(types.ViewConstraints{
-				Type: &viewType,
+				Type: viewType,
 			}, func(args types.SlackViewMiddlewareArgs) error {
 				receivedArgs = args
 				handlerCalled = true
@@ -327,7 +327,7 @@ func TestViewRoutingComprehensive(t *testing.T) {
 				Headers: map[string]string{
 					"Content-Type": "application/json",
 				},
-				Ack: func(response interface{}) error {
+				Ack: func(response types.AckResponse) error {
 					return nil
 				},
 			}
@@ -359,7 +359,7 @@ func TestViewRoutingComprehensive(t *testing.T) {
 			// Register handler with type constraint
 			viewType := "view_closed"
 			app.View(types.ViewConstraints{
-				Type: &viewType,
+				Type: viewType,
 			}, func(args types.SlackViewMiddlewareArgs) error {
 				handlerCalled = true
 
@@ -378,7 +378,7 @@ func TestViewRoutingComprehensive(t *testing.T) {
 				Headers: map[string]string{
 					"Content-Type": "application/json",
 				},
-				Ack: func(response interface{}) error {
+				Ack: func(response types.AckResponse) error {
 					return nil
 				},
 			}

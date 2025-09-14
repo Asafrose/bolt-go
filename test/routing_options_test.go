@@ -69,7 +69,7 @@ func TestAppOptionsRouting(t *testing.T) {
 		// Register options handler
 		actionID := "select_1"
 		app.Options(bolt.OptionsConstraints{
-			ActionID: &actionID,
+			ActionID: actionID,
 		}, func(args bolt.SlackOptionsMiddlewareArgs) error {
 			handlerCalled = true
 			return nil
@@ -81,7 +81,7 @@ func TestAppOptionsRouting(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -106,7 +106,7 @@ func TestAppOptionsRouting(t *testing.T) {
 		// Register options handler
 		blockID := "block_1"
 		app.Options(bolt.OptionsConstraints{
-			BlockID: &blockID,
+			BlockID: blockID,
 		}, func(args bolt.SlackOptionsMiddlewareArgs) error {
 			handlerCalled = true
 			return nil
@@ -118,7 +118,7 @@ func TestAppOptionsRouting(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -143,7 +143,7 @@ func TestAppOptionsRouting(t *testing.T) {
 		// Register options handler with different action_id
 		actionID := "different_select"
 		app.Options(bolt.OptionsConstraints{
-			ActionID: &actionID,
+			ActionID: actionID,
 		}, func(args bolt.SlackOptionsMiddlewareArgs) error {
 			handlerCalled = true
 			return nil
@@ -155,7 +155,7 @@ func TestAppOptionsRouting(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -181,7 +181,7 @@ func TestAppOptionsRouting(t *testing.T) {
 		// Register options handler that captures options data
 		actionID := "select_1"
 		app.Options(bolt.OptionsConstraints{
-			ActionID: &actionID,
+			ActionID: actionID,
 		}, func(args bolt.SlackOptionsMiddlewareArgs) error {
 			receivedOptions = args.Options
 			receivedBody = args.Body
@@ -198,7 +198,7 @@ func TestAppOptionsRouting(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -230,8 +230,8 @@ func TestAppOptionsRouting(t *testing.T) {
 		actionID := "select_1"
 		blockID := "block_1"
 		app.Options(bolt.OptionsConstraints{
-			ActionID: &actionID,
-			BlockID:  &blockID,
+			ActionID: actionID,
+			BlockID:  blockID,
 		}, func(args bolt.SlackOptionsMiddlewareArgs) error {
 			handlerCalled = true
 			return nil
@@ -243,7 +243,7 @@ func TestAppOptionsRouting(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -269,8 +269,8 @@ func TestAppOptionsRouting(t *testing.T) {
 		actionID := "select_1"
 		blockID := "different_block"
 		app.Options(bolt.OptionsConstraints{
-			ActionID: &actionID,
-			BlockID:  &blockID,
+			ActionID: actionID,
+			BlockID:  blockID,
 		}, func(args bolt.SlackOptionsMiddlewareArgs) error {
 			handlerCalled = true
 			return nil
@@ -282,7 +282,7 @@ func TestAppOptionsRouting(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -307,7 +307,7 @@ func TestAppOptionsRouting(t *testing.T) {
 		// Register options handler
 		actionID := "legacy_select"
 		app.Options(bolt.OptionsConstraints{
-			ActionID: &actionID,
+			ActionID: actionID,
 		}, func(args bolt.SlackOptionsMiddlewareArgs) error {
 			handlerCalled = true
 			return nil
@@ -319,7 +319,7 @@ func TestAppOptionsRouting(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -344,7 +344,7 @@ func TestAppOptionsRouting(t *testing.T) {
 		// Register options handler that returns options
 		actionID := "select_1"
 		app.Options(bolt.OptionsConstraints{
-			ActionID: &actionID,
+			ActionID: actionID,
 		}, func(args bolt.SlackOptionsMiddlewareArgs) error {
 			// Simulate returning options using slack SDK constructors
 			options := &bolt.OptionsResponse{
@@ -362,7 +362,7 @@ func TestAppOptionsRouting(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				ackResponse = response
 				return nil
 			},

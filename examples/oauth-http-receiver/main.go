@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 
+	bolt "github.com/Asafrose/bolt-go"
 	"github.com/Asafrose/bolt-go/pkg/app"
 	"github.com/samber/lo"
 	"github.com/Asafrose/bolt-go/pkg/oauth"
@@ -40,7 +41,7 @@ func main() {
 		StateSecret:       lo.ToPtr(stateSecret),
 		Scopes:            []string{"chat:write"},
 		InstallationStore: installationStore,
-		LogLevel:          lo.ToPtr(app.LogLevelDebug), // set loglevel at the App level
+		LogLevel:          lo.ToPtr(bolt.LogLevelDebug), // set loglevel at the App level
 		InstallerOptions:  &types.InstallerOptions{
 			// DirectInstall: lo.ToPtr(true),
 		},

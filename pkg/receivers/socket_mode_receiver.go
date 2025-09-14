@@ -58,6 +58,7 @@ func NewSocketModeReceiver(options types.SocketModeReceiverOptions) *SocketModeR
 
 	receiver := &SocketModeReceiver{
 		appToken:                  options.AppToken,
+		logger:                    options.Logger,
 		client:                    client,
 		customProperties:          options.CustomProperties,
 		customPropertiesExtractor: options.CustomPropertiesExtractor,
@@ -75,11 +76,9 @@ func NewSocketModeReceiver(options types.SocketModeReceiverOptions) *SocketModeR
 			StateSecret:  options.StateSecret,
 		}
 
-		// Set installation store if provided and valid
+		// Set installation store if provided
 		if options.InstallationStore != nil {
-			if store, ok := options.InstallationStore.(oauth.InstallationStore); ok {
-				installProviderOptions.InstallationStore = store
-			}
+			installProviderOptions.InstallationStore = options.InstallationStore
 		}
 
 		// Set installer options if provided
@@ -250,7 +249,7 @@ func (r *SocketModeReceiver) processEvent(evt socketmode.Event) {
 	event := types.ReceiverEvent{
 		Body:    payloadBytes,
 		Headers: headers,
-		Ack: func(response interface{}) error {
+		Ack: func(response types.AckResponse) error {
 			if ackCalled {
 				return errors.NewReceiverMultipleAckError()
 			}

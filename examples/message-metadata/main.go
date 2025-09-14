@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 
+	bolt "github.com/Asafrose/bolt-go"
 	"github.com/Asafrose/bolt-go/pkg/app"
 	"github.com/Asafrose/bolt-go/pkg/helpers"
 	"github.com/Asafrose/bolt-go/pkg/types"
@@ -31,7 +32,7 @@ func main() {
 		Token:      lo.ToPtr(token),
 		AppToken:   lo.ToPtr(appToken),
 		SocketMode: true,
-		LogLevel:   lo.ToPtr(app.LogLevelDebug),
+		LogLevel:   lo.ToPtr(bolt.LogLevelDebug),
 	})
 	if err != nil {
 		log.Fatalf("Failed to create app: %v", err)
@@ -47,7 +48,7 @@ func main() {
 		// Create message with metadata
 		text := "Message Metadata Posting"
 		_, err := args.Say(&types.SayArguments{
-			Text: lo.ToPtr(text),
+			Text: text,
 			// Note: Message metadata would need to be added to SayArguments
 			// This is a simplified version - the actual implementation would need
 			// to support metadata in the SayArguments type
@@ -97,9 +98,9 @@ func main() {
 					}
 
 					_, err = args.Say(&types.SayArguments{
-						Text:     lo.ToPtr(text),
+						Text:     text,
 						Blocks:   blocks,
-						ThreadTS: lo.ToPtr(threadTS),
+						ThreadTS: threadTS,
 					})
 					return err
 				}

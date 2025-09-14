@@ -52,7 +52,7 @@ func TestEventMiddlewareArguments(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -111,7 +111,7 @@ func TestEventMiddlewareArguments(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -141,7 +141,7 @@ func TestActionMiddlewareArguments(t *testing.T) {
 
 		actionID := "button_1"
 		app.Action(bolt.ActionConstraints{
-			ActionID: &actionID,
+			ActionID: actionID,
 		}, func(args types.SlackActionMiddlewareArgs) error {
 			receivedArgs = args
 			return nil
@@ -172,7 +172,7 @@ func TestActionMiddlewareArguments(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -209,7 +209,7 @@ func TestActionMiddlewareArguments(t *testing.T) {
 
 		actionID := "select_1"
 		app.Action(bolt.ActionConstraints{
-			ActionID: &actionID,
+			ActionID: actionID,
 		}, func(args types.SlackActionMiddlewareArgs) error {
 			receivedArgs = args
 			return nil
@@ -241,7 +241,7 @@ func TestActionMiddlewareArguments(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -292,7 +292,7 @@ func TestCommandMiddlewareArguments(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -348,7 +348,7 @@ func TestCommandMiddlewareArguments(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -376,7 +376,7 @@ func TestShortcutMiddlewareArguments(t *testing.T) {
 
 		callbackID := "test_shortcut"
 		app.Shortcut(bolt.ShortcutConstraints{
-			CallbackID: &callbackID,
+			CallbackID: callbackID,
 		}, func(args types.SlackShortcutMiddlewareArgs) error {
 			receivedArgs = args
 			return nil
@@ -398,7 +398,7 @@ func TestShortcutMiddlewareArguments(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -427,7 +427,7 @@ func TestShortcutMiddlewareArguments(t *testing.T) {
 
 		callbackID := "message_shortcut"
 		app.Shortcut(bolt.ShortcutConstraints{
-			CallbackID: &callbackID,
+			CallbackID: callbackID,
 		}, func(args types.SlackShortcutMiddlewareArgs) error {
 			receivedArgs = args
 			return nil
@@ -453,7 +453,7 @@ func TestShortcutMiddlewareArguments(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -481,7 +481,7 @@ func TestViewMiddlewareArguments(t *testing.T) {
 
 		callbackID := "test_modal"
 		app.View(bolt.ViewConstraints{
-			CallbackID: &callbackID,
+			CallbackID: callbackID,
 		}, func(args types.SlackViewMiddlewareArgs) error {
 			receivedArgs = args
 			return nil
@@ -516,7 +516,7 @@ func TestViewMiddlewareArguments(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -545,7 +545,7 @@ func TestViewMiddlewareArguments(t *testing.T) {
 
 		callbackID := "closable_modal"
 		app.View(bolt.ViewConstraints{
-			CallbackID: &callbackID,
+			CallbackID: callbackID,
 		}, func(args types.SlackViewMiddlewareArgs) error {
 			receivedArgs = args
 			return nil
@@ -570,7 +570,7 @@ func TestViewMiddlewareArguments(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -598,7 +598,7 @@ func TestOptionsMiddlewareArguments(t *testing.T) {
 
 		actionID := "select_1"
 		app.Options(bolt.OptionsConstraints{
-			ActionID: &actionID,
+			ActionID: actionID,
 		}, func(args bolt.SlackOptionsMiddlewareArgs) error {
 			receivedArgs = args
 			return nil
@@ -622,7 +622,7 @@ func TestOptionsMiddlewareArguments(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -682,7 +682,7 @@ func TestMiddlewareArgumentsAdvanced(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -729,7 +729,7 @@ func TestMiddlewareArgumentsAdvanced(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -772,7 +772,7 @@ func TestMiddlewareArgumentsAdvanced(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -807,7 +807,7 @@ func TestMiddlewareArgumentsRespond(t *testing.T) {
 
 		actionID := "button_1"
 		app.Action(bolt.ActionConstraints{
-			ActionID: &actionID,
+			ActionID: actionID,
 		}, func(args types.SlackActionMiddlewareArgs) error {
 			receivedArgs = args
 			return nil
@@ -835,7 +835,7 @@ func TestMiddlewareArgumentsRespond(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -849,7 +849,7 @@ func TestMiddlewareArgumentsRespond(t *testing.T) {
 
 		// Test respond function
 		err = receivedArgs.Respond(&types.RespondArguments{
-			Text: stringPtr("Button clicked!"),
+			Text: "Button clicked!",
 		})
 		require.NoError(t, err, "Respond should work with response_url")
 		assert.True(t, responseReceived, "Response should be sent to mock server")
@@ -866,7 +866,7 @@ func TestMiddlewareArgumentsRespond(t *testing.T) {
 
 		actionID := "button_1"
 		app.Action(bolt.ActionConstraints{
-			ActionID: &actionID,
+			ActionID: actionID,
 		}, func(args types.SlackActionMiddlewareArgs) error {
 			receivedArgs = args
 			return nil
@@ -901,7 +901,7 @@ func TestMiddlewareArgumentsRespond(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -912,7 +912,7 @@ func TestMiddlewareArgumentsRespond(t *testing.T) {
 
 		// Test respond with complex response object
 		response := &types.RespondArguments{
-			Text: stringPtr("Complex response"),
+			Text: "Complex response",
 			Blocks: []slack.Block{
 				&slack.SectionBlock{
 					Text: &slack.TextBlockObject{
@@ -921,7 +921,7 @@ func TestMiddlewareArgumentsRespond(t *testing.T) {
 					},
 				},
 			},
-			ResponseType: stringPtr("ephemeral"),
+			ResponseType: "ephemeral",
 		}
 
 		err = receivedArgs.Respond(response)
@@ -940,7 +940,7 @@ func TestMiddlewareArgumentsRespond(t *testing.T) {
 
 		callbackID := "modal_1"
 		app.View(bolt.ViewConstraints{
-			CallbackID: &callbackID,
+			CallbackID: callbackID,
 		}, func(args types.SlackViewMiddlewareArgs) error {
 			receivedArgs = args
 			return nil
@@ -973,7 +973,7 @@ func TestMiddlewareArgumentsRespond(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -1023,7 +1023,7 @@ func TestMiddlewareArgumentsLogger(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -1072,7 +1072,7 @@ func TestMiddlewareArgumentsLogger(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -1121,7 +1121,7 @@ func TestMiddlewareArgumentsClient(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -1138,10 +1138,10 @@ func TestMiddlewareArgumentsClient(t *testing.T) {
 		// Test with authorize function that doesn't return a user token
 		authorizeFn := func(ctx context.Context, source app.AuthorizeSourceData, body interface{}) (*app.AuthorizeResult, error) {
 			return &app.AuthorizeResult{
-				BotToken:  &fakeToken,
-				BotID:     stringPtr("B123456"),
-				BotUserID: stringPtr("U987654"),
-				TeamID:    stringPtr("T123456"),
+				BotToken:  fakeToken,
+				BotID:     "B123456",
+				BotUserID: "U987654",
+				TeamID:    "T123456",
 				// No UserToken provided
 			}, nil
 		}
@@ -1178,7 +1178,7 @@ func TestMiddlewareArgumentsClient(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -1252,7 +1252,7 @@ func TestMiddlewareArgumentsSay(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -1338,7 +1338,7 @@ func TestMiddlewareArgumentsSay(t *testing.T) {
 				Headers: map[string]string{
 					"Content-Type": "application/json",
 				},
-				Ack: func(response interface{}) error {
+				Ack: func(response types.AckResponse) error {
 					return nil
 				},
 			}
@@ -1393,7 +1393,7 @@ func TestMiddlewareArgumentsSay(t *testing.T) {
 				if args.Say != nil {
 
 					_, err := args.Say(&types.SayArguments{
-						Text: stringPtr("Complex message"),
+						Text: "Complex message",
 						Blocks: []slack.Block{
 							&slack.SectionBlock{
 								Text: &slack.TextBlockObject{
@@ -1441,7 +1441,7 @@ func TestMiddlewareArgumentsSay(t *testing.T) {
 				Headers: map[string]string{
 					"Content-Type": "application/json",
 				},
-				Ack: func(response interface{}) error {
+				Ack: func(response types.AckResponse) error {
 					return nil
 				},
 			}
@@ -1493,7 +1493,7 @@ func TestMiddlewareArgumentsSay(t *testing.T) {
 				Headers: map[string]string{
 					"Content-Type": "application/json",
 				},
-				Ack: func(response interface{}) error {
+				Ack: func(response types.AckResponse) error {
 					return nil
 				},
 			}
@@ -1535,7 +1535,7 @@ func TestMiddlewareArgumentsSay(t *testing.T) {
 				Headers: map[string]string{
 					"Content-Type": "application/json",
 				},
-				Ack: func(response interface{}) error {
+				Ack: func(response types.AckResponse) error {
 					return nil
 				},
 			}
@@ -1590,7 +1590,7 @@ func TestMiddlewareArgumentsSay(t *testing.T) {
 				Headers: map[string]string{
 					"Content-Type": "application/json",
 				},
-				Ack: func(response interface{}) error {
+				Ack: func(response types.AckResponse) error {
 					return nil
 				},
 			}
@@ -1650,7 +1650,7 @@ func TestMiddlewareArgumentsSay(t *testing.T) {
 				Headers: map[string]string{
 					"Content-Type": "application/json",
 				},
-				Ack: func(response interface{}) error {
+				Ack: func(response types.AckResponse) error {
 					return nil
 				},
 			}

@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 
+	bolt "github.com/Asafrose/bolt-go"
 	"github.com/Asafrose/bolt-go/pkg/app"
 	"github.com/Asafrose/bolt-go/pkg/types"
 	"github.com/samber/lo"
@@ -28,7 +29,7 @@ func main() {
 	boltApp, err := app.New(app.AppOptions{
 		Token:         lo.ToPtr(token),
 		SigningSecret: lo.ToPtr(signingSecret),
-		LogLevel:      lo.ToPtr(app.LogLevelDebug),
+		LogLevel:      lo.ToPtr(bolt.LogLevelDebug),
 	})
 	if err != nil {
 		log.Fatalf("Failed to create app: %v", err)
@@ -70,7 +71,7 @@ func main() {
 				// Use say function to respond
 				text := fmt.Sprintf("Hey there <@%s>!", args.Message.User)
 				_, err := args.Say(&types.SayArguments{
-					Text:   lo.ToPtr(text),
+					Text:   text,
 					Blocks: blocks,
 				})
 				return err
@@ -80,19 +81,19 @@ func main() {
 	})
 
 	// Listen to button clicks
-	boltApp.Action(types.ActionConstraints{ActionID: lo.ToPtr("button_click")}, func(args types.SlackActionMiddlewareArgs) error {
+	boltApp.Action(types.ActionConstraints{ActionID: "button_click"}, func(args types.SlackActionMiddlewareArgs) error {
 		// Acknowledge the action
 		if err := args.Ack(nil); err != nil {
 			return err
 		}
 
 		// Extract user ID from context
-		if args.Context != nil && args.Context.UserID != nil {
+		if args.Context != nil && args.Context.UserID != "" {
 			// Respond to the button click if say function is available
 			if args.Say != nil {
-				text := fmt.Sprintf("<@%s> clicked the button", *args.Context.UserID)
-				_, err := (*args.Say)(&types.SayArguments{
-					Text: lo.ToPtr(text),
+				text := fmt.Sprintf("<@%s> clicked the button", args.Context.UserID)
+				_, err := args.Say(&types.SayArguments{
+					Text: text,
 				})
 				return err
 			}

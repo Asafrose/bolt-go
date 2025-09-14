@@ -457,7 +457,7 @@ func TestConversationIDExtraction(t *testing.T) {
 	})
 }
 
-// Helper function to create string pointers
+// Temporary helper function for tests that haven't been updated yet
 func stringPtr(s string) *string {
 	return &s
 }

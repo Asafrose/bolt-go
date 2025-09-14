@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 
+	bolt "github.com/Asafrose/bolt-go"
 	"github.com/Asafrose/bolt-go/pkg/app"
 	"github.com/samber/lo"
 )
@@ -27,7 +28,7 @@ func main() {
 
 	// Initialize the app with Socket Mode and OAuth
 	boltApp, err := app.New(app.AppOptions{
-		LogLevel:      lo.ToPtr(app.LogLevelDebug),
+		LogLevel:      lo.ToPtr(bolt.LogLevelDebug),
 		SocketMode:    true,
 		AppToken:      lo.ToPtr(appToken),
 		SigningSecret: lo.ToPtr(signingSecret),

@@ -48,7 +48,7 @@ func TestOptionsRoutingComprehensive(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -99,7 +99,7 @@ func TestOptionsRoutingComprehensive(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -126,7 +126,7 @@ func TestOptionsRoutingComprehensive(t *testing.T) {
 		// Register handler with block ID constraint
 		blockID := "my_id"
 		app.Options(bolt.OptionsConstraints{
-			BlockID: &blockID,
+			BlockID: blockID,
 		}, func(args bolt.SlackOptionsMiddlewareArgs) error {
 			receivedArgs = args
 			handlerCalled = true
@@ -147,7 +147,7 @@ func TestOptionsRoutingComprehensive(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -188,7 +188,7 @@ func TestOptionsRoutingComprehensive(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -244,7 +244,7 @@ func TestOptionsRoutingComprehensive(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}

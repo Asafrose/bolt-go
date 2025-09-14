@@ -24,7 +24,7 @@ type AuthorizeSourceData = app.AuthorizeSourceData
 type AuthorizeResult = app.AuthorizeResult
 type ErrorHandler = app.ErrorHandler
 type ExtendedErrorHandler = app.ExtendedErrorHandler
-type LogLevel = app.LogLevel
+type LogLevel = types.LogLevel
 
 // App constructor
 var New = app.New
@@ -87,7 +87,6 @@ type ReceiverEvent = types.ReceiverEvent
 type ReceiverEndpoints = types.ReceiverEndpoints
 type HTTPReceiverOptions = types.HTTPReceiverOptions
 type SocketModeReceiverOptions = types.SocketModeReceiverOptions
-type ExpressReceiverOptions = types.ExpressReceiverOptions
 type AwsLambdaReceiverOptions = types.AwsLambdaReceiverOptions
 
 // Receiver constructors
@@ -200,10 +199,10 @@ var IgnoreSelf = middleware.IgnoreSelf
 
 // Constants
 const (
-	LogLevelDebug = app.LogLevelDebug
-	LogLevelInfo  = app.LogLevelInfo
-	LogLevelWarn  = app.LogLevelWarn
-	LogLevelError = app.LogLevelError
+	LogLevelDebug = types.LogLevelDebug
+	LogLevelInfo  = types.LogLevelInfo
+	LogLevelWarn  = types.LogLevelWarn
+	LogLevelError = types.LogLevelError
 )
 
 const (

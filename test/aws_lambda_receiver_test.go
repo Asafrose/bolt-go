@@ -3,6 +3,8 @@ package test
 import (
 	"context"
 	"encoding/json"
+	"log/slog"
+	"os"
 	"testing"
 
 	"github.com/Asafrose/bolt-go"
@@ -326,7 +328,7 @@ func TestAwsLambdaReceiverConfiguration(t *testing.T) {
 	})
 
 	t.Run("should handle logger configuration", func(t *testing.T) {
-		customLogger := "custom_logger"
+		customLogger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 
 		receiver := receivers.NewAwsLambdaReceiver(types.AwsLambdaReceiverOptions{
 			SigningSecret: fakeSigningSecret,

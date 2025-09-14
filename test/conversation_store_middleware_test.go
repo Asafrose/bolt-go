@@ -110,7 +110,7 @@ func TestConversationStoreMiddleware(t *testing.T) {
 		receiverEvent := types.ReceiverEvent{
 			Body:    []byte(eventBody),
 			Headers: map[string]string{"Content-Type": "application/json"},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -162,7 +162,7 @@ func TestConversationStoreMiddleware(t *testing.T) {
 		receiverEvent := types.ReceiverEvent{
 			Body:    []byte(eventBody),
 			Headers: map[string]string{"Content-Type": "application/json"},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -226,7 +226,7 @@ func TestConversationStoreMiddleware(t *testing.T) {
 		receiverEvent := types.ReceiverEvent{
 			Body:    []byte(eventBody),
 			Headers: map[string]string{"Content-Type": "application/json"},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -282,7 +282,7 @@ func TestConversationStoreMiddleware(t *testing.T) {
 		receiverEvent := types.ReceiverEvent{
 			Body:    []byte(eventBody),
 			Headers: map[string]string{"Content-Type": "application/json"},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -324,7 +324,7 @@ func TestConversationStoreMiddleware(t *testing.T) {
 		receiverEvent := types.ReceiverEvent{
 			Body:    []byte(eventBody),
 			Headers: map[string]string{"Content-Type": "application/json"},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -366,7 +366,7 @@ func TestConversationStoreMiddleware(t *testing.T) {
 		receiverEvent := types.ReceiverEvent{
 			Body:    []byte(eventBody),
 			Headers: map[string]string{"Content-Type": "application/json"},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -451,7 +451,7 @@ func TestConversationStoreMiddleware(t *testing.T) {
 				receiverEvent := types.ReceiverEvent{
 					Body:    []byte(tc.eventBody),
 					Headers: headers,
-					Ack: func(response interface{}) error {
+					Ack: func(response types.AckResponse) error {
 						return nil
 					},
 				}
@@ -523,7 +523,7 @@ func TestConversationStoreMiddleware(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}

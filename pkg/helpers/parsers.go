@@ -217,7 +217,7 @@ func ParseEventEnvelope(data map[string]interface{}) (types.EventEnvelope, error
 				if authMap, ok := authItem.(map[string]interface{}); ok {
 					auth := types.Authorization{}
 					if enterpriseID, ok := authMap["enterprise_id"].(string); ok {
-						auth.EnterpriseID = &enterpriseID
+						auth.EnterpriseID = enterpriseID
 					}
 					if teamID, ok := authMap["team_id"].(string); ok {
 						auth.TeamID = teamID

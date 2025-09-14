@@ -43,7 +43,7 @@ func TestBuiltinMiddlewareCore(t *testing.T) {
 				Headers: map[string]string{
 					"Content-Type": "application/json",
 				},
-				Ack: func(response interface{}) error { return nil },
+				Ack: func(response types.AckResponse) error { return nil },
 			}
 
 			ctx := context.Background()
@@ -62,7 +62,7 @@ func TestBuiltinMiddlewareCore(t *testing.T) {
 				Headers: map[string]string{
 					"Content-Type": "application/x-www-form-urlencoded",
 				},
-				Ack: func(response interface{}) error { return nil },
+				Ack: func(response types.AckResponse) error { return nil },
 			}
 
 			err = app.ProcessEvent(ctx, commandEvent)
@@ -98,7 +98,7 @@ func TestBuiltinMiddlewareCore(t *testing.T) {
 				Headers: map[string]string{
 					"Content-Type": "application/x-www-form-urlencoded",
 				},
-				Ack: func(response interface{}) error { return nil },
+				Ack: func(response types.AckResponse) error { return nil },
 			}
 
 			ctx := context.Background()
@@ -117,7 +117,7 @@ func TestBuiltinMiddlewareCore(t *testing.T) {
 				Headers: map[string]string{
 					"Content-Type": "application/json",
 				},
-				Ack: func(response interface{}) error { return nil },
+				Ack: func(response types.AckResponse) error { return nil },
 			}
 
 			err = app.ProcessEvent(ctx, actionEvent)
@@ -153,7 +153,7 @@ func TestBuiltinMiddlewareCore(t *testing.T) {
 				Headers: map[string]string{
 					"Content-Type": "application/json",
 				},
-				Ack: func(response interface{}) error { return nil },
+				Ack: func(response types.AckResponse) error { return nil },
 			}
 
 			ctx := context.Background()
@@ -172,7 +172,7 @@ func TestBuiltinMiddlewareCore(t *testing.T) {
 				Headers: map[string]string{
 					"Content-Type": "application/x-www-form-urlencoded",
 				},
-				Ack: func(response interface{}) error { return nil },
+				Ack: func(response types.AckResponse) error { return nil },
 			}
 
 			err = app.ProcessEvent(ctx, commandEvent)
@@ -194,7 +194,7 @@ func TestBuiltinMiddlewareCore(t *testing.T) {
 
 			// Set bot user ID in context manually (normally set by authorization)
 			app.Use(func(args bolt.AllMiddlewareArgs) error {
-				args.Context.BotUserID = stringPtr("B123456")
+				args.Context.BotUserID = "B123456"
 				return args.Next()
 			})
 
@@ -212,7 +212,7 @@ func TestBuiltinMiddlewareCore(t *testing.T) {
 				Headers: map[string]string{
 					"Content-Type": "application/json",
 				},
-				Ack: func(response interface{}) error {
+				Ack: func(response types.AckResponse) error {
 					return nil
 				},
 			}
@@ -247,7 +247,7 @@ func TestBuiltinMiddlewareCore(t *testing.T) {
 
 			// Set bot user ID in context
 			app.Use(func(args bolt.AllMiddlewareArgs) error {
-				args.Context.BotUserID = stringPtr("B123456")
+				args.Context.BotUserID = "B123456"
 				return args.Next()
 			})
 
@@ -265,7 +265,7 @@ func TestBuiltinMiddlewareCore(t *testing.T) {
 				Headers: map[string]string{
 					"Content-Type": "application/json",
 				},
-				Ack: func(response interface{}) error {
+				Ack: func(response types.AckResponse) error {
 					return nil
 				},
 			}
@@ -312,7 +312,7 @@ func TestBuiltinMiddlewareCore(t *testing.T) {
 				Headers: map[string]string{
 					"Content-Type": "application/json",
 				},
-				Ack: func(response interface{}) error {
+				Ack: func(response types.AckResponse) error {
 					return nil
 				},
 			}
@@ -359,7 +359,7 @@ func TestBuiltinMiddlewareCore(t *testing.T) {
 				Headers: map[string]string{
 					"Content-Type": "application/x-www-form-urlencoded",
 				},
-				Ack: func(response interface{}) error {
+				Ack: func(response types.AckResponse) error {
 					return nil
 				},
 			}

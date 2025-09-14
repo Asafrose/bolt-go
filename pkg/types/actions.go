@@ -77,10 +77,10 @@ func (fsa FunctionScopedAction) GetType() string {
 
 // ActionConstraints represents constraints for matching actions
 type ActionConstraints struct {
-	Type       *string `json:"type,omitempty"`
-	BlockID    *string `json:"block_id,omitempty"`
-	ActionID   *string `json:"action_id,omitempty"`
-	CallbackID *string `json:"callback_id,omitempty"`
+	Type       string `json:"type,omitempty"`
+	BlockID    string `json:"block_id,omitempty"`
+	ActionID   string `json:"action_id,omitempty"`
+	CallbackID string `json:"callback_id,omitempty"`
 	// RegExp support
 	BlockIDPattern    *regexp.Regexp `json:"-"`
 	ActionIDPattern   *regexp.Regexp `json:"-"`
@@ -95,7 +95,7 @@ type SlackActionMiddlewareArgs struct {
 	Body    SlackAction        `json:"body"`    // Strongly typed body (the full action request)
 	Respond RespondFn          `json:"-"`
 	Ack     AckFn[interface{}] `json:"-"`
-	Say     *SayFn             `json:"-"` // Optional, only for actions with channel context
+	Say     SayFn              `json:"-"` // Optional, only for actions with channel context
 }
 
 // DialogValidation represents validation errors for dialog submissions

@@ -75,7 +75,7 @@ func TestAppActionRouting(t *testing.T) {
 		// Register action handler
 		actionID := "button_1"
 		app.Action(bolt.ActionConstraints{
-			ActionID: &actionID,
+			ActionID: actionID,
 		}, func(args bolt.SlackActionMiddlewareArgs) error {
 			handlerCalled = true
 			return nil
@@ -87,7 +87,7 @@ func TestAppActionRouting(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -112,7 +112,7 @@ func TestAppActionRouting(t *testing.T) {
 		// Register action handler
 		blockID := "block_1"
 		app.Action(bolt.ActionConstraints{
-			BlockID: &blockID,
+			BlockID: blockID,
 		}, func(args bolt.SlackActionMiddlewareArgs) error {
 			handlerCalled = true
 			return nil
@@ -124,7 +124,7 @@ func TestAppActionRouting(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -149,7 +149,7 @@ func TestAppActionRouting(t *testing.T) {
 		// Register action handler
 		callbackID := "button_callback"
 		app.Action(bolt.ActionConstraints{
-			CallbackID: &callbackID,
+			CallbackID: callbackID,
 		}, func(args bolt.SlackActionMiddlewareArgs) error {
 			handlerCalled = true
 			return nil
@@ -161,7 +161,7 @@ func TestAppActionRouting(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -186,7 +186,7 @@ func TestAppActionRouting(t *testing.T) {
 		// Register action handler with different action_id
 		actionID := "different_button"
 		app.Action(bolt.ActionConstraints{
-			ActionID: &actionID,
+			ActionID: actionID,
 		}, func(args bolt.SlackActionMiddlewareArgs) error {
 			handlerCalled = true
 			return nil
@@ -198,7 +198,7 @@ func TestAppActionRouting(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -224,7 +224,7 @@ func TestAppActionRouting(t *testing.T) {
 		// Register action handler that captures action data
 		actionID := "button_1"
 		app.Action(bolt.ActionConstraints{
-			ActionID: &actionID,
+			ActionID: actionID,
 		}, func(args bolt.SlackActionMiddlewareArgs) error {
 			receivedAction = args.Action
 			receivedBody = args.Body
@@ -242,7 +242,7 @@ func TestAppActionRouting(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -275,8 +275,8 @@ func TestAppActionRouting(t *testing.T) {
 		actionID := "button_1"
 		blockID := "block_1"
 		app.Action(bolt.ActionConstraints{
-			ActionID: &actionID,
-			BlockID:  &blockID,
+			ActionID: actionID,
+			BlockID:  blockID,
 		}, func(args bolt.SlackActionMiddlewareArgs) error {
 			handlerCalled = true
 			return nil
@@ -288,7 +288,7 @@ func TestAppActionRouting(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -314,8 +314,8 @@ func TestAppActionRouting(t *testing.T) {
 		actionID := "button_1"
 		blockID := "different_block"
 		app.Action(bolt.ActionConstraints{
-			ActionID: &actionID,
-			BlockID:  &blockID,
+			ActionID: actionID,
+			BlockID:  blockID,
 		}, func(args bolt.SlackActionMiddlewareArgs) error {
 			handlerCalled = true
 			return nil
@@ -327,7 +327,7 @@ func TestAppActionRouting(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}

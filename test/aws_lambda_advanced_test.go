@@ -622,7 +622,7 @@ func TestAwsLambdaAdvanced(t *testing.T) {
 		// Add an action handler to handle the interactive component
 		actionID := "button_click"
 		app.Action(types.ActionConstraints{
-			ActionID: &actionID,
+			ActionID: actionID,
 		}, func(args types.SlackActionMiddlewareArgs) error {
 			return args.Ack(nil)
 		})

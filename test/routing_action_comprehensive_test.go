@@ -27,7 +27,7 @@ func TestActionRouting(t *testing.T) {
 
 		// Register handler with string action ID
 		constraints := bolt.ActionConstraints{
-			ActionID: stringPtr("submit_button"),
+			ActionID: "submit_button",
 		}
 
 		app.Action(constraints, func(args bolt.SlackActionMiddlewareArgs) error {
@@ -59,7 +59,7 @@ func TestActionRouting(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -119,7 +119,7 @@ func TestActionRouting(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -146,7 +146,7 @@ func TestActionRouting(t *testing.T) {
 
 		// Register handler with block ID constraint
 		constraints := bolt.ActionConstraints{
-			BlockID: stringPtr("approval_section"),
+			BlockID: "approval_section",
 		}
 
 		app.Action(constraints, func(args bolt.SlackActionMiddlewareArgs) error {
@@ -178,7 +178,7 @@ func TestActionRouting(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -205,7 +205,7 @@ func TestActionRouting(t *testing.T) {
 
 		// Register handler with type constraint
 		constraints := bolt.ActionConstraints{
-			Type: stringPtr("block_actions"),
+			Type: "block_actions",
 		}
 
 		app.Action(constraints, func(args bolt.SlackActionMiddlewareArgs) error {
@@ -236,7 +236,7 @@ func TestActionRouting(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -261,7 +261,7 @@ func TestActionRouting(t *testing.T) {
 		ackCalled := false
 
 		constraints := bolt.ActionConstraints{
-			ActionID: stringPtr("test_action"),
+			ActionID: "test_action",
 		}
 
 		app.Action(constraints, func(args bolt.SlackActionMiddlewareArgs) error {
@@ -298,7 +298,7 @@ func TestActionRouting(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -323,7 +323,7 @@ func TestActionRouting(t *testing.T) {
 		handlerCalled := false
 
 		constraints := bolt.ActionConstraints{
-			ActionID: stringPtr("function_action"),
+			ActionID: "function_action",
 		}
 
 		app.Action(constraints, func(args bolt.SlackActionMiddlewareArgs) error {
@@ -359,7 +359,7 @@ func TestActionRouting(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
-			Ack: func(response interface{}) error {
+			Ack: func(response types.AckResponse) error {
 				return nil
 			},
 		}
@@ -388,13 +388,10 @@ func TestActionRouting(t *testing.T) {
 		// In Go, this would typically be caught at compile time due to struct field validation
 		// But we can test the constraint validation logic
 
-		// Helper function to create string pointers
-		stringPtr := func(s string) *string { return &s }
-
 		// Test that valid constraints work
 		assert.NotPanics(t, func() {
 			app.Action(types.ActionConstraints{
-				ActionID: stringPtr("valid_action_id"),
+				ActionID: "valid_action_id",
 			}, func(args bolt.SlackActionMiddlewareArgs) error {
 				return nil
 			})
@@ -403,7 +400,7 @@ func TestActionRouting(t *testing.T) {
 		// Test constraint validation with block_id constraint
 		assert.NotPanics(t, func() {
 			app.Action(types.ActionConstraints{
-				BlockID: stringPtr("valid_block_id"),
+				BlockID: "valid_block_id",
 			}, func(args bolt.SlackActionMiddlewareArgs) error {
 				return nil
 			})
@@ -412,7 +409,7 @@ func TestActionRouting(t *testing.T) {
 		// Test constraint validation with type constraint
 		assert.NotPanics(t, func() {
 			app.Action(types.ActionConstraints{
-				Type: stringPtr("block_actions"),
+				Type: "block_actions",
 			}, func(args bolt.SlackActionMiddlewareArgs) error {
 				return nil
 			})

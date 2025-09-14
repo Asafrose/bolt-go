@@ -23,16 +23,6 @@ import (
 	"github.com/slack-go/slack"
 )
 
-// LogLevel represents logging levels
-type LogLevel int
-
-const (
-	LogLevelDebug LogLevel = iota
-	LogLevelInfo
-	LogLevelWarn
-	LogLevelError
-)
-
 // AppOptions represents configuration options for the App
 type AppOptions struct {
 	// Receiver configuration
@@ -67,8 +57,8 @@ type AppOptions struct {
 	Receiver types.Receiver `json:"-"`
 
 	// Logging
-	Logger   *slog.Logger `json:"-"`
-	LogLevel *LogLevel    `json:"log_level,omitempty"`
+	Logger   *slog.Logger    `json:"-"`
+	LogLevel *types.LogLevel `json:"log_level,omitempty"`
 
 	// Behavior
 	IgnoreSelf               *bool `json:"ignore_self,omitempty"`
@@ -85,22 +75,22 @@ type AppOptions struct {
 
 // AuthorizeSourceData represents data provided to authorization function
 type AuthorizeSourceData struct {
-	TeamID              *string `json:"team_id,omitempty"`
-	EnterpriseID        *string `json:"enterprise_id,omitempty"`
-	UserID              *string `json:"user_id,omitempty"`
-	ConversationID      *string `json:"conversation_id,omitempty"`
-	IsEnterpriseInstall bool    `json:"is_enterprise_install"`
+	TeamID              string `json:"team_id,omitempty"`
+	EnterpriseID        string `json:"enterprise_id,omitempty"`
+	UserID              string `json:"user_id,omitempty"`
+	ConversationID      string `json:"conversation_id,omitempty"`
+	IsEnterpriseInstall bool   `json:"is_enterprise_install"`
 }
 
 // AuthorizeResult represents the result of authorization
 type AuthorizeResult struct {
-	BotToken     *string                `json:"bot_token,omitempty"`
-	UserToken    *string                `json:"user_token,omitempty"`
-	BotID        *string                `json:"bot_id,omitempty"`
-	BotUserID    *string                `json:"bot_user_id,omitempty"`
-	UserID       *string                `json:"user_id,omitempty"`
-	TeamID       *string                `json:"team_id,omitempty"`
-	EnterpriseID *string                `json:"enterprise_id,omitempty"`
+	BotToken     string                 `json:"bot_token,omitempty"`
+	UserToken    string                 `json:"user_token,omitempty"`
+	BotID        string                 `json:"bot_id,omitempty"`
+	BotUserID    string                 `json:"bot_user_id,omitempty"`
+	UserID       string                 `json:"user_id,omitempty"`
+	TeamID       string                 `json:"team_id,omitempty"`
+	EnterpriseID string                 `json:"enterprise_id,omitempty"`
 	Custom       map[string]interface{} `json:"custom,omitempty"`
 }
 
@@ -115,15 +105,15 @@ type ExtendedErrorHandler func(ctx context.Context, err error, logger *slog.Logg
 
 // listenerConstraints holds the matching constraints for a listener
 type listenerConstraints struct {
-	eventType      *string
+	eventType      string
 	messagePattern interface{}
-	actionID       *string
-	blockID        *string
-	callbackID     *string
-	command        *string
-	shortcutType   *string
-	viewType       *string
-	actionType     *string // For action type constraints (e.g., "block_actions")
+	actionID       string
+	blockID        string
+	callbackID     string
+	command        string
+	shortcutType   string
+	viewType       string
+	actionType     string // For action type constraints (e.g., "block_actions")
 	// RegExp patterns
 	actionIDPattern   *regexp.Regexp
 	blockIDPattern    *regexp.Regexp
@@ -185,7 +175,7 @@ type App struct {
 	clientOptions            []slack.Option
 	clients                  map[string]*WebClientPool
 	receiver                 types.Receiver
-	logLevel                 LogLevel
+	logLevel                 types.LogLevel
 	authorize                AuthorizeFunc
 	middleware               []types.Middleware[types.AllMiddlewareArgs]
 	listeners                [][]types.Middleware[types.AllMiddlewareArgs] // Deprecated
@@ -240,9 +230,9 @@ func New(options AppOptions) (*App, error) {
 	if options.LogLevel != nil {
 		app.logLevel = *options.LogLevel
 	} else if options.DeveloperMode {
-		app.logLevel = LogLevelDebug
+		app.logLevel = types.LogLevelDebug
 	} else {
-		app.logLevel = LogLevelInfo
+		app.logLevel = types.LogLevelInfo
 	}
 
 	// Set up client options
@@ -280,9 +270,9 @@ func New(options AppOptions) (*App, error) {
 		app.argAuthorize = options.Authorize
 		if options.Token != nil {
 			app.argAuthorization = &AuthorizeResult{
-				BotID:     options.BotID,
-				BotUserID: options.BotUserID,
-				BotToken:  options.Token,
+				BotID:     getStringValue(options.BotID),
+				BotUserID: getStringValue(options.BotUserID),
+				BotToken:  *options.Token,
 			}
 		}
 		app.initialized = false
@@ -363,7 +353,7 @@ func (a *App) Event(eventType string, middleware ...types.Middleware[types.Slack
 	listener := &listenerEntry{
 		eventType: helpers.IncomingEventTypeEvent,
 		constraints: listenerConstraints{
-			eventType: &eventType,
+			eventType: eventType,
 		},
 		middleware: make([]types.Middleware[types.AllMiddlewareArgs], 0),
 	}
@@ -409,7 +399,7 @@ func (a *App) Message(pattern interface{}, middleware ...types.Middleware[types.
 	listener := &listenerEntry{
 		eventType: helpers.IncomingEventTypeEvent,
 		constraints: listenerConstraints{
-			eventType:      stringPtr("message"),
+			eventType:      "message",
 			messagePattern: pattern,
 		},
 		middleware: make([]types.Middleware[types.AllMiddlewareArgs], 0),
@@ -462,7 +452,7 @@ func (a *App) Command(command string, middleware ...types.Middleware[types.Slack
 	listener := &listenerEntry{
 		eventType: helpers.IncomingEventTypeCommand,
 		constraints: listenerConstraints{
-			command: &command,
+			command: command,
 		},
 		middleware: make([]types.Middleware[types.AllMiddlewareArgs], 0),
 	}
@@ -526,7 +516,7 @@ func (a *App) Shortcut(constraints types.ShortcutConstraints, middleware ...type
 // ShortcutString adds a listener for shortcuts matching a callback ID string
 func (a *App) ShortcutString(callbackID string, middleware ...types.Middleware[types.SlackShortcutMiddlewareArgs]) *App {
 	return a.Shortcut(types.ShortcutConstraints{
-		CallbackID: &callbackID,
+		CallbackID: callbackID,
 	}, middleware...)
 }
 
@@ -580,7 +570,7 @@ func (a *App) View(constraints types.ViewConstraints, middleware ...types.Middle
 // ViewString adds a listener for views matching a callback ID string
 func (a *App) ViewString(callbackID string, middleware ...types.Middleware[types.SlackViewMiddlewareArgs]) *App {
 	return a.View(types.ViewConstraints{
-		CallbackID: &callbackID,
+		CallbackID: callbackID,
 	}, middleware...)
 }
 
@@ -634,7 +624,7 @@ func (a *App) Options(constraints types.OptionsConstraints, middleware ...types.
 // OptionsString adds a listener for options matching an action ID string
 func (a *App) OptionsString(actionID string, middleware ...types.Middleware[types.SlackOptionsMiddlewareArgs]) *App {
 	return a.Options(types.OptionsConstraints{
-		ActionID: &actionID,
+		ActionID: actionID,
 	}, middleware...)
 }
 
@@ -720,8 +710,8 @@ func (a *App) Function(callbackID string, middleware ...interface{}) *App {
 	listener := &listenerEntry{
 		eventType: helpers.IncomingEventTypeEvent,
 		constraints: listenerConstraints{
-			eventType:  stringPtr("function_executed"),
-			callbackID: &callbackID,
+			eventType:  "function_executed",
+			callbackID: callbackID,
 		},
 		middleware: make([]types.Middleware[types.AllMiddlewareArgs], 0),
 	}
@@ -924,8 +914,11 @@ func (a *App) initReceiver(options AppOptions) (types.Receiver, error) {
 		receiverOptions := types.SocketModeReceiverOptions{
 			AppToken:         *options.AppToken,
 			Logger:           options.Logger,
-			LogLevel:         options.LogLevel,
+			LogLevel:         types.LogLevelInfo, // Default value
 			CustomProperties: make(map[string]interface{}),
+		}
+		if options.LogLevel != nil {
+			receiverOptions.LogLevel = *options.LogLevel
 		}
 
 		// Create the actual Socket Mode receiver
@@ -959,9 +952,9 @@ func (a *App) initAuthorize(token *string, authorize AuthorizeFunc, botID, botUs
 		// Single workspace authorization
 		return func(ctx context.Context, source AuthorizeSourceData, body interface{}) (*AuthorizeResult, error) {
 			return &AuthorizeResult{
-				BotToken:     token,
-				BotID:        botID,
-				BotUserID:    botUserID,
+				BotToken:     getStringValue(token),
+				BotID:        getStringValue(botID),
+				BotUserID:    getStringValue(botUserID),
 				TeamID:       source.TeamID,
 				EnterpriseID: source.EnterpriseID,
 				UserID:       source.UserID,
@@ -1085,8 +1078,8 @@ func (a *App) wrapOptionsMiddleware(m types.Middleware[types.SlackOptionsMiddlew
 
 func (a *App) getClientForContext(context *types.Context) *slack.Client {
 	// Return appropriate client based on context
-	if context.BotToken != nil {
-		return a.getOrCreateClient(*context.BotToken)
+	if context.BotToken != "" {
+		return a.getOrCreateClient(context.BotToken)
 	}
 	return a.Client
 }
@@ -1111,30 +1104,30 @@ func (a *App) buildAuthorizationSource(eventType helpers.IncomingEventType, conv
 
 	source := AuthorizeSourceData{
 		IsEnterpriseInstall: isEnterpriseInstall,
-		ConversationID:      conversationID,
+		ConversationID:      getStringValue(conversationID),
 	}
 
 	// Extract team_id based on event type
 	switch eventType {
 	case helpers.IncomingEventTypeEvent:
 		if teamID := helpers.ExtractTeamID(body); teamID != nil {
-			source.TeamID = teamID
+			source.TeamID = *teamID
 		}
 		if enterpriseID := helpers.ExtractEnterpriseID(body); enterpriseID != nil {
-			source.EnterpriseID = enterpriseID
+			source.EnterpriseID = *enterpriseID
 		}
 		if userID := helpers.ExtractUserID(body); userID != nil {
-			source.UserID = userID
+			source.UserID = *userID
 		}
 	case helpers.IncomingEventTypeCommand:
 		if teamID, exists := parsed["team_id"]; exists {
 			if teamIDStr, ok := teamID.(string); ok {
-				source.TeamID = &teamIDStr
+				source.TeamID = teamIDStr
 			}
 		}
 		if userID, exists := parsed["user_id"]; exists {
 			if userIDStr, ok := userID.(string); ok {
-				source.UserID = &userIDStr
+				source.UserID = userIDStr
 			}
 		}
 	default:
@@ -1143,7 +1136,7 @@ func (a *App) buildAuthorizationSource(eventType helpers.IncomingEventType, conv
 			if teamMap, ok := team.(map[string]interface{}); ok {
 				if id, exists := teamMap["id"]; exists {
 					if idStr, ok := id.(string); ok {
-						source.TeamID = &idStr
+						source.TeamID = idStr
 					}
 				}
 			}
@@ -1152,12 +1145,12 @@ func (a *App) buildAuthorizationSource(eventType helpers.IncomingEventType, conv
 			if userMap, ok := user.(map[string]interface{}); ok {
 				if id, exists := userMap["id"]; exists {
 					if idStr, ok := id.(string); ok {
-						source.UserID = &idStr
+						source.UserID = idStr
 					}
 				}
 				if teamID, exists := userMap["team_id"]; exists {
-					if teamIDStr, ok := teamID.(string); ok && source.TeamID == nil {
-						source.TeamID = &teamIDStr
+					if teamIDStr, ok := teamID.(string); ok && source.TeamID == "" {
+						source.TeamID = teamIDStr
 					}
 				}
 			}
@@ -1194,10 +1187,10 @@ func (a *App) buildEventContext(authResult *AuthorizeResult, event types.Receive
 	}
 
 	// Add retry information if present
-	if event.RetryNum != nil {
+	if event.RetryNum != 0 {
 		context.RetryNum = event.RetryNum
 	}
-	if event.RetryReason != nil {
+	if event.RetryReason != "" {
 		context.RetryReason = event.RetryReason
 	}
 
@@ -1205,7 +1198,7 @@ func (a *App) buildEventContext(authResult *AuthorizeResult, event types.Receive
 	parsed := helpers.ParseRequestBody(event.Body)
 	if functionExecutionID, exists := parsed["function_execution_id"]; exists {
 		if functionExecutionIDStr, ok := functionExecutionID.(string); ok {
-			context.FunctionExecutionID = &functionExecutionIDStr
+			context.FunctionExecutionID = functionExecutionIDStr
 		}
 	}
 
@@ -1239,7 +1232,7 @@ func (a *App) buildMiddlewareArgs(ctx context.Context, eventType helpers.Incomin
 
 	// Create say function if there's a conversation context
 	var sayFn types.SayFn
-	if appContext.BotToken != nil {
+	if appContext.BotToken != "" {
 		client := a.getClientForContext(appContext)
 		sayFn = a.createSayFunction(client, appContext)
 	}
@@ -1321,7 +1314,7 @@ func (a *App) buildMiddlewareArgs(ctx context.Context, eventType helpers.Incomin
 			Body:              bodyAction, // Strongly typed body
 			Respond:           respondFn,
 			Ack:               a.createActionAckFunction(event.Ack),
-			Say:               &sayFn,
+			Say:               sayFn,
 		}
 		// Store the full args in context for wrapper functions
 		baseArgs.Context.Custom["middlewareArgs"] = actionArgs
@@ -1574,13 +1567,13 @@ func (a *App) createSayFunction(client *slack.Client, context *types.Context) ty
 			return &types.SayResponse{}, err
 
 		case types.SayArguments:
-			if msg.Channel != nil {
-				channelID = *msg.Channel
+			if msg.Channel != "" {
+				channelID = msg.Channel
 			}
 
 			var options []slack.MsgOption
-			if msg.Text != nil {
-				options = append(options, slack.MsgOptionText(*msg.Text, false))
+			if msg.Text != "" {
+				options = append(options, slack.MsgOptionText(msg.Text, false))
 			}
 			if len(msg.Blocks) > 0 {
 				options = append(options, slack.MsgOptionBlocks(msg.Blocks...))
@@ -1588,8 +1581,8 @@ func (a *App) createSayFunction(client *slack.Client, context *types.Context) ty
 			if len(msg.Attachments) > 0 {
 				options = append(options, slack.MsgOptionAttachments(msg.Attachments...))
 			}
-			if msg.ThreadTS != nil {
-				options = append(options, slack.MsgOptionTS(*msg.ThreadTS))
+			if msg.ThreadTS != "" {
+				options = append(options, slack.MsgOptionTS(msg.ThreadTS))
 			}
 			if msg.Metadata != nil {
 				options = append(options, slack.MsgOptionMetadata(*msg.Metadata))
@@ -1600,13 +1593,13 @@ func (a *App) createSayFunction(client *slack.Client, context *types.Context) ty
 
 		case *types.SayArguments:
 			// Handle pointer to SayArguments
-			if msg.Channel != nil {
-				channelID = *msg.Channel
+			if msg.Channel != "" {
+				channelID = msg.Channel
 			}
 
 			var options []slack.MsgOption
-			if msg.Text != nil {
-				options = append(options, slack.MsgOptionText(*msg.Text, false))
+			if msg.Text != "" {
+				options = append(options, slack.MsgOptionText(msg.Text, false))
 			}
 			if len(msg.Blocks) > 0 {
 				options = append(options, slack.MsgOptionBlocks(msg.Blocks...))
@@ -1614,8 +1607,8 @@ func (a *App) createSayFunction(client *slack.Client, context *types.Context) ty
 			if len(msg.Attachments) > 0 {
 				options = append(options, slack.MsgOptionAttachments(msg.Attachments...))
 			}
-			if msg.ThreadTS != nil {
-				options = append(options, slack.MsgOptionTS(*msg.ThreadTS))
+			if msg.ThreadTS != "" {
+				options = append(options, slack.MsgOptionTS(msg.ThreadTS))
 			}
 			if msg.Metadata != nil {
 				options = append(options, slack.MsgOptionMetadata(*msg.Metadata))
@@ -1692,48 +1685,77 @@ func (a *App) createRespondFunction(responseURL string) types.RespondFn {
 func (a *App) createAckFunction(event types.ReceiverEvent) types.AckFn[interface{}] {
 	return func(response *interface{}) error {
 		if response != nil {
-			return event.Ack(*response)
+			ackResp := a.convertToAckResponse(*response)
+			return event.Ack(ackResp)
 		}
 		return event.Ack(nil)
 	}
 }
 
 // createCommandAckFunction creates an ack function for commands
-func (a *App) createCommandAckFunction(receiverAck func(response interface{}) error) types.AckFn[types.CommandResponse] {
+func (a *App) createCommandAckFunction(receiverAck func(response types.AckResponse) error) types.AckFn[types.CommandResponse] {
 	return func(response *types.CommandResponse) error {
-		return receiverAck(response)
+		ackResp := a.convertToAckResponse(response)
+		return receiverAck(ackResp)
 	}
 }
 
 // createViewAckFunction creates an ack function for views
-func (a *App) createViewAckFunction(receiverAck func(response interface{}) error) types.AckFn[types.ViewResponse] {
+func (a *App) createViewAckFunction(receiverAck func(response types.AckResponse) error) types.AckFn[types.ViewResponse] {
 	return func(response *types.ViewResponse) error {
-		return receiverAck(response)
+		ackResp := a.convertToAckResponse(response)
+		return receiverAck(ackResp)
 	}
 }
 
 // createOptionsAckFunction creates an ack function for options
-func (a *App) createOptionsAckFunction(receiverAck func(response interface{}) error) types.AckFn[types.OptionsResponse] {
+func (a *App) createOptionsAckFunction(receiverAck func(response types.AckResponse) error) types.AckFn[types.OptionsResponse] {
 	return func(response *types.OptionsResponse) error {
-		return receiverAck(response)
+		ackResp := a.convertToAckResponse(response)
+		return receiverAck(ackResp)
+	}
+}
+
+// convertToAckResponse converts an interface{} to AckResponse
+func (a *App) convertToAckResponse(response interface{}) types.AckResponse {
+	if response == nil {
+		return types.AckVoid{}
+	}
+
+	switch resp := response.(type) {
+	case string:
+		return types.AckString(resp)
+	case types.SayArguments:
+		return resp // SayArguments implements AckResponse
+	case types.RespondArguments:
+		return resp // RespondArguments implements AckResponse
+	case types.AckResponse:
+		return resp
+	default:
+		// For other types that don't implement AckResponse, we need to handle them
+		// This is a fallback that might need adjustment based on actual usage
+		return types.AckString(fmt.Sprintf("%v", resp))
 	}
 }
 
 // createEventAckFunction creates an ack function for events
-func (a *App) createEventAckFunction(receiverAck func(response interface{}) error) types.AckFn[interface{}] {
+func (a *App) createEventAckFunction(receiverAck func(response types.AckResponse) error) types.AckFn[interface{}] {
 	return func(response *interface{}) error {
 		if response != nil {
-			return receiverAck(*response)
+			// Convert interface{} to AckResponse
+			ackResp := a.convertToAckResponse(*response)
+			return receiverAck(ackResp)
 		}
 		return receiverAck(nil)
 	}
 }
 
 // createActionAckFunction creates an ack function for actions
-func (a *App) createActionAckFunction(receiverAck func(response interface{}) error) types.AckFn[interface{}] {
+func (a *App) createActionAckFunction(receiverAck func(response types.AckResponse) error) types.AckFn[interface{}] {
 	return func(response *interface{}) error {
 		if response != nil {
-			return receiverAck(*response)
+			ackResp := a.convertToAckResponse(*response)
+			return receiverAck(ackResp)
 		}
 		return receiverAck(nil)
 	}
@@ -1787,8 +1809,8 @@ func (a *App) matchesEventConstraints(listener *listenerEntry, middlewareArgs in
 	}
 
 	// Check event type constraint (string)
-	if listener.constraints.eventType != nil {
-		if eventTypeStr != *listener.constraints.eventType {
+	if listener.constraints.eventType != "" {
+		if eventTypeStr != listener.constraints.eventType {
 			return false
 		}
 	}
@@ -1810,13 +1832,13 @@ func (a *App) matchesEventConstraints(listener *listenerEntry, middlewareArgs in
 	}
 
 	// Check callback ID constraint for function_executed events
-	if listener.constraints.callbackID != nil && eventTypeStr == "function_executed" {
+	if listener.constraints.callbackID != "" && eventTypeStr == "function_executed" {
 		if eventMap != nil {
 			if function, exists := eventMap["function"]; exists {
 				if functionMap, ok := function.(map[string]interface{}); ok {
 					if callbackID, exists := functionMap["callback_id"]; exists {
 						if callbackIDStr, ok := callbackID.(string); ok {
-							return callbackIDStr == *listener.constraints.callbackID
+							return callbackIDStr == listener.constraints.callbackID
 						}
 					}
 				}
@@ -1836,7 +1858,7 @@ func (a *App) matchesActionConstraints(listener *listenerEntry, middlewareArgs i
 	}
 
 	// Check action type constraint first (e.g., "block_actions")
-	if listener.constraints.actionType != nil {
+	if listener.constraints.actionType != "" {
 		bodyMap, err := helpers.ExtractRawDataFromSlackAction(actionArgs.Body)
 		if err != nil {
 			return false
@@ -1848,13 +1870,13 @@ func (a *App) matchesActionConstraints(listener *listenerEntry, middlewareArgs i
 		}
 
 		actionTypeStr, ok := actionType.(string)
-		if !ok || actionTypeStr != *listener.constraints.actionType {
+		if !ok || actionTypeStr != listener.constraints.actionType {
 			return false
 		}
 	}
 
 	// If there are no specific field constraints, match on type only
-	if listener.constraints.actionID == nil && listener.constraints.blockID == nil && listener.constraints.callbackID == nil &&
+	if listener.constraints.actionID == "" && listener.constraints.blockID == "" && listener.constraints.callbackID == "" &&
 		listener.constraints.actionIDPattern == nil && listener.constraints.blockIDPattern == nil && listener.constraints.callbackIDPattern == nil {
 		return true
 	}
@@ -1865,7 +1887,7 @@ func (a *App) matchesActionConstraints(listener *listenerEntry, middlewareArgs i
 	}
 
 	// Check action_id constraint (string or regexp)
-	if listener.constraints.actionID != nil {
+	if listener.constraints.actionID != "" {
 		actionID, exists := actionMap["action_id"]
 		if !exists {
 			return false
@@ -1874,7 +1896,7 @@ func (a *App) matchesActionConstraints(listener *listenerEntry, middlewareArgs i
 		if !ok {
 			return false
 		}
-		if actionIDStr != *listener.constraints.actionID {
+		if actionIDStr != listener.constraints.actionID {
 			return false
 		}
 	} else if listener.constraints.actionIDPattern != nil {
@@ -1892,7 +1914,7 @@ func (a *App) matchesActionConstraints(listener *listenerEntry, middlewareArgs i
 	}
 
 	// Check block_id constraint (string or regexp)
-	if listener.constraints.blockID != nil {
+	if listener.constraints.blockID != "" {
 		blockID, exists := actionMap["block_id"]
 		if !exists {
 			return false
@@ -1901,7 +1923,7 @@ func (a *App) matchesActionConstraints(listener *listenerEntry, middlewareArgs i
 		if !ok {
 			return false
 		}
-		if blockIDStr != *listener.constraints.blockID {
+		if blockIDStr != listener.constraints.blockID {
 			return false
 		}
 	} else if listener.constraints.blockIDPattern != nil {
@@ -1919,12 +1941,12 @@ func (a *App) matchesActionConstraints(listener *listenerEntry, middlewareArgs i
 	}
 
 	// Check callback_id constraint (string or regexp) for legacy actions
-	if listener.constraints.callbackID != nil {
+	if listener.constraints.callbackID != "" {
 		// Check in payload first
 		if bodyMap, err := helpers.ExtractRawDataFromSlackAction(actionArgs.Body); err == nil {
 			if callbackID, exists := bodyMap["callback_id"]; exists {
 				callbackIDStr, ok := callbackID.(string)
-				if ok && callbackIDStr == *listener.constraints.callbackID {
+				if ok && callbackIDStr == listener.constraints.callbackID {
 					return true
 				}
 			}
@@ -1954,8 +1976,8 @@ func (a *App) matchesCommandConstraints(listener *listenerEntry, middlewareArgs 
 	}
 
 	// Check command constraint (string)
-	if listener.constraints.command != nil {
-		if commandArgs.Command.Command != *listener.constraints.command {
+	if listener.constraints.command != "" {
+		if commandArgs.Command.Command != listener.constraints.command {
 			return false
 		}
 	}
@@ -1991,8 +2013,8 @@ func (a *App) matchesShortcutConstraints(listener *listenerEntry, middlewareArgs
 	}
 
 	// Check callback_id constraint (string)
-	if listener.constraints.callbackID != nil {
-		if callbackIDStr != *listener.constraints.callbackID {
+	if listener.constraints.callbackID != "" {
+		if callbackIDStr != listener.constraints.callbackID {
 			return false
 		}
 	}
@@ -2005,13 +2027,13 @@ func (a *App) matchesShortcutConstraints(listener *listenerEntry, middlewareArgs
 	}
 
 	// Check shortcut type constraint
-	if listener.constraints.shortcutType != nil {
+	if listener.constraints.shortcutType != "" {
 		shortcutType, exists := bodyMap["type"]
 		if !exists {
 			return false
 		}
 		shortcutTypeStr, ok := shortcutType.(string)
-		if !ok || shortcutTypeStr != *listener.constraints.shortcutType {
+		if !ok || shortcutTypeStr != listener.constraints.shortcutType {
 			return false
 		}
 	}
@@ -2032,13 +2054,13 @@ func (a *App) matchesViewConstraints(listener *listenerEntry, middlewareArgs int
 	}
 
 	// Check view type constraint
-	if listener.constraints.viewType != nil {
+	if listener.constraints.viewType != "" {
 		viewType, exists := bodyMap["type"]
 		if !exists {
 			return false
 		}
 		viewTypeStr, ok := viewType.(string)
-		if !ok || viewTypeStr != *listener.constraints.viewType {
+		if !ok || viewTypeStr != listener.constraints.viewType {
 			return false
 		}
 	}
@@ -2056,8 +2078,8 @@ func (a *App) matchesViewConstraints(listener *listenerEntry, middlewareArgs int
 	}
 
 	// Check callback_id constraint (string)
-	if listener.constraints.callbackID != nil {
-		if callbackIDStr != *listener.constraints.callbackID {
+	if listener.constraints.callbackID != "" {
+		if callbackIDStr != listener.constraints.callbackID {
 			return false
 		}
 	}
@@ -2093,8 +2115,8 @@ func (a *App) matchesOptionsConstraints(listener *listenerEntry, middlewareArgs 
 	}
 
 	// Check action_id constraint (string)
-	if listener.constraints.actionID != nil {
-		if actionIDStr != *listener.constraints.actionID {
+	if listener.constraints.actionID != "" {
+		if actionIDStr != listener.constraints.actionID {
 			return false
 		}
 	}
@@ -2107,13 +2129,13 @@ func (a *App) matchesOptionsConstraints(listener *listenerEntry, middlewareArgs 
 	}
 
 	// Check block_id constraint
-	if listener.constraints.blockID != nil {
+	if listener.constraints.blockID != "" {
 		blockID, exists := bodyMap["block_id"]
 		if !exists {
 			return false
 		}
 		blockIDStr, ok := blockID.(string)
-		if !ok || blockIDStr != *listener.constraints.blockID {
+		if !ok || blockIDStr != listener.constraints.blockID {
 			return false
 		}
 	}
@@ -2127,7 +2149,10 @@ func (a *App) listenerMatches(listenerChain []types.Middleware[types.AllMiddlewa
 	return true
 }
 
-// Helper function to create string pointers
-func stringPtr(s string) *string {
-	return &s
+// Helper function to safely dereference string pointers
+func getStringValue(s *string) string {
+	if s != nil {
+		return *s
+	}
+	return ""
 }

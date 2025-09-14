@@ -30,17 +30,17 @@ type EventEnvelope struct {
 
 // Authorization represents an authorization in the event envelope
 type Authorization struct {
-	EnterpriseID        *string `json:"enterprise_id,omitempty"`
-	TeamID              string  `json:"team_id"`
-	UserID              string  `json:"user_id"`
-	IsBot               bool    `json:"is_bot"`
-	IsEnterpriseInstall bool    `json:"is_enterprise_install"`
+	EnterpriseID        string `json:"enterprise_id,omitempty"`
+	TeamID              string `json:"team_id"`
+	UserID              string `json:"user_id"`
+	IsBot               bool   `json:"is_bot"`
+	IsEnterpriseInstall bool   `json:"is_enterprise_install"`
 }
 
 // EventConstraints represents constraints for matching events
 type EventConstraints struct {
-	Type    *string `json:"type,omitempty"`
-	Subtype *string `json:"subtype,omitempty"`
+	Type    string `json:"type,omitempty"`
+	Subtype string `json:"subtype,omitempty"`
 	// RegExp support
 	TypePattern *regexp.Regexp `json:"-"`
 }
@@ -59,7 +59,7 @@ type SlackEventMiddlewareArgs struct {
 type MessageEvent struct {
 	slackevents.MessageEvent
 	// Additional fields that might be needed
-	BotID      *string     `json:"bot_id,omitempty"`
+	BotID      string      `json:"bot_id,omitempty"`
 	BotProfile *BotProfile `json:"bot_profile,omitempty"`
 }
 
@@ -75,9 +75,9 @@ type BotProfile struct {
 
 // MessageConstraints represents constraints for matching messages
 type MessageConstraints struct {
-	Pattern       *string `json:"pattern,omitempty"`
-	Subtype       *string `json:"subtype,omitempty"`
-	DirectMention bool    `json:"direct_mention"`
+	Pattern       string `json:"pattern,omitempty"`
+	Subtype       string `json:"subtype,omitempty"`
+	DirectMention bool   `json:"direct_mention"`
 	// RegExp support
 	PatternRegexp *regexp.Regexp `json:"-"`
 }

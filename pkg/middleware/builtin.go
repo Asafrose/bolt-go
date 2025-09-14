@@ -213,16 +213,16 @@ func IgnoreSelf() types.Middleware[types.AllMiddlewareArgs] {
 				// Check for bot messages first
 				if eventArgs.Message != nil {
 					// Look for an event that is identified as a bot message from the same bot ID as this app
-					if eventArgs.Message.SubType == "bot_message" && botID != nil {
-						// Check both the embedded BotID (string) and the additional BotID (*string) field
+					if eventArgs.Message.SubType == "bot_message" && botID != "" {
+						// Check both the embedded BotID (string) and the additional BotID (string) field
 						messageBotID := ""
 						if eventArgs.Message.MessageEvent.BotID != "" {
 							messageBotID = eventArgs.Message.MessageEvent.BotID
-						} else if eventArgs.Message.BotID != nil {
-							messageBotID = *eventArgs.Message.BotID
+						} else if eventArgs.Message.BotID != "" {
+							messageBotID = eventArgs.Message.BotID
 						}
 
-						if messageBotID != "" && messageBotID == *botID {
+						if messageBotID != "" && messageBotID == botID {
 							return nil // Skip processing
 						}
 					}
@@ -232,7 +232,7 @@ func IgnoreSelf() types.Middleware[types.AllMiddlewareArgs] {
 				// However, some events still must be fired, because they can make sense
 				eventsWhichShouldBeKept := []string{"member_joined_channel", "member_left_channel"}
 
-				if botUserID != nil {
+				if botUserID != "" {
 					var eventMap map[string]interface{}
 					if genericEvent, ok := eventArgs.Event.(*helpers.GenericSlackEvent); ok {
 						eventMap = genericEvent.RawData
@@ -244,7 +244,7 @@ func IgnoreSelf() types.Middleware[types.AllMiddlewareArgs] {
 					}
 
 					if eventMap != nil {
-						if eventUserID := ExtractUserFromEvent(eventMap); eventUserID != nil && *eventUserID == *botUserID {
+						if eventUserID := ExtractUserFromEvent(eventMap); eventUserID != nil && *eventUserID == botUserID {
 							// Check if this event type should be kept
 							if eventType, exists := eventMap["type"]; exists {
 								if eventTypeStr, ok := eventType.(string); ok {
@@ -273,7 +273,7 @@ func IgnoreSelf() types.Middleware[types.AllMiddlewareArgs] {
 func DirectMention() types.Middleware[types.AllMiddlewareArgs] {
 	return func(args types.AllMiddlewareArgs) error {
 		// Get bot user ID from context
-		if args.Context == nil || args.Context.BotUserID == nil {
+		if args.Context == nil || args.Context.BotUserID == "" {
 			// Cannot perform direct mention matching without bot user ID
 			return errors.NewContextMissingPropertyError("botUserId", "Cannot match direct mentions of the app without a bot user ID. Ensure authorize callback returns a botUserId.")
 		}
@@ -288,7 +288,7 @@ func DirectMention() types.Middleware[types.AllMiddlewareArgs] {
 					mentionPattern := regexp.MustCompile(`^<@([^>|]+)(?:\|([^>]+))?>`)
 					matches := mentionPattern.FindStringSubmatch(text)
 
-					if len(matches) >= 2 && matches[1] == *args.Context.BotUserID {
+					if len(matches) >= 2 && matches[1] == args.Context.BotUserID {
 						// Message starts with bot mention, continue processing
 						return args.Next()
 					}

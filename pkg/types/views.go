@@ -52,10 +52,10 @@ type ResponseURL struct {
 
 // ViewConstraints represents constraints for matching views
 type ViewConstraints struct {
-	Type       *string `json:"type,omitempty"`
-	CallbackID *string `json:"callback_id,omitempty"`
-	ViewID     *string `json:"view_id,omitempty"`
-	ExternalID *string `json:"external_id,omitempty"`
+	Type       string `json:"type,omitempty"`
+	CallbackID string `json:"callback_id,omitempty"`
+	ViewID     string `json:"view_id,omitempty"`
+	ExternalID string `json:"external_id,omitempty"`
 	// RegExp support
 	CallbackIDPattern *regexp.Regexp `json:"-"`
 	ViewIDPattern     *regexp.Regexp `json:"-"`
