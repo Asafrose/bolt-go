@@ -47,6 +47,9 @@ type SlackViewMiddlewareArgs = types.SlackViewMiddlewareArgs
 type SlackOptionsMiddlewareArgs = types.SlackOptionsMiddlewareArgs
 type SlackCustomFunctionMiddlewareArgs = types.SlackCustomFunctionMiddlewareArgs
 
+// Middleware options types
+type SlackEventMiddlewareArgsOptions = middleware.SlackEventMiddlewareArgsOptions
+
 // Constraint types
 type ActionConstraints = types.ActionConstraints
 type EventConstraints = types.EventConstraints
@@ -196,6 +199,11 @@ var MatchCommandName = middleware.MatchCommandName
 var MatchConstraints = middleware.MatchConstraints
 var MatchMessage = middleware.MatchMessage
 var IgnoreSelf = middleware.IgnoreSelf
+var AutoAcknowledge = middleware.AutoAcknowledge
+var DirectMention = middleware.DirectMention
+var Subtype = middleware.Subtype
+var MatchCallbackId = middleware.MatchCallbackId
+var IsSlackEventMiddlewareArgsOptions = middleware.IsSlackEventMiddlewareArgsOptions
 
 // Constants
 const (
