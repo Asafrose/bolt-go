@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net/url"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -91,7 +92,14 @@ func NewAwsLambdaReceiver(options types.AwsLambdaReceiverOptions) *AwsLambdaRece
 	if options.Logger != nil {
 		receiver.logger = options.Logger
 	} else {
-		receiver.logger = slog.Default()
+		if options.LogLevel != nil {
+			handler := slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+				Level: options.LogLevel.ToSlogLevel(),
+			})
+			receiver.logger = slog.New(handler)
+		} else {
+			receiver.logger = slog.Default()
+		}
 	}
 
 	return receiver

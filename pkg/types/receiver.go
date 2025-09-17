@@ -20,6 +20,22 @@ const (
 	LogLevelError
 )
 
+// ToSlogLevel converts LogLevel to slog.Level
+func (l LogLevel) ToSlogLevel() slog.Level {
+	switch l {
+	case LogLevelDebug:
+		return slog.LevelDebug
+	case LogLevelInfo:
+		return slog.LevelInfo
+	case LogLevelWarn:
+		return slog.LevelWarn
+	case LogLevelError:
+		return slog.LevelError
+	default:
+		return slog.LevelInfo
+	}
+}
+
 // AckResponse represents union types for acknowledgment responses
 type AckResponse interface {
 	isAckResponse()
@@ -60,6 +76,7 @@ type App interface {
 type HTTPReceiverOptions struct {
 	SigningSecret                 string             `json:"signing_secret"`
 	Logger                        *slog.Logger       `json:"logger,omitempty"`
+	LogLevel                      *LogLevel          `json:"log_level,omitempty"`
 	Endpoints                     *ReceiverEndpoints `json:"endpoints,omitempty"`
 	ProcessBeforeResponse         bool               `json:"process_before_response"`
 	UnhandledRequestHandler       http.HandlerFunc   `json:"-"`
@@ -118,7 +135,7 @@ type SocketModeReceiverOptions struct {
 	AppToken                  string                                              `json:"app_token"`
 	BotToken                  string                                              `json:"bot_token"`
 	Logger                    *slog.Logger                                        `json:"logger,omitempty"`
-	LogLevel                  LogLevel                                            `json:"log_level,omitempty"`
+	LogLevel                  *LogLevel                                           `json:"log_level,omitempty"`
 	PingTimeout               int                                                 `json:"ping_timeout,omitempty"`
 	ClientOptions             []socketmode.Option                                 `json:"client_options,omitempty"`
 	CustomProperties          map[string]interface{}                              `json:"custom_properties,omitempty"`
@@ -139,7 +156,7 @@ type SocketModeReceiverOptions struct {
 type AwsLambdaReceiverOptions struct {
 	SigningSecret         string                 `json:"signing_secret"`
 	Logger                *slog.Logger           `json:"logger,omitempty"`
-	LogLevel              LogLevel               `json:"log_level,omitempty"`
+	LogLevel              *LogLevel              `json:"log_level,omitempty"`
 	ProcessBeforeResponse bool                   `json:"process_before_response"`
 	SignatureVerification *bool                  `json:"signature_verification,omitempty"`
 	CustomProperties      map[string]interface{} `json:"custom_properties,omitempty"`

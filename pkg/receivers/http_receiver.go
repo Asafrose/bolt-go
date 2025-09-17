@@ -10,6 +10,7 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -58,7 +59,14 @@ func NewHTTPReceiver(options types.HTTPReceiverOptions) *HTTPReceiver {
 
 	// Set default logger if none provided
 	if receiver.logger == nil {
-		receiver.logger = slog.Default()
+		if options.LogLevel != nil {
+			handler := slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+				Level: options.LogLevel.ToSlogLevel(),
+			})
+			receiver.logger = slog.New(handler)
+		} else {
+			receiver.logger = slog.Default()
+		}
 	}
 
 	// Initialize OAuth if configuration is provided

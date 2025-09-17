@@ -9,6 +9,7 @@ import (
 	"log/slog"
 	"maps"
 	"net/http"
+	"os"
 	"regexp"
 	"strings"
 	"sync"
@@ -55,8 +56,8 @@ type AppOptions struct {
 	Receiver types.Receiver `json:"-"`
 
 	// Logging
-	Logger   *slog.Logger   `json:"-"`
-	LogLevel types.LogLevel `json:"log_level,omitempty"`
+	Logger   *slog.Logger    `json:"-"`
+	LogLevel *types.LogLevel `json:"log_level,omitempty"`
 
 	// Behavior
 	IgnoreSelf               *bool `json:"ignore_self,omitempty"`
@@ -225,12 +226,20 @@ func New(options AppOptions) (*App, error) {
 		app.Logger = slog.Default()
 	}
 
-	if options.LogLevel != 0 {
-		app.logLevel = options.LogLevel
+	if options.LogLevel != nil {
+		app.logLevel = *options.LogLevel
 	} else if options.DeveloperMode {
 		app.logLevel = types.LogLevelDebug
 	} else {
 		app.logLevel = types.LogLevelInfo
+	}
+
+	// Configure the logger level if using the default logger
+	if options.Logger == nil {
+		handler := slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+			Level: app.logLevel.ToSlogLevel(),
+		})
+		app.Logger = slog.New(handler)
 	}
 
 	// Set up client options
@@ -929,10 +938,10 @@ func (a *App) initReceiver(options AppOptions) (types.Receiver, error) {
 			AppToken:         options.AppToken,
 			BotToken:         options.Token,
 			Logger:           options.Logger,
-			LogLevel:         types.LogLevelInfo, // Default value
+			LogLevel:         &[]types.LogLevel{types.LogLevelInfo}[0], // Default value
 			CustomProperties: make(map[string]interface{}),
 		}
-		if options.LogLevel != 0 {
+		if options.LogLevel != nil {
 			receiverOptions.LogLevel = options.LogLevel
 		}
 

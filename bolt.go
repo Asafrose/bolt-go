@@ -7,6 +7,7 @@ import (
 	"github.com/Asafrose/bolt-go/pkg/assistant"
 	"github.com/Asafrose/bolt-go/pkg/conversation"
 	"github.com/Asafrose/bolt-go/pkg/errors"
+	"github.com/Asafrose/bolt-go/pkg/functions"
 	"github.com/Asafrose/bolt-go/pkg/helpers"
 	"github.com/Asafrose/bolt-go/pkg/middleware"
 	"github.com/Asafrose/bolt-go/pkg/receivers"
@@ -79,7 +80,6 @@ type ViewResponse = types.ViewResponse
 
 type OptionsRequest = types.OptionsRequest
 type OptionsResponse = types.OptionsResponse
-type CustomFunctionOptions = types.CustomFunctionOptions
 type Option = types.Option
 type OptionGroup = types.OptionGroup
 type TextObject = types.TextObject
@@ -141,16 +141,12 @@ type WorkflowStepExecuteMiddlewareArgs = workflow.WorkflowStepExecuteMiddlewareA
 // WorkflowStep constructor (deprecated)
 var NewWorkflowStep = workflow.NewWorkflowStep
 
-// Custom function types - TODO: Implement custom functions package
-// type CustomFunction = functions.CustomFunction
-// type CustomFunctionArgs = functions.CustomFunctionArgs
-// type CustomFunctionResponse = functions.CustomFunctionResponse
-// type FunctionCompleteFn = functions.FunctionCompleteFn
-// type FunctionFailFn = functions.FunctionFailFn
+// Custom function types
+type CustomFunction = functions.CustomFunction
+type CustomFunctionOptions = functions.CustomFunctionOptions
 
-// Custom function constructors - TODO: Implement custom functions package
-// var NewCustomFunction = functions.NewCustomFunction
-// var NewCustomFunctionWithOptions = functions.NewCustomFunctionWithOptions
+// Custom function constructors
+var NewCustomFunctionWithMiddleware = functions.NewCustomFunctionWithMiddleware
 
 // Error types
 type CodedError = errors.CodedError
