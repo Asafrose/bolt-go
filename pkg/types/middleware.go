@@ -100,7 +100,7 @@ type SayFn func(message SayMessage) (*SayResponse, error)
 
 // RespondArguments represents arguments for the respond function
 type RespondArguments struct {
-	ResponseType    string             `json:"response_type,omitempty"` // "in_channel" or "ephemeral"
+	ResponseType    ResponseType       `json:"response_type,omitempty"` // ResponseTypeInChannel or ResponseTypeEphemeral
 	ReplaceOriginal *bool              `json:"replace_original,omitempty"`
 	DeleteOriginal  *bool              `json:"delete_original,omitempty"`
 	Text            string             `json:"text,omitempty"`

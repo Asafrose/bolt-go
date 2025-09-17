@@ -31,7 +31,7 @@ type SlackCommandMiddlewareArgs struct {
 // CommandResponse represents a response to a slash command
 type CommandResponse struct {
 	Text         string             `json:"text,omitempty"`
-	ResponseType string             `json:"response_type,omitempty"` // "in_channel" or "ephemeral"
+	ResponseType ResponseType       `json:"response_type,omitempty"` // ResponseTypeInChannel or ResponseTypeEphemeral
 	Blocks       []slack.Block      `json:"blocks,omitempty"`
 	Attachments  []slack.Attachment `json:"attachments,omitempty"`
 }

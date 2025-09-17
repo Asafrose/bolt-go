@@ -921,7 +921,7 @@ func TestMiddlewareArgumentsRespond(t *testing.T) {
 					},
 				},
 			},
-			ResponseType: "ephemeral",
+			ResponseType: types.ResponseTypeEphemeral,
 		}
 
 		err = receivedArgs.Respond(response)

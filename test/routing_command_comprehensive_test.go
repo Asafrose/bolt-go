@@ -140,7 +140,7 @@ func TestCommandRouting(t *testing.T) {
 			// Call ack in the handler
 			response := bolt.CommandResponse{
 				Text:         "Command acknowledged!",
-				ResponseType: "ephemeral",
+				ResponseType: types.ResponseTypeEphemeral,
 			}
 			err := args.Ack(&response)
 			if err == nil {
