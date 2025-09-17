@@ -1245,10 +1245,41 @@ func (a *App) buildMiddlewareArgs(ctx context.Context, eventType helpers.Incomin
 	if eventType == helpers.IncomingEventTypeEvent {
 		if eventData, exists := parsed["event"]; exists {
 			if eventMap, ok := eventData.(map[string]interface{}); ok {
+				var channelID string
+
+				// First try direct channel field (highest priority)
 				if channel, exists := eventMap["channel"]; exists {
 					if channelStr, ok := channel.(string); ok {
-						appContext.Custom["channel"] = channelStr
+						channelID = channelStr
 					}
+				}
+
+				// Then try channel_id field (second priority) - only if no direct channel
+				if channelID == "" {
+					if channelIDField, exists := eventMap["channel_id"]; exists {
+						if channelStr, ok := channelIDField.(string); ok {
+							channelID = channelStr
+						}
+					}
+				}
+
+				// Finally try item.channel (lowest priority) - only if no other channel found
+				// For events like reaction_added, reaction_removed, star_added, star_removed
+				if channelID == "" {
+					if item, exists := eventMap["item"]; exists {
+						if itemMap, ok := item.(map[string]interface{}); ok {
+							if channel, exists := itemMap["channel"]; exists {
+								if channelStr, ok := channel.(string); ok {
+									channelID = channelStr
+								}
+							}
+						}
+					}
+				}
+
+				// Set the channel if we found one
+				if channelID != "" {
+					appContext.Custom["channel"] = channelID
 				}
 			}
 		}
