@@ -1252,6 +1252,13 @@ func (a *App) buildMiddlewareArgs(ctx context.Context, eventType helpers.Incomin
 				}
 			}
 		}
+	} else if eventType == helpers.IncomingEventTypeCommand {
+		// Extract channel information from slash command
+		if channelID, exists := parsed["channel_id"]; exists {
+			if channelStr, ok := channelID.(string); ok {
+				appContext.Custom["channel"] = channelStr
+			}
+		}
 	}
 
 	// Create say function if there's a conversation context
@@ -1348,6 +1355,7 @@ func (a *App) buildMiddlewareArgs(ctx context.Context, eventType helpers.Incomin
 		if err != nil {
 			return nil, fmt.Errorf("failed to parse slash command: %w", err)
 		}
+
 		commandArgs := types.SlackCommandMiddlewareArgs{
 			AllMiddlewareArgs: baseArgs,
 			Command:           command,

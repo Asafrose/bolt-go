@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/Asafrose/bolt-go"
+	"github.com/Asafrose/bolt-go/pkg/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -207,7 +208,7 @@ func TestAppLogLevels(t *testing.T) {
 		app, err := bolt.New(bolt.AppOptions{
 			Token:         fakeToken,
 			SigningSecret: fakeSigningSecret,
-			LogLevel:      bolt.LogLevelDebug,
+			LogLevel:      &[]types.LogLevel{bolt.LogLevelDebug}[0],
 		})
 
 		require.NoError(t, err)

@@ -3,6 +3,7 @@ package test
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"testing"
 
 	"github.com/Asafrose/bolt-go"
@@ -34,6 +35,142 @@ func createSlashCommandBody(command, text string) []byte {
 
 func TestAppCommandRouting(t *testing.T) {
 	t.Parallel()
+	t.Run("should have channel context for say function", func(t *testing.T) {
+		var capturedChannelID string
+		var sayError error
+		var sayFunctionCalled bool
+
+		app, err := bolt.New(bolt.AppOptions{
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
+		})
+		require.NoError(t, err)
+
+		// Register command handler that checks Say function context
+		app.Command("/asaf-test", func(args bolt.SlackCommandMiddlewareArgs) error {
+			// Capture the channel ID from the command
+			capturedChannelID = args.Command.ChannelID
+
+			// Check if the Say function has channel context by inspecting the context
+			if args.Context.Custom != nil {
+				if channel, exists := args.Context.Custom["channel"]; exists {
+					if _, ok := channel.(string); ok {
+						sayFunctionCalled = true
+						// Don't actually call Say to avoid auth errors
+						sayError = nil
+						return nil
+					}
+				}
+			}
+
+			sayError = errors.New("no channel context for say function")
+			return nil
+		})
+
+		// Create receiver event with the exact payload from the user's example
+		cmdBody := map[string]interface{}{
+			"token":                 "QguweSODHht3QyipSnKZTK2U",
+			"team_id":               "T07PJGF1EHY",
+			"team_domain":           "daylightsec",
+			"channel_id":            "C09F2AV5M9B",
+			"channel_name":          "asaf-test-channel-2",
+			"user_id":               "U085YCVV93R",
+			"user_name":             "asaf",
+			"command":               "/asaf-test",
+			"text":                  "",
+			"api_app_id":            "A08U1HQHAJW",
+			"is_enterprise_install": "false",
+			"response_url":          "https://hooks.slack.com/commands/T07PJGF1EHY/9547437712641/xkzAB8pePel7ds0dPVPcKzAw",
+			"trigger_id":            "9547437736881.7800559048610.714634ca4c861162e2fc7e2abe2eb3ad",
+		}
+
+		body, _ := json.Marshal(cmdBody)
+		event := types.ReceiverEvent{
+			Body: body,
+			Headers: map[string]string{
+				"Content-Type": "application/json",
+			},
+			Ack: func(response types.AckResponse) error {
+				return nil
+			},
+		}
+
+		// Process the event
+		ctx := context.Background()
+		err = app.ProcessEvent(ctx, event)
+		require.NoError(t, err)
+
+		// Verify channel ID was captured correctly
+		assert.Equal(t, "C09F2AV5M9B", capturedChannelID)
+
+		// Verify channel context was available for Say function
+		assert.True(t, sayFunctionCalled, "Say function should have channel context available")
+		assert.NoError(t, sayError, "Say function should not return 'no channel context' error")
+	})
+
+	t.Run("should work with actual say function call using SayString", func(t *testing.T) {
+		var capturedChannelID string
+		var sayError error
+
+		app, err := bolt.New(bolt.AppOptions{
+			Token:         fakeToken,
+			SigningSecret: fakeSigningSecret,
+		})
+		require.NoError(t, err)
+
+		// Register command handler that actually calls Say with SayString (the original failing case)
+		app.Command("/asaf-test", func(args bolt.SlackCommandMiddlewareArgs) error {
+			capturedChannelID = args.Command.ChannelID
+
+			// This is the exact same call from the user's original code that was failing
+			_, err := args.Say(types.SayString("You have triggered the command"))
+			sayError = err
+			return nil
+		})
+
+		// Create receiver event with the exact payload from the user's example
+		cmdBody := map[string]interface{}{
+			"token":                 "QguweSODHht3QyipSnKZTK2U",
+			"team_id":               "T07PJGF1EHY",
+			"team_domain":           "daylightsec",
+			"channel_id":            "C09F2AV5M9B",
+			"channel_name":          "asaf-test-channel-2",
+			"user_id":               "U085YCVV93R",
+			"user_name":             "asaf",
+			"command":               "/asaf-test",
+			"text":                  "",
+			"api_app_id":            "A08U1HQHAJW",
+			"is_enterprise_install": "false",
+			"response_url":          "https://hooks.slack.com/commands/T07PJGF1EHY/9547437712641/xkzAB8pePel7ds0dPVPcKzAw",
+			"trigger_id":            "9547437736881.7800559048610.714634ca4c861162e2fc7e2abe2eb3ad",
+		}
+
+		body, _ := json.Marshal(cmdBody)
+		event := types.ReceiverEvent{
+			Body: body,
+			Headers: map[string]string{
+				"Content-Type": "application/json",
+			},
+			Ack: func(response types.AckResponse) error {
+				return nil
+			},
+		}
+
+		// Process the event
+		ctx := context.Background()
+		err = app.ProcessEvent(ctx, event)
+		require.NoError(t, err)
+
+		// Verify channel ID was captured correctly
+		assert.Equal(t, "C09F2AV5M9B", capturedChannelID)
+
+		// The Say function should fail with invalid_auth, not "no channel context"
+		// This proves that the channel context is working and it's trying to make the API call
+		if sayError != nil {
+			assert.Contains(t, sayError.Error(), "invalid_auth", "Should fail with auth error, not channel context error")
+		}
+	})
+
 	t.Run("should route slash command to handler", func(t *testing.T) {
 		handlerCalled := false
 
